@@ -1,6 +1,6 @@
 # Development Environment
 
-## Goal:
+## Goal
 To create a development environment with following characteristics:
 * only dependency to install Docker Desktop
 * light weight 
