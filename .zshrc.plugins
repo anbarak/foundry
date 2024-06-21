@@ -5,6 +5,7 @@
 # Plugin management (choose one approach)
 # Option 1: Using a plugin array (recommended)
 plugins=(
+    autojump
     git
     zsh-autosuggestions
     zsh-syntax-highlighting
