@@ -7,10 +7,12 @@
 ## Tools/OS:
 * OS: macOS
 * Software package manager: Homebrew
+  * *Don't use Homebrew to install zsh package. Use Oh My Zsh. Use Homebrew for system-wide tools, such as git, some few others (see below)*
 * Terminal: Default macOS terminal
 * Font: [Hack Nerd Font](https://github.com/ryanoasis/nerd-fonts)
 * Shell: zsh
 * Zsh configuration manager framework: [Oh My Zsh](https://github.com/robbyrussell/oh-my-zsh)
+* Zsh plugin manager: [Oh My Zsh](https://github.com/robbyrussell/oh-my-zsh)
 
 ## Goal
 To create a development environment with the following characteristics:
@@ -76,7 +78,6 @@ To create a development environment with the following characteristics:
 6. Install Oh My Zsh
    ````
    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-
    ````   
 7. Zsh theme
    * *I used to use [Powerlevel10k](https://github.com/romkatv/powerlevel10k#oh-my-zsh) but since that project is not being actively maintained, I switched to [Starship](https://github.com/romkatv/powerlevel10k#oh-my-zsh)*
@@ -93,9 +94,29 @@ To create a development environment with the following characteristics:
    * Create a file called `~/.zshrc.local` that will store your customizations and plugin management (This keeps the main `~\.zshrc`file clean. The .zshrc.local file referenced in the .zshrc file)
    * Create another file called `~/.zshrc.plugins` that will define the plugin array for the zsh environment (The .zshrc.plugin file is referenced in the .zshrc.local file)
    
-   1. [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
+   1. [autojump](https://github.com/wting/autojump)
       ````
-      brew install zsh-syntax-highlighting
+      brew install autojump
       ````
+   3. [git](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git)
+      * This was already installed as part of the zsh installation 
+   4. [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
+      ````
+      git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+      ````
+      1. Add zsh-autosuggestions to the plugins array in `~/.zshrc.plugin`
+      2. run: `exec zsh`
+   5. [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
+      ````
+      git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+      ````
+      1. Add the following line to the beginning of the `.zshrc.local` file
+         ````
+         Add zsh-syntax-highlighting to the plugins array in `~/.zshrc.plugin`
+         ````         
+   6. 
+      
+9. Tools
+   1. [jq](https://github.com/jqlang/jq)
    2. 
-   3. 
+    
