@@ -5,7 +5,7 @@
 * [iterm2-zsh](https://opensource.com/article/20/8/iterm2-zsh)
 
 ## Tools/OS:
-* OS: MacOs
+* OS: macOS
 * Software package manager: Homebrew
 * Terminal: Default macOS terminal
 * Font: [Hack Nerd Font](https://github.com/ryanoasis/nerd-fonts)
@@ -25,15 +25,20 @@ To create a development environment with the following characteristics:
 
 ## Setup
 1. Terminal theme
-   I used [gruvbox-dark theme](https://github.com/morhetz/gruvbox?tab=readme-ov-file)
+   * *I used [gruvbox-dark theme](https://github.com/morhetz/gruvbox)*
+     
     1. Import the following file to Terminal settings: [gruvbox-dark.terminal](gruvbox-dark.terminal)
+    2. Change the Font to `Hack Nerd Font Mono`, style `regular`, size `12`
+    3. Change the character spacing to 1
+    4. select gruvbox-dark profile as `Default`
+    5. close and open the Terminal
    
 3. Install homebrew
     1. Download 
        ````
        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
        ````
-    2. Set PATH (permenantly):
+    2. Set PATH (permanently):
         1. Add the following line to the beginning of both `~/.bash_profile` and `~/.zshrc` files
            ````
            export PATH="/opt/homebrew/bin:$PATH" # For Apple Silicon Macs
@@ -74,7 +79,8 @@ To create a development environment with the following characteristics:
 
    ````   
 7. Zsh theme
-   Used to use [Powerlevel10k](https://github.com/romkatv/powerlevel10k#oh-my-zsh) but since that project is not being activitly maintained, I switched to [Starship](https://github.com/romkatv/powerlevel10k#oh-my-zsh)
+   * *I used to use [Powerlevel10k](https://github.com/romkatv/powerlevel10k#oh-my-zsh) but since that project is not being actively maintained, I switched to [Starship](https://github.com/romkatv/powerlevel10k#oh-my-zsh)*
+
    ````
    brew install starship
    starship init zsh > ~/.zshrc.starship   
