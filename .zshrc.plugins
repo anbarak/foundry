@@ -1,0 +1,14 @@
+############################################################################################
+# This file defines the plugin array for your zsh environment.                             #
+############################################################################################
+
+# Plugin management (choose one approach)
+# Option 1: Using a plugin array (recommended)
+plugins=(
+    git
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+)
+
+# Option 2: Sourcing individual plugin files (if not using a plugin manager)
+# source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh  # Example
