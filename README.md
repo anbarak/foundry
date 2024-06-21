@@ -89,4 +89,13 @@ To create a development environment with the following characteristics:
       ````
       starship preset nerd-font-symbols -o ~/.config/starship.toml
       ````
- 
+8. Oh My Zsh plugins
+   * Create a file called `~/.zshrc.local` that will store your customizations and plugin management (This keeps the main `~\.zshrc`file clean. The .zshrc.local file referenced in the .zshrc file)
+   * Create another file called `~/.zshrc.plugins` that will define the plugin array for the zsh environment (The .zshrc.plugin file is referenced in the .zshrc.local file)
+   
+   1. [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
+      ````
+      brew install zsh-syntax-highlighting
+      ````
+   2. 
+   3. 
