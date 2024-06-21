@@ -1,0 +1,28 @@
+###################################################################################
+# This is a recommended file to store your own customizations and plugin          # 
+# management. It helps keep your main ~/.zshrc file clean. You can source         #
+# this file from your ~/.zshrc to activate the settings within.                   #
+###################################################################################
+
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Local aliases (optional)
+alias ll='ls -l'  # Example alias for a longer listing with ls
+alias la='ls -la'  # Example alias for listing with all details
+
+# Environment variables (optional)
+# Add environment variables specific to your zsh environment here
+# (Consider using separate files for system-wide environment variables)
+
+# Plugin management (using plugin array)
+source ~/.zshrc.plugins # Assuming your plugin array is defined in a separate file
+
+# Starship configuration (if using Starship)
+# Refer to Starship's documentation for details on manual configuration
+# if not using Homebrew.
+
+# Sourcing additional configuration files (optional)
+# source ~/.oh-my-zsh/custom/themes/mytheme.zsh  # Example: Source a theme file
+
+# Optional comment for clarity
+# This section contains my local zsh customizations and plugin management
