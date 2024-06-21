@@ -1,15 +1,16 @@
 # Development Environment
 ## References: 
-* https://medium.com/@caulfieldOwen/youre-missing-out-on-a-better-mac-terminal-experience-d73647abf6d7
-* https://rick.cogley.info/post/use-homebrew-zsh-instead-of-the-osx-default/
-* https://opensource.com/article/20/8/iterm2-zsh
+* [youre-missing-out-on-a-better-mac-terminal-experience](https://medium.com/@caulfieldOwen/youre-missing-out-on-a-better-mac-terminal-experience-d73647abf6d7)
+* [use-homebrew-zsh-instead-of-the-osx-default](https://rick.cogley.info/post/use-homebrew-zsh-instead-of-the-osx-default/)
+* [iterm2-zsh](https://opensource.com/article/20/8/iterm2-zsh)
 
 ## Tools/OS:
 * OS: MacOs
 * Software package manager: Homebrew
 * Terminal: Default macOS terminal
-* Font: Hack Nerd Font (https://github.com/ryanoasis/nerd-fonts)
+* Font: [Hack Nerd Font](https://github.com/ryanoasis/nerd-fonts)
 * Shell: zsh
+* Zsh configuration manager framework: [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh/wiki)
 
 ## Goal
 To create a development environment with the following characteristics:
@@ -26,7 +27,7 @@ To create a development environment with the following characteristics:
 1. Install homebrew
     1. Download 
        ````
-       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"![image](https://github.com/haarabi/dev-env/assets/2755929/1ce4b8ef-1ab8-45ee-897e-26c2302647f7)
+       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
        ````
     2. Set PATH (permenantly):
         1. Add the following line to the beginning of both `~/.bash_profile` and `~/.zshrc` files
@@ -34,7 +35,7 @@ To create a development environment with the following characteristics:
            export PATH="/opt/homebrew/bin:$PATH" # For Apple Silicon Macs
            ````
         2. Save files and restart the terminal
-        3. confirm (you should see the Homebrew version):
+        3. confirm (expected: Homebrew version):
            ````
            brew --version
            ````
@@ -44,9 +45,26 @@ To create a development environment with the following characteristics:
         ````
         cp *.ttf ~/Library/Fonts/
         ````
-4. Upgrade zsh
+4. Install zsh
    ````
-   brew install
+   brew install zsh zsh-completions
    ````
+   *for upgrading: `brew upgrade zsh zsh-completions`*
    
-5. 
+    1. Confirm (expected: zsh version)
+       ````
+       zsh --version
+       ````
+    2. Set zsh as the default shell
+       Reference: [use-homebrew-zsh-instead-of-the-osx-default](https://rick.cogley.info/post/use-homebrew-zsh-instead-of-the-osx-default/)
+       ````
+       sudo chsh -s /bin/zsh
+
+        1. confirm (expected: /bin/zsh)
+           ````
+           echo $SHELL
+           ````
+       
+
+   
+6. 
