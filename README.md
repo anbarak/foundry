@@ -10,7 +10,7 @@
 * Terminal: Default macOS terminal
 * Font: [Hack Nerd Font](https://github.com/ryanoasis/nerd-fonts)
 * Shell: zsh
-* Zsh configuration manager framework: [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh/wiki)
+* Zsh configuration manager framework: [Oh My Zsh](https://github.com/robbyrussell/oh-my-zsh)
 
 ## Goal
 To create a development environment with the following characteristics:
