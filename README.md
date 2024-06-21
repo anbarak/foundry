@@ -121,5 +121,16 @@ To create a development environment with the following characteristics:
       ```
       brew install jq
       ```
-   3. 
+   2. [tldr](https://github.com/tldr-pages/tldr)
+      ```
+      brew install tldr
+      ```
+   3. [tre](https://github.com/dduan/tre)
+      ```
+      brew install tre-command
+      ```
+   4. [thefuck](https://github.com/nvbn/thefuck)
+      ```
+      brew install thefuck
+      ```
     
