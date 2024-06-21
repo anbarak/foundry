@@ -4,8 +4,6 @@
 # this file from your ~/.zshrc to activate the settings within.                   #
 ###################################################################################
 
-source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
 # Local aliases (optional)
 alias ll='ls -l'  # Example alias for a longer listing with ls
 alias la='ls -la'  # Example alias for listing with all details
