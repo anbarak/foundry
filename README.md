@@ -24,7 +24,11 @@ To create a development environment with the following characteristics:
 * created once and used anywhere (Linux, macOS, Windows)
 
 ## Setup
-1. Install homebrew
+1. Terminal theme
+   I used [gruvbox-dark theme](https://github.com/morhetz/gruvbox?tab=readme-ov-file)
+    1. Import the following file to Terminal settings: [gruvbox-dark.terminal](gruvbox-dark.terminal)
+   
+3. Install homebrew
     1. Download 
        ````
        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -39,13 +43,13 @@ To create a development environment with the following characteristics:
            ````
            brew --version
            ````
-3. Fonts
+4. Fonts
     1. Download and uncompress the font package from Github: https://github.com/ryanoasis/nerd-fonts/releases
     2. In the terminal, go to the directory where you download the font file, then copy the TFF files to the following directory:
         ````
         cp *.ttf ~/Library/Fonts/
         ````
-4. Install zsh
+5. Install zsh
    ````
    brew install zsh zsh-completions
    ````
@@ -64,7 +68,19 @@ To create a development environment with the following characteristics:
            ````
            echo $SHELL
            ````
-       
+6. Install Oh My Zsh
+   ````
+   sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
-   
-6. 
+   ````   
+7. Zsh theme
+   Used to use [Powerlevel10k](https://github.com/romkatv/powerlevel10k#oh-my-zsh) but since that project is not being activitly maintained, I switched to [Starship](https://github.com/romkatv/powerlevel10k#oh-my-zsh)
+   ````
+   brew install starship
+   starship init zsh > ~/.zshrc.starship   
+   ````
+   1. Download Starship configuration (I used the following: https://starship.rs/presets/nerd-font), then run the following:
+      ````
+      starship preset nerd-font-symbols -o ~/.config/starship.toml
+      ````
+ 
