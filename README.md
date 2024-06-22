@@ -411,8 +411,46 @@ To create a development environment with the following characteristics:
          brew upgrade go
          :GoUpdateBinaries # In vim to update vim-go binaries
          ```
-   
-1. YouCompleteMe (for code completion)
+2. Python
+   1. Install Python
+      ```
+      brew install python
+      ```
+      * Verify installation (expected: both commands return the correct version)
+        ```
+        python3 --version
+        pip3 --version
+      ```
+   2. Configure Python environment variables
+      1. Add the following lines in the `~/.zshrc` file
+         ```
+         # Python
+         export PATH="/usr/local/opt/python/libexec/bin:$PATH"
+         export PATH="$HOME/Library/Python/3.x/bin:$PATH"  # Replace 3.x with your Python version
+         ```
+      2. Apply the changes to the current shell session: `source ~/.zshrc`
+   3. Configure vim for Python
+      1. Add the following to the `~/.vim/plugin_config.vim` file
+         ```
+         " Use vim-plug to manage plugins
+         call plug#begin('~/.vim/plugged')
+         
+         " Python development plugins
+         Plug 'vim-python/python-syntax'
+         Plug 'davidhalter/jedi-vim'
+         Plug 'tmhedberg/SimpylFold'
+         " Add other Python-related plugins as needed
+         
+         call plug#end()
+         
+         " Python-specific settings
+         autocmd FileType python setlocal tabstop=4 shiftwidth=4 softtabstop=4 expandtab
+         ```
+      2. Install plugins
+         ```
+         :PlugInstall
+         ```
+4. YouCompleteMe (for code completion)
    1. Install `python` `cmake` (if not installed)
       ```
       brew install python cmake
