@@ -13,6 +13,8 @@
 * Shell: zsh
 * Zsh configuration manager framework: [Oh My Zsh](https://github.com/robbyrussell/oh-my-zsh)
 * Zsh plugin manager: [Oh My Zsh](https://github.com/robbyrussell/oh-my-zsh)
+* Terminal multiplexer: [Tmux](https://github.com/tmux/tmux)
+* Tmux plugin manager: [Tmux Plugin Manager (TPM)](https://github.com/tmux-plugins/tpm)
 
 ## Goal
 To create a development environment with the following characteristics:
@@ -26,16 +28,23 @@ To create a development environment with the following characteristics:
 * created once and used anywhere (Linux, macOS, Windows)
 
 ## Setup
-1. Terminal theme
+### 1. Terminal
+1. Fonts
+    1. Download and uncompress the font package from Github: https://github.com/ryanoasis/nerd-fonts/releases
+    2. In the terminal, go to the directory where you download the font file, then copy the TFF files to the following directory:
+        ```
+        cp *.ttf ~/Library/Fonts/
+        ```
+2. Terminal theme
    * *I used [gruvbox-dark theme](https://github.com/morhetz/gruvbox)*
      
     1. Import the following file to Terminal settings: [gruvbox-dark.terminal](gruvbox-dark.terminal)
     2. Change the Font to `Hack Nerd Font Mono`, style `regular`, size `12`
     3. Change the character spacing to 1
     4. select gruvbox-dark profile as `Default`
-    5. close and open the Terminal
-   
-3. Install homebrew
+    5. close and open the Terminal  
+### 2. Homebrew
+* Install homebrew
     1. Download 
        ```
        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -50,13 +59,8 @@ To create a development environment with the following characteristics:
            ```
            brew --version
            ```
-4. Fonts
-    1. Download and uncompress the font package from Github: https://github.com/ryanoasis/nerd-fonts/releases
-    2. In the terminal, go to the directory where you download the font file, then copy the TFF files to the following directory:
-        ```
-        cp *.ttf ~/Library/Fonts/
-        ```
-5. Install zsh
+### 3. Zsh
+1. Install zsh
    ```
    brew install zsh zsh-completions
    ```
@@ -70,12 +74,12 @@ To create a development environment with the following characteristics:
        Reference: [use-homebrew-zsh-instead-of-the-osx-default](https://rick.cogley.info/post/use-homebrew-zsh-instead-of-the-osx-default/)
        ```
        sudo chsh -s /bin/zsh
-
+       ```
         1. confirm (expected: /bin/zsh)
            ```
            echo $SHELL
            ```
-6. Install Oh My Zsh
+2. Install Oh My Zsh
    ```
    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
    ``` 
@@ -90,7 +94,7 @@ To create a development environment with the following characteristics:
       ```
       starship preset nerd-font-symbols -o ~/.config/starship.toml
       ```
-8. Oh My Zsh plugins
+3. Oh My Zsh plugins
    * Create a file called `~/.zshrc.local` that will store your customizations and plugin management (This keeps the main `~\.zshrc`file clean. The .zshrc.local file referenced in the .zshrc file)
    * Create another file called `~/.zshrc.plugins` that will define the plugin array for the zsh environment (The .zshrc.plugin file is referenced in the .zshrc.local file)
    
@@ -105,7 +109,7 @@ To create a development environment with the following characteristics:
       git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
       ```
       1. Add zsh-autosuggestions to the plugins array in `~/.zshrc.plugin`
-      2. run: `exec zsh`
+      2. Run: `exec zsh`
    5. [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
       ```
       git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
@@ -113,9 +117,105 @@ To create a development environment with the following characteristics:
       1. Add the following line to the beginning of the `.zshrc.local` file
          ```
          Add zsh-syntax-highlighting to the plugins array in `~/.zshrc.plugin`
-         ````        
-   6. 
+         ````
+   6. [fzf](https://github.com/junegunn/fzf)
+      1. Install fzf with Homebrew
+         ```
+         brew install fzf
+         ```
+   7. [history](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/history)
+      * add history to the plugin array 
       
+### 4. Tmux
+1. Install Tmux
+   ```
+   brew install tmux
+   ```
+   * confirm (expected: tmux version)
+     ```
+     tmux -V
+     ```
+2. Install 
+
+### 5. Vim
+### 6. Git
+### 7. Programming Languages run-time
+
+1. YouCompleteMe (for code completion)
+   1. Install `python` `cmake` (if not installed)
+      ```
+      brew install python cmake
+      ```
+   2. Install `vim` (if not installed)
+      ```
+      brew install vim
+      ```
+   3. Install `YouCompleteMe`
+      1. Install `Vundle` (if not installed)
+         ```
+         git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+         ```
+      2. configure `.vimrc`
+         ```
+         set nocompatible              " be iMproved, required
+         filetype off                  " required
+
+         " Set the runtime path to include Vundle and initialize
+         set rtp+=~/.vim/bundle/Vundle.vim
+         call vundle#begin()
+         
+         " let Vundle manage Vundle, required
+         Plugin 'VundleVim/Vundle.vim'
+         
+         " Add YouCompleteMe plugin
+         Plugin 'ycm-core/YouCompleteMe'
+         
+         call vundle#end()            " required
+         filetype plugin indent on    " required
+         
+         " Other settings you might want to add
+         syntax on
+         set number
+         ```
+      3. Instal the plugin via Vim
+         ```
+         vim +PluginInstall +qall
+         ```
+   4. Compile YouCompleteMe
+      ```
+      cd ~/.vim/bundle/YouCompleteMe
+      python3 install.py --all
+      ```
+   5. Configure shell environment (add the following lines to your `.zshrc` file)
+      ```
+      export PATH="/usr/local/bin:$PATH"
+      ```
+   6. Reload zsh
+      ```
+      exec zsh
+      ```
+   7. Additional Configuration (Optional)
+      * You may need to configure YCM further depending on the programming languages you use. This can be done by creating a .ycm_extra_conf.py file in your project directory.
+
+       * Here's a basic example for C++:
+       ```              
+       # .ycm_extra_conf.py
+       def FlagsForFile(filename, **kwargs):
+           return {
+               'flags': [
+                   '-std=c++14',
+                   '-x', 'c++',
+                   '-I', 'include',
+               ],
+           }
+       ```
+       * Place this file in the root of your C++ project directory.
+    8. Verify installation
+       * Open Vim and type code to see if you get code completion
+       
+### 8. DevOps tools
+    
+### 9. Other helpful tools  
 9. Tools
    1. [jq](https://github.com/jqlang/jq)
       ```
@@ -137,4 +237,7 @@ To create a development environment with the following characteristics:
       ```
       brew install --cask grammarly-desktop
       ```
-    
+   6. [lsd](https://github.com/lsd-rs/lsd)
+      ```
+      brew install lsd
+      ```
