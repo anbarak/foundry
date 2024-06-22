@@ -325,6 +325,35 @@ To create a development environment with the following characteristics:
       2. Run the following command to remove the plugin file: `:PlugClean`
 
 ### 6. Git
+1. Git plugins
+   1. git-extras
+      ```
+      brew install git-extras
+      ```
+   2. git-completion
+      * Add the git-completion file to `~/.zshrc` file
+        ```
+        curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh -o ~/.git-completion.zsh
+        if [ -f ~/.git-completion.zsh ]; then
+          source ~/.git-completion.zsh
+        fi
+        source ~/.git-completion.zsh
+        ```
+    3. git-credential-manager
+       ```
+       brew install --cask git-credential-manager
+       ```
+       * (optional) check for upgrade using `brew upgrade --cask git-credential-manager`
+
+    4. github cli (gh)
+       ```
+       brew install gh	
+       ```
+    5. install [Sourcetree app](https://sourcetreeapp.com/)
+    6. install Chrome extensions for Github:
+       * [github-hovercard](https://justineo.github.io/github-hovercard/)
+       * [octolinker](https://chromewebstore.google.com/detail/octolinker)
+   
 ### 7. Programming Languages run-time
 
 1. YouCompleteMe (for code completion)
