@@ -15,6 +15,8 @@
 * Zsh plugin manager: [Oh My Zsh](https://github.com/robbyrussell/oh-my-zsh)
 * Terminal multiplexer: [Tmux](https://github.com/tmux/tmux)
 * Tmux plugin manager: [Tmux Plugin Manager (TPM)](https://github.com/tmux-plugins/tpm)
+* Text editor: [Vim](https://github.com/vim/vim)
+* Vim plugin manager: [vim-plug](https://github.com/junegunn/vim-plug)
 
 ## Goal
 To create a development environment with the following characteristics:
@@ -183,9 +185,105 @@ To create a development environment with the following characteristics:
      run '~/.tmux/plugins/tpm/tpm'
      ```
      
-     
-
 ### 5. Vim
+1. Install Vim plugin manager and plugins
+   1. Install `vim-plug`
+      ```
+      curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+      ```
+   2. Configure vim-plug in `~/.vimrc` (create the file)
+      ```
+      " Enable syntax highlighting
+      syntax enable
+      
+      " Essential settings
+      set tabstop=4       " Number of spaces that a <Tab> in the file counts for
+      set shiftwidth=4    " Number of spaces to use for each step of (auto)indent
+      set expandtab       " Use spaces instead of tabs
+      set number          " Show line numbers
+      set autoindent      " Copy indent from current line when starting a new line
+      set smartindent     " Do smart autoindenting when starting a new line
+      set ignorecase      " Ignore case when searching
+      set smartcase       " Override 'ignorecase' if search pattern contains uppercase characters
+      set hlsearch        " Highlight search results
+      set incsearch       " Do incremental searching
+      set mouse=a         " Enable mouse support in all modes
+      set backspace=indent,eol,start  " Allow backspacing over auto-indent, line breaks, and start of insert
+      set encoding=utf-8   " Set default encoding to UTF-8
+      set fileformat=unix  " Set default file format to Unix (LF)
+      set showcmd         " Show incomplete commands in the bottom right corner
+      
+      " Source Vim-Plug setup and installation
+      if empty(glob('~/.vim/autoload/plug.vim'))
+        source ~/.vim/autoload_plugins.vim
+      endif
+      
+      " Source plugin configurations
+      source ~/.vim/plugin_config.vim
+      ```
+   3. Add a file `~/.vim/autoload_plugins.vim`
+      ```
+      " Contains the Vim-Plug installation and setup
+
+      if empty(glob('~/.vim/autoload/plug.vim'))
+        silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+          \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+        autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+      endif
+      ```
+   5. Add a file `~/.vim/plugin_config.vim`
+      ```
+      " Contains the configuration related to Vim plugins
+
+      " Specify the location where plugins will be installed
+      call plug#begin('~/.vim/plugged')
+      
+      " List of plugins
+      Plug 'airblade/vim-gitgutter'        " Git diff in the gutter
+      Plug 'dense-analysis/ale'
+      Plug 'editorconfig/editorconfig-vim'
+      Plug 'ekalinin/dockerfile.vim'
+      Plug 'fatih/vim-go'
+      Plug 'hashivim/vim-terraform'
+      Plug 'itchyny/lightline.vim'
+      Plug 'junegunn/fzf'
+      Plug 'junegunn/fzf.vim'
+      Plug 'mattn/emmet-vim'
+      Plug 'preservim/nerdtree'            " File system explorer
+      Plug 'terryma/vim-multiple-cursors'
+      Plug 'tpope/vim-commentary'
+      Plug 'tpope/vim-eunuch'
+      Plug 'tpope/vim-fugitive'
+      Plug 'tpope/vim-sensible'            " Opinionated defaults
+      Plug 'tpope/vim-surround'
+      Plug 'vim-airline/vim-airline'
+      Plug 'w0rp/ale'
+      
+      " End of plugin list
+      call plug#end()
+      ```
+   7. Install plugins
+      * Reload the `~/.vimrc` file in vim
+      ```
+      :source ~/.vimrc
+      ```
+      * Install the plugins
+      ```
+      :PlugInstall
+      ```
+      * Once finished, run the following to close vim
+      ```
+      :close
+      ```
+   8. (optional) Update plugins
+      ```
+      :PlugUpdate
+      ```
+   9. (optional) Uninstall plugin
+      1. Remove the plug from the `~/.vimrc` file (the line for the plugin that start with `Plug ...`)
+      2. Run the following command to remove the plugin file: `:PlugClean`
+
 ### 6. Git
 ### 7. Programming Languages run-time
 
