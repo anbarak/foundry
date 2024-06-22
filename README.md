@@ -7,7 +7,7 @@
 ## Tools/OS:
 * OS: macOS
 * Software package manager: Homebrew
-  * *Don't use Homebrew to install zsh package. Use Oh My Zsh. Use Homebrew for system-wide tools, such as git, some few others (see below)*
+  * *Don't use Homebrew to install zsh package. Use Oh My Zsh. Use Homebrew for system-wide tools, such as git, a few others (see below)*
 * Terminal: Default macOS terminal
 * Font: [Hack Nerd Font](https://github.com/ryanoasis/nerd-fonts)
 * Shell: zsh
@@ -132,5 +132,9 @@ To create a development environment with the following characteristics:
    4. [thefuck](https://github.com/nvbn/thefuck)
       ```
       brew install thefuck
+      ```
+   5. [grammary](https://grammarly.com)
+      ```
+      brew install --cask grammarly-desktop
       ```
     
