@@ -135,7 +135,55 @@ To create a development environment with the following characteristics:
      ```
      tmux -V
      ```
-2. Install 
+2. Install Tmux Plugin Manager (TPM)
+   1. Install
+      ```
+      git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+      ```
+   2. Configure
+      * Add the following lines of code to your `~/.tmux.conf` file (you will have to create this file)
+        ```
+        # List of plugins
+        set -g @plugin 'tmux-plugins/tpm'
+        set -g @plugin 'tmux-plugins/tmux-sensible'
+        
+        # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+        run '~/.tmux/plugins/tpm/tpm'
+        ```
+3. Install plugins
+   * General steps:
+     ```
+     1. Add the plugin-name to the `~/.tmux.conf` file like `set -g @plugin '<plugin-name>'`
+     2. Run `tmux source ~/.tmux.conf`
+     3. Open a Tmux session and reload the configuration with `prefix + I`
+     4. (optional) To update all installed plugins, use `prefix + U`
+     5. (optional) To remove a plugin, delete or comment out the corresponding `set -g @plugin ...` line in the `~/.tmux.conf` file, then reload the configuration with `prefix + alt + u`
+     ```
+   * Install the following plugins:
+     ```
+     # List of plugins
+     set -g @plugin 'tmux-plugins/tpm'
+     set -g @plugin 'tmux-plugins/tmux-sensible'
+     set -g @plugin 'tmux-plugins/tmux-resurrect'
+     set -g @plugin 'tmux-plugins/tmux-continuum'
+     set -g @plugin 'tmux-plugins/tmux-yank'
+     set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
+     set -g @plugin 'tmux-plugins/tmux-open'
+     set -g @plugin 'tmux-plugins/tmux-logging'
+     set -g @plugin 'tmux-plugins/tmux-fpp'
+     set -g @plugin 'tmux-plugins/tmux-copycat'
+
+     # Enable automatic restore
+     set -g @continuum-restore 'on'
+     
+     # Adjust save interval (default is every 15 minutes)
+     set -g @continuum-save-interval '300'  # save every 5 minutes
+    
+     # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+     run '~/.tmux/plugins/tpm/tpm'
+     ```
+     
+     
 
 ### 5. Vim
 ### 6. Git
