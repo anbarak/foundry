@@ -7,9 +7,19 @@
 plugins=(
     autojump
     git
+    history
     zsh-autosuggestions
     zsh-syntax-highlighting
 )
 
 # Option 2: Sourcing individual plugin files (if not using a plugin manager)
 # source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh  # Example
+
+# Load the plugins
+for plugin ($plugins); do
+  if [ -f "$ZSH/custom/plugins/$plugin/$plugin.plugin.zsh" ]; then
+    source "$ZSH/custom/plugins/$plugin/$plugin.plugin.zsh"
+  elif [ -f "$ZSH/plugins/$plugin/$plugin.plugin.zsh" ]; then
+    source "$ZSH/plugins/$plugin/$plugin.plugin.zsh"
+  fi
+done
