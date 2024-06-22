@@ -13,7 +13,9 @@ alias la='ls -la'  # Example alias for listing with all details
 # (Consider using separate files for system-wide environment variables)
 
 # Plugin management (using plugin array)
-source ~/.zshrc.plugins # Assuming your plugin array is defined in a separate file
+if [ -f "$HOME/.zshrc.plugins" ]; then
+  source "$HOME/.zshrc.plugins"
+fi
 
 # Starship configuration (if using Starship)
 # Refer to Starship's documentation for details on manual configuration
@@ -21,6 +23,9 @@ source ~/.zshrc.plugins # Assuming your plugin array is defined in a separate fi
 
 # Sourcing additional configuration files (optional)
 # source ~/.oh-my-zsh/custom/themes/mytheme.zsh  # Example: Source a theme file
+if [ -f "$HOME/.zshrc.starship" ]; then
+  source "$HOME/.zshrc.starship"
+fi
 
 # Optional comment for clarity
 # This section contains my local zsh customizations and plugin management
