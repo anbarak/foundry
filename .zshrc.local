@@ -12,6 +12,10 @@ alias la='ls -la'  # Example alias for listing with all details
 # Add environment variables specific to your zsh environment here
 # (Consider using separate files for system-wide environment variables)
 
+export GOPATH=$HOME/go
+export GOROOT=$(brew --prefix golang)/libexec
+export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
+
 # Plugin management (using plugin array)
 if [ -f "$HOME/.zshrc.plugins" ]; then
   source "$HOME/.zshrc.plugins"
