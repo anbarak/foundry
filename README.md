@@ -355,7 +355,63 @@ To create a development environment with the following characteristics:
        * [octolinker](https://chromewebstore.google.com/detail/octolinker)
    
 ### 7. Programming Languages run-time
+1. Go
+   1. Install Go
+      ```
+      brew install go
+      ```
+   3. configure the environment
+      1. Add the following lines to ~/.zshrc.local to set up the Go environment variables
+         ```
+         # Go environment variables
+         export GOPATH=$HOME/go
+         export GOROOT=$(brew --prefix golang)/libexec
+         export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
+         ```
+      2. Source the configuration
+         ```
+         source ~/.zshrc
+         ```
+   3. Set up Vim for Go dev
+      1. Install `vim-go` plugin
+         * Add the `faith/vim-go` plugin to the `~/.vim/plugin_config.vim` file
+         ```
+         call plug#begin('~/.vim/plugged')
 
+         Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+         
+         call plug#end()
+         ```
+         * reload vim and install the plugin with `:PlugInstall`
+      2. Configure `vim-go`
+         * Add the following to the `~\.vim\autoload_plugins.vim` file
+           ```
+           " Go development settings
+           " Enable goimports to automatically format and organize imports
+           let g:go_fmt_command = "goimports"
+           
+           " Automatically run :GoInstallBinaries after plugin install
+           autocmd BufWritePost .vimrc source % | GoInstallBinaries
+           
+           " Enable syntax highlighting
+           syntax enable
+           
+           " Enable auto-completion
+           let g:go_auto_type_info = 1
+           
+           " Enable linting
+           let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck']
+           ```
+      3. Install additional Go tools
+         ```
+         :GoInstallBinaries
+         ```
+      4. (optional) Keep the Go installation and tools up to date with:
+         ```
+         brew upgrade go
+         :GoUpdateBinaries # In vim to update vim-go binaries
+         ```
+   
 1. YouCompleteMe (for code completion)
    1. Install `python` `cmake` (if not installed)
       ```
