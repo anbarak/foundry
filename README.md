@@ -184,6 +184,46 @@ To create a development environment with the following characteristics:
      # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
      run '~/.tmux/plugins/tpm/tpm'
      ```
+   * Add the following configuration to improve Tmux productivity
+     ```
+     # Set prefix to Ctrl+a
+     set -g prefix C-a
+     bind C-a send-prefix
+     
+     # Enable mouse mode
+     set -g mouse on
+     
+     # Improve scrollback buffer size
+     set -g history-limit 10000
+     
+     # Customize status bar appearance
+     set -g status-left "[#S]"
+     set -g status-right "%H:%M %d-%b-%Y"
+     
+     # Plugin manager setup (tpm)
+     set -g @plugin 'tmux-plugins/tpm'
+     run '~/.tmux/plugins/tpm/bin/install_plugins'
+     
+     # Plugins
+     set -g @plugin 'tmux-plugins/tmux-sensible'
+     set -g @plugin 'tmux-plugins/tmux-resurrect'
+     set -g @plugin 'tmux-plugins/tmux-continuum'
+     set -g @plugin 'tmux-plugins/tmux-yank'
+     set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
+     set -g @plugin 'tmux-plugins/tmux-open'
+     set -g @plugin 'tmux-plugins/tmux-logging'
+     set -g @plugin 'tmux-plugins/tmux-fpp'
+     set -g @plugin 'tmux-plugins/tmux-copycat'
+     
+     # Enable automatic restore
+     set -g @continuum-restore 'on'
+          
+     # Adjust save interval (default is every 15 minutes)
+     set -g @continuum-save-interval '300'  # save every 5 minutes
+     			
+     # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+     run '~/.tmux/plugins/tpm/tpm'
+     ```
      
 ### 5. Vim
 1. Install Vim plugin manager and plugins
