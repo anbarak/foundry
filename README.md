@@ -20,14 +20,15 @@
 
 ## Goal
 To create a development environment with the following characteristics:
-* only dependency to install Docker Desktop
+* only dependency to install Docker Desktop (to be done)
+* created once and used anywhere (Linux, macOS, Windows)
 * light weight
 * modern
 * efficient
 * productive
 * easy on the eyes
 * portable
-* created once and used anywhere (Linux, macOS, Windows)
+* no cost
 
 ## Setup
 ### 1. Terminal
@@ -85,7 +86,7 @@ To create a development environment with the following characteristics:
    ```
    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
    ``` 
-7. Zsh theme
+3. Zsh theme
    * *I used to use [Powerlevel10k](https://github.com/romkatv/powerlevel10k#oh-my-zsh) but since that project is not being actively maintained, I switched to [Starship](https://github.com/romkatv/powerlevel10k#oh-my-zsh)*
 
    ```
@@ -96,7 +97,7 @@ To create a development environment with the following characteristics:
       ```
       starship preset nerd-font-symbols -o ~/.config/starship.toml
       ```
-3. Oh My Zsh plugins
+4. Oh My Zsh plugins
    * Create a file called `~/.zshrc.local` that will store your customizations and plugin management (This keeps the main `~\.zshrc`file clean. The .zshrc.local file referenced in the .zshrc file)
    * Create another file called `~/.zshrc.plugins` that will define the plugin array for the zsh environment (The .zshrc.plugin file is referenced in the .zshrc.local file)
    
@@ -226,7 +227,11 @@ To create a development environment with the following characteristics:
      ```
      
 ### 5. Vim
-1. Install Vim plugin manager and plugins
+1. Install vim
+   ```
+   brew install vim
+   ```
+2. Install Vim plugin manager and plugins
    1. Install `vim-plug`
       ```
       curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
@@ -450,7 +455,8 @@ To create a development environment with the following characteristics:
          ```
          :PlugInstall
          ```
-4. YouCompleteMe (for code completion)
+3. YouCompleteMe (for code completion)
+   * ensure python3 is used (open `vim` and enter `:version`, there should be `+` next to `python3`; if not, install python3 (as shown below)
    1. Install `python` `cmake` (if not installed)
       ```
       brew install python cmake
@@ -460,67 +466,314 @@ To create a development environment with the following characteristics:
       brew install vim
       ```
    3. Install `YouCompleteMe`
-      1. Install `Vundle` (if not installed)
-         ```
-         git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-         ```
-      2. configure `.vimrc`
-         ```
-         set nocompatible              " be iMproved, required
-         filetype off                  " required
-
-         " Set the runtime path to include Vundle and initialize
-         set rtp+=~/.vim/bundle/Vundle.vim
-         call vundle#begin()
-         
-         " let Vundle manage Vundle, required
-         Plugin 'VundleVim/Vundle.vim'
-         
-         " Add YouCompleteMe plugin
-         Plugin 'ycm-core/YouCompleteMe'
-         
-         call vundle#end()            " required
-         filetype plugin indent on    " required
-         
-         " Other settings you might want to add
-         syntax on
-         set number
-         ```
-      3. Instal the plugin via Vim
-         ```
-         vim +PluginInstall +qall
-         ```
-   4. Compile YouCompleteMe
+      * Add the following line to `~/.vim/plugin_config.vim` file
+        ```
+        Plug 'ycm-core/YouCompleteMe', { 'do': './install.py --all' }
+        ```
+      * Add the Python executable path in `~/.vim/autoload_plugins.vim` file
+        ```
+        let g:ycm_python_binary_path = '/opt/homebrew/bin/python3'
+        ```
+      * Add extra Go configuration to `~/.vim/autoload_plugins.vim` to enhance the vim configuration
+        ```
+        " Go configuration
+        let g:go_def_mode='gopls'
+        let g:go_info_mode='gopls'
+        ```
+      * Install plugins
+        ```
+        :PlugInstall
+        ```
+   4. Install language support
       ```
-      cd ~/.vim/bundle/YouCompleteMe
+      # npm is required to set up Tern (a JavaScript code analyzer)
+      brew install node
+      
+      # The installation of setuptools is not necessary but improves performance
+      cd ~/.vim/plugged/YouCompleteMe
+      
+      # Create a virtual environment named 'ycm_venv'
+      python3 -m venv ~/ycm_venv
+      
+      # Activate the virtual environment
+      source ~/ycm_venv/bin/activate
+      
+      # Install setuptools in the virtual environment
+      pip install setuptools
+
+      # Deactivate the virtual environment
+      deactivate
+
+      # Re-activate the virtual environment if needed (only if YCM or dependencies require it)
+      source ~/ycm_venv/bin/activate
+      
+      # Run YCM installation script (assuming you're in the YCM directory)
       python3 install.py --all
+      
+      # Deactivate the virtual environment after installation completes
+      deactivate
       ```
-   5. Configure shell environment (add the following lines to your `.zshrc` file)
-      ```
-      export PATH="/usr/local/bin:$PATH"
-      ```
-   6. Reload zsh
-      ```
-      exec zsh
-      ```
-   7. Additional Configuration (Optional)
-      * You may need to configure YCM further depending on the programming languages you use. This can be done by creating a .ycm_extra_conf.py file in your project directory.
-
-       * Here's a basic example for C++:
-       ```              
-       # .ycm_extra_conf.py
-       def FlagsForFile(filename, **kwargs):
-           return {
-               'flags': [
-                   '-std=c++14',
-                   '-x', 'c++',
-                   '-I', 'include',
-               ],
-           }
-       ```
-       * Place this file in the root of your C++ project directory.
-    8. Verify installation
-       * Open Vim and type code to see if you get code completion
+   5. Configure YCM for specific languages (e.g. Go, Python)
+      1. Create a `~/.ycm_extra_conf.py` file
+      2. Add the following to the file
+         ```
+         def Settings(**kwargs):
+         client_data = kwargs['client_data']
+         filetype = client_data['&filetype']
+     
+         if filetype == 'python':
+             return {
+                 'interpreter_path': '/opt/homebrew/bin/python3',  # Python interpreter path
+                 'sys_path': [
+                     '/opt/homebrew/lib/python3.12/site-packages',
+                 ]
+             }
+     
+         if filetype == 'go':
+             return {
+                 'ls': {
+                     'cmd': ['gopls'],
+                 }
+             }
+     
+         return {}
+         ```
+         * You determine the `interpreter_path` and the `sys_path` for Python by running the following Python code snippet in the terminal (*I modified my interpreter path to be more generic Python path so that if I upgrade my Python it won't break*)
+           ```
+           import sys
+   
+           print("Interpreter Path:", sys.executable)
+           Interpreter Path: /opt/homebrew/opt/python@3.12/bin/python3.12
+           print("System Path:")
+           System Path:
+           >>> for path in sys.path:
+           ...     print(path)
+           ```
+    6. Additional configuration for tools
+       1. Add the following to the `~/.zshrc.local` file
+          ```
+          # Linux commands
+          alias ls='ls --color=auto'
+          alias grep='grep --color=auto'
+          alias ll='ls -lAh'         # Detailed list with hidden files, human-readable sizes
+          alias la='ls -A'           # List all files except . and ..
+          alias l='ls -CF'           # List directories with /
+          alias ..='cd ..'           # Move up one directory
+          alias ...='cd ../..'       # Move up two directories
+          alias mv='mv -i'           # Prompt before overwrite
+          alias cp='cp -i'           # Prompt before overwrite
+          alias rm='rm -i'           # Prompt before delete
+          alias mkdir='mkdir -p'     # Create directories recursively
+          alias cls='clear'          # Clear terminal
+          alias h='history'          # Show history
+          
+          # Log file navigation and manipulation
+          alias tailf='tail -f'                      # Follow the tail of a file
+          alias tail100='tail -n 100'                # Show the last 100 lines of a file
+          alias tail200='tail -n 200'                # Show the last 200 lines of a file
+          alias tail500='tail -n 500'                # Show the last 500 lines of a file
+          alias tail1k='tail -n 1000'                # Show the last 1000 lines of a file
+          alias tail2k='tail -n 2000'                # Show the last 2000 lines of a file
+          alias tailf100='tail -f -n 100'            # Follow last 100 lines of a file
+          alias tailf200='tail -f -n 200'            # Follow last 200 lines of a file
+          alias tailf500='tail -f -n 500'            # Follow last 500 lines of a file
+          alias tailf1k='tail -f -n 1000'            # Follow last 1000 lines of a file
+          alias tailf2k='tail -f -n 2000'            # Follow last 2000 lines of a file
+          alias tailerr='tail -f /var/log/error.log' # Follow error log file
+          alias tailsys='tail -f /var/log/syslog'    # Follow system log file
+          alias tailauth='tail -f /var/log/auth.log' # Follow authentication log file
+          
+          # System operations
+          alias update='sudo apt update && sudo apt upgrade -y'  # Update system (Ubuntu/Debian)
+          alias df='df -h'                                       # Show disk usage
+          alias du='du -h -d 1'                                  # Show directory sizes
+          alias top='htop'                                       # Use htop if available
+          alias path='echo -e ${PATH//:/\\n}'                    # Show PATH variable
+          
+          # Networking
+          alias ip='ip -c -br addr'                              # Show IP addresses
+          alias ports='netstat -tulanp'                          # Show listening ports
+          alias ping='ping -c 5'                                 # Ping with 5 packets
+          
+          # SSH
+          alias ssh_server='ssh user@server.com'                 # Quick SSH to server
+          
+          # Docker commands
+          alias dk='docker'
+          alias dkb='docker build'                               # Build image
+          alias dkc='docker-compose'                             # Docker Compose
+          alias dki='docker images'                              # List images
+          alias dkp='docker ps'                                  # List running containers
+          alias dkpa='docker ps -a'                              # List all containers
+          alias dkr='docker run'                                 # Run container
+          alias dkrm='docker rm'                                 # Remove container
+          alias dkrmi='docker rmi'                               # Remove image
+          alias dkl='docker logs'                                # Show logs
+          alias docker_stop_all='docker stop $(docker ps -aq)'   # Stop all running Docker containers
+          alias docker_rm_all='docker rm $(docker ps -aq)'       # Remove all stopped Docker containers
+          alias docker_rmi_all='docker rmi $(docker images -q)'  # Remove all Docker images
+          alias docker_prune='docker system prune -af'           # Remove all unused Docker data
+          
+          # Kubernetes commands
+          alias k='kubectl'
+          alias kctx='kubectl config use-context'                       # Switch context
+          alias kns='kubectl config set-context --current --namespace'  # Set namespace
+          alias kget='kubectl get'                                      # Get resources
+          alias kdesc='kubectl describe'                                # Describe resources
+          alias klogs='kubectl logs'                                    # Show logs
+          alias kapply='kubectl apply -f'                               # Apply configuration
+          alias kdel='kubectl delete -f'                                # Delete configuration
+          alias kexec='kubectl exec -it'                                # Execute command in pod
+          alias k9s='k9s'                                               # K9s Kubernetes CLI
+          
+          # Terraform commands
+          alias tf='terraform'
+          alias tfa='terraform apply'                            # Apply configuration
+          alias tfp='terraform plan'                             # Show execution plan
+          alias tfd='terraform destroy'                          # Destroy infrastructure
+          alias tfv='terraform validate'                         # Validate configuration
+          alias tff='terraform fmt'                              # Format configuration
+          alias tfi='terraform init'                             # Initialize Terraform
+          alias tfu='terraform state show'                       # Show resource state
+          alias tfw='terraform workspace'                        # Terraform workspace
+          alias tfw_list='terraform workspace list'              # List Terraform workspaces
+          alias tfw_new='terraform workspace new'                # Create new Terraform workspace
+          alias tfw_select='terraform workspace select'          # Select Terraform workspace
+          
+          # Go development aliases
+          alias gobuild='go build'                   # Compile packages and dependencies
+          alias goinstall='go install'               # Compile and install packages and dependencies
+          alias gotest='go test'                     # Run tests
+          alias goclean='go clean'                   # Remove object files
+          alias godep='go mod tidy'                  # Add missing and remove unused modules
+          alias gomod='go mod'                       # Dependency module maintenance
+          alias gofmt='gofmt -w'                     # Format Go code
+          alias golint='golint'                      # Run golint
+          alias govet='go vet'                       # Run go vet
+          alias goget='go get'                       # Download and install packages and dependencies
+          alias gocover='go test -coverprofile=coverage.out && go tool cover -html=coverage.out'  # Generate coverage report and open in browser
+          alias goreplace='go mod edit -replace'     # Edit replace directives
+          alias goclone='go get -d'                  # Download modules to GOPATH but don't build
+          alias goenv='go env'                       # View Go environment information
+          alias gorelease='goreleaser'               # Create releases and package Go projects
+          alias gomodv='go mod verify'               # Verify dependencies have expected content
+          
+          # Python development aliases
+          alias py='python3'                     # Use python3 as default Python interpreter
+          alias py2='python2'                    # Use python2 as default Python interpreter
+          alias ipy='ipython'                    # Launch IPython interactive shell
+          alias pip='python3 -m pip'             # Use pip for Python package management
+          alias pip2='python2 -m pip'            # Use pip for Python2 package management
+          alias venv='python3 -m venv'           # Create Python virtual environments
+          alias pyfmt='autopep8 --in-place'      # Format Python code using autopep8
+          alias pylint='python3 -m pylint'       # Run pylint for static code analysis
+          alias pytest='python3 -m pytest'       # Run pytest for testing
+          alias pyvenv='source venv/bin/activate' # Activate Python virtual environment
+          alias pyrun='python3'                  # Run Python script
+          alias pydoc='python3 -m pydoc'         # Use pydoc for Python documentation
+          alias pyprof='python3 -m cProfile'     # Profile Python code
+          
+          # Git aliases
+          alias gst='git status'                          # Show the working tree status
+          alias gl='git log --oneline --graph --decorate' # Show the commit history in a graphical way
+          alias ga='git add'                              # Add file contents to the index
+          alias gaa='git add .'                           # Add all modified files to the index
+          alias gb='git branch'                           # List, create, or delete branches
+          alias gba='git branch -a'                       # List all remote and local branches
+          alias gbd='git branch -d'                       # Delete a branch
+          alias gc='git commit -m'                        # Record changes to the repository
+          alias gca='git commit --amend'                  # Amend the last commit
+          alias gco='git checkout'                        # Switch branches or restore working tree files
+          alias gcb='git checkout -b'                     # Create and switch to a new branch
+          alias gd='git diff'                             # Show changes between commits, commit and working tree, etc.
+          alias gds='git diff --staged'                   # Show changes between the index and the HEAD
+          alias gf='git fetch'                            # Download objects and refs from another repository
+          alias gfa='git fetch --all'                     # Fetch all remotes
+          alias gfo='git fetch origin'                    # Fetch from the 'origin' remote
+          alias gp='git push'                             # Update remote refs along with associated objects
+          alias gpa='git push --all'                      # Push all branches to the remote repository
+          alias gpo='git push origin'                     # Push to the 'origin' remote
+          alias gpl='git pull'                            # Fetch from and integrate
+          
+          # Git aliases (continued)
+          alias gplo='git pull origin'                    # Pull changes from the 'origin' remote
+          alias gpr='git pull --rebase'                   # Rebase local changes on top of the upstream branch
+          alias gm='git merge'                            # Join two or more development histories together
+          alias grh='git reset --hard'                    # Reset the current HEAD to the specified state
+          alias grs='git reset --soft'                    # Reset the current HEAD to the specified state, keeping staged changes
+          alias gcl='git clone'                           # Clone a repository into a new directory
+          alias gss='git stash save'                      # Stash changes in a dirty working directory
+          alias gsp='git stash pop'                       # Apply stashed changes to the working directory
+          alias gstl='git stash list'                     # List all stashed changes
+          alias grb='git rebase'                          # Reapply commits on top of another base tip
+          alias grba='git rebase --abort'                 # Abort a rebase
+          alias grbc='git rebase --continue'              # Continue a rebase after resolving conflicts
+          alias gclean='git clean -fd'                    # Remove untracked files from the working directory
+          alias gprune='git remote prune origin'          # Prune all stale remote-tracking branches
+          alias gundo='git reset HEAD~1'                  # Undo the last commit
+          
+          # GitHub aliases
+          alias gh='gh'                    # GitHub CLI entry point
+          alias ghpr='gh pr create'        # Create a pull request
+          alias ghip='gh issue create'     # Create a new issue
+          alias ghr='gh repo'              # Manage repositories
+          alias ghb='gh repo browse'       # Open the GitHub repository in the browser
+          
+          # Bitbucket aliases
+          alias bb='bb'                    # Bitbucket CLI entry point
+          alias bbpr='bb pr create'        # Create a pull request
+          alias bbissue='bb issue create'   # Create a new issue
+          alias bbb='bb browse'            # Open the Bitbucket repository in the browser
+          
+          # AWS CLI commands
+          alias aws_profile='aws configure --profile'                                              # Switch profile
+          alias ec2_ls='aws ec2 describe-instances'                                                # List EC2 instances
+          alias ec2_start='aws ec2 start-instances --instance-ids'                                 # Start EC2 instance
+          alias ec2_stop='aws ec2 stop-instances --instance-ids'                                   # Stop EC2 instance
+          alias s3_ls='aws s3 ls'                                                                  # List S3 buckets
+          alias s3_cp='aws s3 cp'                                                                  # Copy files to/from S3
+          alias s3_sync='aws s3 sync'                                                              # Sync files with S3
+          alias lambda_ls='aws lambda list-functions'                                              # List Lambda functions  
+          alias fargate_run='aws ecs run-task --launch-type FARGATE'                               # Run Fargate task
+          alias fargate_deploy='ecs-cli compose --file path/to/your/docker-compose.yml service up' # Deploy AWS Fargate service
+          alias ssh_ec2='ssh -i path/to/your/ec2_key.pem ec2-user@your-ec2-instance'               # SSH into EC2 instance
+          
+          # GCP CLI commands
+          alias gcp_auth='gcloud auth login'                     # Authenticate GCP
+          alias gcp_config='gcloud config configurations list'   # List configurations
+          alias gcp_set='gcloud config set'                      # Set configuration
+          alias gcp_project='gcloud config set project'          # Set project
+          alias gcp_zones='gcloud compute zones list'            # List zones
+          alias gcp_instances='gcloud compute instances list'    # List instances
+          
+          # Homebrew commands
+          alias brewup='brew update; brew upgrade; brew cleanup'    # Update Homebrew and upgrade all packages
+          
+          # Tmux commands
+          alias tmux='tmux -2'                                      # Force tmux to assume 256-color terminal
+          alias ta='tmux attach -t'                                 # Attach to a tmux session
+          alias tls='tmux ls'                                       # List tmux sessions
+          alias tks='tmux kill-session -t'                          # Kill tmux session
+          alias tka='tmux kill-server'                              # Kill tmux server
+          
+          # Custom aliases
+          alias edit_zshrc='vim ~/.zshrc.local'                  # Edit .zshrc.local
+          alias src_zshrc='source ~/.zshrc.local'                # Source .zshrc.local
+          alias edit_ycm='vim ~/.ycm_extra_conf.py'              # Edit YCM configuration
+          alias src_ycm='source ~/.ycm_extra_conf.py'            # Source YCM configuration
+          
+          # Vim aliases
+          alias vim='vim -u NONE'                          # Start Vim without loading plugins
+          alias vi='vim'
+          alias v='vim'
+          alias vimdiff='vim -d'                           # Open Vim in diff mode
+          alias vimrc='vim ~/.vimrc'                       # Edit ~/.vimrc
+          alias vimplug='vim ~/.vim/autoload_plugins.vim'  # Edit Vim plugins autoload file
+          alias vimtmp='vim -u NONE -N'                    # Open Vim with no plugins and in nocompatible mode
+          alias vimcd='vim -c "cd %:p:h"'                  # Open Vim and change to the directory of the current file
+          alias vimtab='vim --remote-tab'                  # Open the file in a new tab in an existing Vim instance
+          alias vimsplit='vim --remote-silent'             # Open file in a new split in an existing Vim instance
+          ```
        
 ### 8. DevOps tools
     
@@ -549,4 +802,8 @@ To create a development environment with the following characteristics:
    6. [lsd](https://github.com/lsd-rs/lsd)
       ```
       brew install lsd
+      ```
+   7. [htop](https://github.com/htop-dev/htop)
+      ```
+      brew install htop
       ```
