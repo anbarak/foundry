@@ -781,6 +781,7 @@ To create a development environment with the following characteristics:
           ```
                  
 ### 8. DevOps tools
+1. 
     
 ### 9. Other helpful tools  
 9. Tools
@@ -800,6 +801,7 @@ To create a development environment with the following characteristics:
       ```
       brew install thefuck
       ```
+      
    5. [grammary](https://grammarly.com)
       ```
       brew install --cask grammarly-desktop
