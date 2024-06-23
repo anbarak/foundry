@@ -768,7 +768,7 @@ To create a development environment with the following characteristics:
           alias src_ycm='source ~/.ycm_extra_conf.py'            # Source YCM configuration
           
           # Vim aliases
-          alias vim='vim -u NONE'                          # Start Vim without loading plugins
+          alias vim='vim'                                  # Start Vim normally
           alias vi='vim'
           alias v='vim'
           alias vimdiff='vim -d'                           # Open Vim in diff mode
