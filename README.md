@@ -477,7 +477,11 @@ To create a development environment with the following characteristics:
         ```
       * Add the Python executable path in `~/.vim/autoload_plugins.vim` file
         ```
+        " Enable YCM with Python 3
         let g:ycm_python_binary_path = '/opt/homebrew/bin/python3'
+        
+        " Tell YCM not to prompt for confirmation when loading the .ycm_extra_conf.py
+        let g:ycm_confirm_extra_conf = 0
         ```
       * Add extra Go configuration to `~/.vim/autoload_plugins.vim` to enhance the vim configuration
         ```
@@ -523,25 +527,25 @@ To create a development environment with the following characteristics:
       2. Add the following to the file
          ```
          def Settings(**kwargs):
-         client_data = kwargs['client_data']
-         filetype = client_data['&filetype']
-     
-         if filetype == 'python':
-             return {
-                 'interpreter_path': '/opt/homebrew/bin/python3',  # Python interpreter path
-                 'sys_path': [
-                     '/opt/homebrew/lib/python3.12/site-packages',
-                 ]
-             }
-     
-         if filetype == 'go':
-             return {
-                 'ls': {
-                     'cmd': ['gopls'],
+             client_data = kwargs['client_data']
+             filetype = client_data['&filetype']
+         
+             if filetype == 'python':
+                 return {
+                     'interpreter_path': '/opt/homebrew/bin/python3',  # Specific path to python3
+                     'sys_path': [
+                         '/opt/homebrew/lib/python3.12/site-packages',
+                     ]
                  }
-             }
-     
-         return {}
+         
+             if filetype == 'go':
+                 return {
+                     'ls': {
+                         'cmd': ['gopls'],
+                     }
+                 }
+         
+             return {}
          ```
          * You determine the `interpreter_path` and the `sys_path` for Python by running the following Python code snippet in the terminal (*I modified my interpreter path to be more generic Python path so that if I upgrade my Python it won't break*)
            ```
