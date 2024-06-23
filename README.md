@@ -17,6 +17,7 @@
 * Tmux plugin manager: [Tmux Plugin Manager (TPM)](https://github.com/tmux-plugins/tpm)
 * Text editor: [Vim](https://github.com/vim/vim)
 * Vim plugin manager: [vim-plug](https://github.com/junegunn/vim-plug)
+* Code completion tool: [YouCompleteMe](https://github.com/ycm-core/YouCompleteMe)
 
 ## Goal
 To create a development environment with the following characteristics:
@@ -354,8 +355,12 @@ To create a development environment with the following characteristics:
        ```
        brew install gh	
        ```
-    5. install [Sourcetree app](https://sourcetreeapp.com/)
-    6. install Chrome extensions for Github:
+    5. bitbucket cli (bb)
+       ```
+       brew tap craftamap/tap && brew install bb
+       ```
+    7. install [Sourcetree app](https://sourcetreeapp.com/)
+    8. install Chrome extensions for Github:
        * [github-hovercard](https://justineo.github.io/github-hovercard/)
        * [octolinker](https://chromewebstore.google.com/detail/octolinker)
    
@@ -774,7 +779,7 @@ To create a development environment with the following characteristics:
           alias vimtab='vim --remote-tab'                  # Open the file in a new tab in an existing Vim instance
           alias vimsplit='vim --remote-silent'             # Open file in a new split in an existing Vim instance
           ```
-       
+                 
 ### 8. DevOps tools
     
 ### 9. Other helpful tools  
@@ -799,7 +804,7 @@ To create a development environment with the following characteristics:
       ```
       brew install --cask grammarly-desktop
       ```
-   6. [lsd](https://github.com/lsd-rs/lsd)
+   6. [lsd](https://.com/lsd-rs/lsd)
       ```
       brew install lsd
       ```
