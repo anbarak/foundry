@@ -109,7 +109,28 @@ To create a development environment with the following characteristics:
       ```
       ls
       ```
-6. Oh My Zsh plugins
+5. Create a script to check for Oh My Zsh updates
+   ```
+   # Function to check for Oh My Zsh updates and prompt user
+   check_omz_update() {
+       echo "Checking for Oh My Zsh updates..."
+       if omz update | grep -q 'updated successfully'; then
+           echo "Oh My Zsh updates are available. Would you like to update? (y/n)"
+           read answer
+           if [[ $answer == 'y' ]]; then
+               omz update
+           else
+               echo "Update skipped."
+           fi
+       else
+           echo "Oh My Zsh is already up to date."
+       fi
+   }
+   
+   # Alias to trigger update check
+   alias checkupdates='check_omz_update'
+   ```
+7. Oh My Zsh plugins
    * Create a file called `~/.zshrc.local` that will store your customizations and plugin management (This keeps the main `~\.zshrc`file clean. The .zshrc.local file referenced in the .zshrc file)
    * Create another file called `~/.zshrc.plugins` that will define the plugin array for the zsh environment (The .zshrc.plugin file is referenced in the .zshrc.local file)
    
