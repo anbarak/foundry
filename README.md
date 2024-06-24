@@ -359,8 +359,10 @@ To create a development environment with the following characteristics:
        ```
        brew tap craftamap/tap && brew install bb
        ```
-    7. install [Sourcetree app](https://sourcetreeapp.com/)
-    8. install Chrome extensions for Github:
+    7. install [Sourcetree](https://sourcetreeapp.com/)
+       * Configure `Sourcetree`
+       * 
+    9. install Chrome extensions for Github:
        * [github-hovercard](https://justineo.github.io/github-hovercard/)
        * [octolinker](https://chromewebstore.google.com/detail/octolinker)
    
@@ -937,12 +939,25 @@ To create a development environment with the following characteristics:
          kubectl krew install whoami
          kubectl krew install neat      
          ```
-      4. Install [k9s](https://github.com/derailed/k9s)
-         ```
-         brew install k9s
-         ```
    5. Shell auto-completion
-      * Add `kubectl` to the plugin array in ~/.zshrc.plugins  
+      1. Add `kubectl` to the plugin array in ~/.zshrc.plugins
+      2. Generate autocompletion script
+         ```
+         sudo mkdir -p /usr/local/share/zsh/site-functions/
+         sudo kubectl completion zsh | sudo tee /usr/local/share/zsh/site-functions/_kubectl > /dev/null 
+         ```
+      3. Activate autocompletion in zsh
+         ```
+         autoload -Uz compinit && compinit
+         ```
+      4. Reload zsh configuration
+         ```
+         source ~/.zshrc
+         ```
+   6. Install [k9s](https://github.com/derailed/k9s)
+      ```
+      brew install k9s
+      ```
 5. Terraform
    1. Install
       ```
