@@ -98,7 +98,18 @@ To create a development environment with the following characteristics:
       ```
       starship preset nerd-font-symbols -o ~/.config/starship.toml
       ```
-4. Oh My Zsh plugins
+4. Set `LS_COLORS`
+   1. Add the following lines to the `~/.zshrc.local` file
+      ```
+      export CLICOLOR=1
+      export LSCOLORS=GxFxCxDxBxegedabagaced
+      ```
+   2. Restart zsh `source ~/.zshrc`
+   3. Confirm (expected: different color output)
+      ```
+      ls
+      ```
+6. Oh My Zsh plugins
    * Create a file called `~/.zshrc.local` that will store your customizations and plugin management (This keeps the main `~\.zshrc`file clean. The .zshrc.local file referenced in the .zshrc file)
    * Create another file called `~/.zshrc.plugins` that will define the plugin array for the zsh environment (The .zshrc.plugin file is referenced in the .zshrc.local file)
    
@@ -128,7 +139,22 @@ To create a development environment with the following characteristics:
          brew install fzf
          ```
    7. [history](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/history)
-      * add history to the plugin array 
+      * add history to the plugin array
+   8. [colorized](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/colorize)
+      1. Install [chroma](https://github.com/alecthomas/chroma)
+         ```
+         brew install pygments
+         brew install chroma # Optional
+         ```
+      3. Add the `colorized` to the plugin array in `~/.zshrc.plugins`
+      4. Reload the shell
+         ```
+         source ~/.zshrc
+         ```
+      5. Confirm
+         ```
+         ccat <some_file_name>
+         ```
       
 ### 4. Tmux
 1. Install Tmux
@@ -802,7 +828,26 @@ To create a development environment with the following characteristics:
           alias vimtab='vim --remote-tab'                  # Open the file in a new tab in an existing Vim instance
           alias vimsplit='vim --remote-silent'             # Open file in a new split in an existing Vim instance
           ```
-                 
+6. [Tabnine](https://www.tabnine.com/)
+   1. Install coc-tabnine
+      * Add the following line to the `~/.vim/plugin_config.vim` file
+        ```
+        Plug 'neoclide/coc.nvim', {'branch': 'release'}
+        ```
+   2. Open vim, run `:PlugInstall`
+   3. In vim, run `CocInstall coc-tabnine`
+   4. In vim, run `:CocConfig`
+   5. In vim, add the following code to the `coc-settings.json` file
+      ```
+      {
+        "suggest.noselect": false,
+        "suggest.enablePreselect": true,
+        "tabnine.experimentalAutoImports": true,
+        "tabnine.showProbabilities": true,
+        "tabnine.priority": 100
+      }
+      ```
+   6. Restart vim
 ### 8. DevOps tools
 1. Docker
    1. Install Docker Desktop
