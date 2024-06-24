@@ -870,11 +870,90 @@ To create a development environment with the following characteristics:
         ```
         aws --version
         ```
-   2. Configure
+   2. Enable AWS CLI command completion
+      1. Add `aws` to the plugins array in `~/.zshrc.plugins` file
+      2. Source the updated .zshrc file
+         ```
+         source ~/.zshrc
+         ```
+   3. Configure
+      1. Configure AWS CLI for the Default profile:
+         ```
+         aws configure
+         ```
+      2. Set up additional profiles
+         ```
+         aws configure --profile work
+         ```
+         ```
+         aws configure --profile personal
+         ```
+3. GCP CLI
+   1. Install Google Cloud SDK
       ```
-      aws configure
+      brew install --cask google-cloud-sdk
       ```
-            
+   2. Add `gcloud` to the plugins array in `~/.zshrc.plugins` file
+   3. Add `gcp` to the plugins array in `~/.zshrc.plugins` file
+   4. Source the updated .zshrc file
+      ```
+      source ~/.zshrc
+      ```
+   5. confirm by typing `gcloud [TAB]
+4. Kubectl
+   1. Install
+      ```
+      brew install kubectl
+      ```
+   2. Confirm (expected: version)
+      ```
+      kubectl version --client
+      ```
+   3. Configure
+      TODO: Add steps
+   4. Enhance with plugins
+      1. Download and install [krew](https://github.com/kubernetes-sigs/krew)
+         ```
+         (
+           set -x; cd "$(mktemp -d)" &&
+           OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+           ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
+           KREW="krew-${OS}_${ARCH}" &&
+           curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+           tar zxvf "${KREW}.tar.gz" &&
+           ./"${KREW}" install krew
+         )
+         ```
+      2. Add `krew` to the `~/.zshrc.local` file
+         ```
+         export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+         ```
+      3. Install the most useful Kubectl plugins using Krew
+         ```
+         kubectl krew install ctx
+         kubectl krew install ns
+         kubectl krew install tree
+         kubectl krew install ktop
+         kubectl krew install whoami
+         kubectl krew install neat      
+         ```
+      4. Install [k9s](https://github.com/derailed/k9s)
+         ```
+         brew install k9s
+         ```
+   5. Shell auto-completion
+      * Add `kubectl` to the plugin array in ~/.zshrc.plugins  
+5. Terraform
+   1. Install
+      ```
+      brew install terraform
+      ```
+   2. Confirm (expected: version)
+      ```
+      terraform --version
+      ```
+   3. Enhance with plugin
+      * Add `terraform` to the plugin array in ~/.zshrc.plugins   
 ### 9. Other helpful tools  
 1. [jq](https://github.com/jqlang/jq)
    ```
@@ -907,4 +986,4 @@ To create a development environment with the following characteristics:
 8. [postman](https://www.postman.com/)
    ```
    brew install --cask postman
-      ```
+   ```
