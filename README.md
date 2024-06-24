@@ -6,8 +6,8 @@
 
 ## Tools/OS:
 * OS: macOS
-* Software package manager: Homebrew
-  * *Don't use Homebrew to install zsh package. Use Oh My Zsh. Use Homebrew for system-wide tools, such as git, a few others (see below)*
+* Package Manager: Homebrew
+  * *Don't use Homebrew to install zsh package. Use Oh My Zsh. Use Homebrew for system-wide tools, such as git, and a few others (see below)*
 * Terminal: Default macOS terminal
 * Font: [Hack Nerd Font](https://github.com/ryanoasis/nerd-fonts)
 * Shell: zsh
@@ -23,13 +23,13 @@
 To create a development environment with the following characteristics:
 * only dependency to install Docker Desktop (to be done)
 * created once and used anywhere (Linux, macOS, Windows)
-* light weight
-* modern
-* efficient
-* productive
-* easy on the eyes
-* portable
-* no cost
+* Lightweight
+* Modern
+* Efficient
+* Productive
+* Easy on the eyes
+* Portable
+* Free of cost
 
 ## Setup
 ### 1. Terminal
@@ -79,9 +79,9 @@ To create a development environment with the following characteristics:
        ```
        sudo chsh -s /bin/zsh
        ```
-        1. confirm (expected: /bin/zsh)
+        1. confirm
            ```
-           echo $SHELL
+           echo $SHELL # Expected: /bin/zsh
            ```
 2. Install Oh My Zsh
    ```
@@ -139,7 +139,7 @@ To create a development environment with the following characteristics:
      ```
      tmux -V
      ```
-2. Install Tmux Plugin Manager (TPM)
+2. Install TPM(Tmux Plugin Manager)
    1. Install
       ```
       git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
@@ -785,7 +785,21 @@ To create a development environment with the following characteristics:
           ```
                  
 ### 8. DevOps tools
-1. 
+1. Install Docker Desktop
+   ```
+   brew install --cask docker
+   ```
+   * Confirm
+     ```
+     docker --version
+     docker run hello-world
+     ```
+2. Configure Docker Desktop
+   * Set up the Docker Desktop options as follows:
+     ![image](https://github.com/haarabi/dev-env/assets/2755929/6ad63deb-fa8a-489f-9741-1c59abae9ce2)
+     ![image](https://github.com/haarabi/dev-env/assets/2755929/a16138e7-5cf3-4b25-a1b1-394c4b9dca05)
+
+
     
 ### 9. Other helpful tools  
 9. Tools
