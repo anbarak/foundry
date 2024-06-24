@@ -876,36 +876,35 @@ To create a development environment with the following characteristics:
       ```
             
 ### 9. Other helpful tools  
-9. Tools
-   1. [jq](https://github.com/jqlang/jq)
-      ```
-      brew install jq
-      ```
-   2. [tldr](https://github.com/tldr-pages/tldr)
-      ```
-      brew install tldr
-      ```
-   3. [tre](https://github.com/dduan/tre)
-      ```
-      brew install tre-command
-      ```
-   4. [thefuck](https://github.com/nvbn/thefuck)
-      ```
-      brew install thefuck
-      ```      
-   5. [grammary](https://grammarly.com)
-      ```
-      brew install --cask grammarly-desktop
-      ```
-   6. [lsd](https://.com/lsd-rs/lsd)
-      ```
-      brew install lsd
-      ```
-   7. [htop](https://github.com/htop-dev/htop)
-      ```
-      brew install htop
-      ```
-   8. [postman](https://www.postman.com/)
-      ```
-      brew install --cask postman
+1. [jq](https://github.com/jqlang/jq)
+   ```
+   brew install jq
+   ```
+2. [tldr](https://github.com/tldr-pages/tldr)
+   ```
+   brew install tldr
+   ```
+3. [tre](https://github.com/dduan/tre)
+   ```
+   brew install tre-command
+   ```
+4. [thefuck](https://github.com/nvbn/thefuck)
+   ```
+   brew install thefuck
+   ```      
+5. [grammary](https://grammarly.com)
+   ```
+   brew install --cask grammarly-desktop
+   ```
+6. [lsd](https://.com/lsd-rs/lsd)
+   ```
+   brew install lsd
+   ```
+7. [htop](https://github.com/htop-dev/htop)
+   ```
+   brew install htop
+   ```
+8. [postman](https://www.postman.com/)
+   ```
+   brew install --cask postman
       ```
