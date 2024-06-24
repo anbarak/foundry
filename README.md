@@ -460,7 +460,25 @@ To create a development environment with the following characteristics:
          ```
          :PlugInstall
          ```
-3. YouCompleteMe (for code completion)
+   3. (optional) Install pyenv
+   4. (optional) Install pipenv
+3. Node
+   ```
+   brew install node
+   ```
+   1. (optional) Install `nvm`
+      * Didn't install
+        ```
+        Install nvm:
+        brew install nvm
+        mkdir ~/.nvm
+        echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.zshrc
+        echo '[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"' >> ~/.zshrc
+        source ~/.zshrc
+         Install Node.js:
+        nvm install --lts
+        ```
+5. YouCompleteMe (for code completion)
    * ensure python3 is used (open `vim` and enter `:version`, there should be `+` next to `python3`; if not, install python3 (as shown below)
    1. Install `python` `cmake` (if not installed)
       ```
@@ -495,8 +513,7 @@ To create a development environment with the following characteristics:
         ```
    4. Install language support
       ```
-      # npm is required to set up Tern (a JavaScript code analyzer)
-      brew install node
+      # npm (node) is required to set up Tern (a JavaScript code analyzer)      
       
       # The installation of setuptools is not necessary but improves performance
       cd ~/.vim/plugged/YouCompleteMe
@@ -785,62 +802,79 @@ To create a development environment with the following characteristics:
           ```
                  
 ### 8. DevOps tools
-1. Install Docker Desktop
-   ```
-   brew install --cask docker
-   ```
-   * Confirm
-     ```
-     docker --version
-     docker run hello-world
-     ```
-2. Configure Docker Desktop
-   * Set up the Docker Desktop options as follows (for MacBook Pro M1 Pro with 16 GB memory specs):
-     ![image](https://github.com/haarabi/dev-env/assets/2755929/6ad63deb-fa8a-489f-9741-1c59abae9ce2)
-     ![image](https://github.com/haarabi/dev-env/assets/2755929/a16138e7-5cf3-4b25-a1b1-394c4b9dca05)
-     ![image](https://github.com/haarabi/dev-env/assets/2755929/4e1bf8cc-bfff-4b25-8b92-b58ee39d389f)
-     ![image](https://github.com/haarabi/dev-env/assets/2755929/b402612d-3a7a-41c4-8e04-f36beb6968d1)
-     ![image](https://github.com/haarabi/dev-env/assets/2755929/064a22a8-1c60-44ee-9d15-9d5599bbcf8a)
-     ![image](https://github.com/haarabi/dev-env/assets/2755929/a733c5ad-b834-4db2-b733-c1e9a276466d)
-     * In the `Docker Engine` section, in the code block write the following:
-       ```
-       {
-         "builder": {
-           "gc": {
-             "defaultKeepStorage": "20GB",
-             "enabled": true
-           }
-         },
-         "experimental": false,
-         "storage-driver": "overlay2",
-         "log-opts": {
-           "max-size": "100m",
-           "max-file": "3"
-         },
-         "features": {
-           "buildkit": true
-         }
-       }
-       ```
-      ![image](https://github.com/haarabi/dev-env/assets/2755929/b47b8ad1-7dc7-40af-82c1-06788dfe6bf6)
-      ![image](https://github.com/haarabi/dev-env/assets/2755929/eca447b0-2e3d-44ec-a2f8-813cef127789)
-      ![image](https://github.com/haarabi/dev-env/assets/2755929/9c98ba13-cb63-40ff-bbbc-c666cf26f6ec)
-      ![image](https://github.com/haarabi/dev-env/assets/2755929/08a1309b-de69-47b1-b3de-d40350e26dde)
-      ![image](https://github.com/haarabi/dev-env/assets/2755929/fea0be1e-d3f5-488b-b53b-73ac28821676)
-      ![image](https://github.com/haarabi/dev-env/assets/2755929/b04c0e00-31a2-4f56-aab8-ec4233a7ca67)
-      ![image](https://github.com/haarabi/dev-env/assets/2755929/60d5a5f2-4dbf-4fe3-8741-5ba0a91aac40)
-      ![image](https://github.com/haarabi/dev-env/assets/2755929/71f056fa-085b-4801-b1ac-e44a2dba0982)
-
-
-
-
-
-
-
-
-
-
-    
+1. Docker
+   1. Install Docker Desktop
+      ```
+      brew install --cask docker
+      ```
+      * Confirm
+        ```
+        docker --version
+        docker run hello-world
+        ```
+   2. Configure Docker Desktop
+      * Set up the Docker Desktop options as follows (for MacBook Pro M1 Pro with 16 GB memory specs):
+        ![image](https://github.com/haarabi/dev-env/assets/2755929/6ad63deb-fa8a-489f-9741-1c59abae9ce2)
+        ![image](https://github.com/haarabi/dev-env/assets/2755929/a16138e7-5cf3-4b25-a1b1-394c4b9dca05)
+        ![image](https://github.com/haarabi/dev-env/assets/2755929/4e1bf8cc-bfff-4b25-8b92-b58ee39d389f)
+        ![image](https://github.com/haarabi/dev-env/assets/2755929/b402612d-3a7a-41c4-8e04-f36beb6968d1)
+        ![image](https://github.com/haarabi/dev-env/assets/2755929/064a22a8-1c60-44ee-9d15-9d5599bbcf8a)
+        ![image](https://github.com/haarabi/dev-env/assets/2755929/a733c5ad-b834-4db2-b733-c1e9a276466d)
+        * In the `Docker Engine` section, in the code block write the following:
+          ```
+          {
+            "builder": {
+              "gc": {
+                "defaultKeepStorage": "20GB",
+                "enabled": true
+              }
+            },
+            "experimental": false,
+            "storage-driver": "overlay2",
+            "log-opts": {
+              "max-size": "100m",
+              "max-file": "3"
+            },
+            "features": {
+              "buildkit": true
+            }
+          }
+          ```
+         ![image](https://github.com/haarabi/dev-env/assets/2755929/b47b8ad1-7dc7-40af-82c1-06788dfe6bf6)
+         ![image](https://github.com/haarabi/dev-env/assets/2755929/eca447b0-2e3d-44ec-a2f8-813cef127789)
+         ![image](https://github.com/haarabi/dev-env/assets/2755929/9c98ba13-cb63-40ff-bbbc-c666cf26f6ec)
+         ![image](https://github.com/haarabi/dev-env/assets/2755929/08a1309b-de69-47b1-b3de-d40350e26dde)
+         ![image](https://github.com/haarabi/dev-env/assets/2755929/fea0be1e-d3f5-488b-b53b-73ac28821676)
+         ![image](https://github.com/haarabi/dev-env/assets/2755929/b04c0e00-31a2-4f56-aab8-ec4233a7ca67)
+         ![image](https://github.com/haarabi/dev-env/assets/2755929/60d5a5f2-4dbf-4fe3-8741-5ba0a91aac40)
+         ![image](https://github.com/haarabi/dev-env/assets/2755929/71f056fa-085b-4801-b1ac-e44a2dba0982)
+   3. [Docker completion](https://docs.docker.com/config/completion/#zs)
+      1. Download `Docker Completion`
+         ```
+         curl -fLo ~/.oh-my-zsh/plugins/docker/_docker https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
+         ```
+      2. Add `docker` to the plugin block in `~/.zshrc.plugins`
+         ```
+         plugins=(... docker)
+         ```
+      3. Source the Zsh configuration:
+         ```
+         source ~/.zshrc
+         ```
+2. AWS CLI
+   1. Install
+      ```
+      brew install awscli
+      ```
+      * Confirm (expected: awc cli version)
+        ```
+        aws --version
+        ```
+   2. Configure
+      ```
+      aws configure
+      ```
+            
 ### 9. Other helpful tools  
 9. Tools
    1. [jq](https://github.com/jqlang/jq)
@@ -858,8 +892,7 @@ To create a development environment with the following characteristics:
    4. [thefuck](https://github.com/nvbn/thefuck)
       ```
       brew install thefuck
-      ```
-      
+      ```      
    5. [grammary](https://grammarly.com)
       ```
       brew install --cask grammarly-desktop
@@ -871,4 +904,8 @@ To create a development environment with the following characteristics:
    7. [htop](https://github.com/htop-dev/htop)
       ```
       brew install htop
+      ```
+   8. [postman](https://www.postman.com/)
+      ```
+      brew install --cask postman
       ```
