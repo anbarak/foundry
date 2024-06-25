@@ -174,7 +174,7 @@ To create a development environment with the following characteristics:
          ```
       5. Confirm
          ```
-         ccat <some_file_name>
+         ccat "some_file_name"
          ```
       
 ### 4. Tmux
@@ -204,7 +204,7 @@ To create a development environment with the following characteristics:
 3. Install plugins
    * General steps:
      ```
-     1. Add the plugin-name to the `~/.tmux.conf` file like `set -g @plugin '<plugin-name>'`
+     1. Add the plugin-name to the `~/.tmux.conf` file like `set -g @plugin '"plugin-name"'`
      2. Run `tmux source ~/.tmux.conf`
      3. Open a Tmux session and reload the configuration with `prefix + I`
      4. (optional) To update all installed plugins, use `prefix + U`
@@ -450,10 +450,14 @@ To create a development environment with the following characteristics:
    gpg --full-generate-key
    # Retrieve the keyid
    gpg --list-secret-keys --keyid-format LONG
+   # Configure git to use gpg
    git config --global user.signingkey "YOUR_KEY_ID"
-git config --global commit.gpgSign true
-
-   
+   git config --global commit.gpgSign true
+   # Copy the gpg key to put in github (*bitbucket does not support configuring gpg on the UI*)
+   gpg --armor --export YOUR_KEY_ID | pbcopy
+   # In GitHub, go to profile > security and add the new gpg key (for label use email)
+   # Tell git to use gpg
+   echo "use-agent" >> ~/.gnupg/gpg.conf 
    ```
    * gitignore (global)
      1. Create a `~/.gitignore_global` file with the following content
