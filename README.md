@@ -442,9 +442,12 @@ To create a development environment with the following characteristics:
    eval "$(ssh-agent -s)"
    ssh-add --apple-use-keychain ~/.ssh/id_ed25519
    pbcopy < ~/.ssh/id_ed25519.pub
+   # Test the SSH connection to both github and bitbucket
    ssh -T git@github.com
-
-   # Configure gpg signing
+   ssh -T git@bitbucket.org
+   git config --global url."git@bitbucket.org:".insteadOf "https://bitbucket.org/"
+   
+   # Configure gpg signing (as of 6/24/2024, the gpg commit signature has not been implemented in Bitbucket Cloud)
    brew install gnupg
    # Used the following for the key: RSA (sign only) with 2048 bits keysize and 3y expiration
    gpg --full-generate-key
@@ -457,7 +460,12 @@ To create a development environment with the following characteristics:
    gpg --armor --export YOUR_KEY_ID | pbcopy
    # In GitHub, go to profile > security and add the new gpg key (for label use email)
    # Tell git to use gpg
-   echo "use-agent" >> ~/.gnupg/gpg.conf 
+   echo "use-agent" >> ~/.gnupg/gpg.conf
+   # Fix the non-interactive issue when gpg expects to run interactive session to prompt for the passphrase
+   echo "test message" | gpg --pinentry-mode loopback --clearsign
+   gpg-agent --daemon
+   ssh-add -l  # List currently added keys
+   ssh-add ~/.ssh/id_ed25519  # Add your GPG key if not listed
    ```
    * gitignore (global)
      1. Create a `~/.gitignore_global` file with the following content
