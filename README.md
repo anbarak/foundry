@@ -46,9 +46,10 @@ To create a development environment with the following characteristics:
     2. Change the Font to `Hack Nerd Font Mono`, style `regular`, size `12`
     3. Change the character spacing to 1
     4. select gruvbox-dark profile as `Default`
-    5. close and open the Terminal  
+    5. In the `Window` tab change the `Window Size` (I changed the Columns to 125 and Rows to 200)
+    6. close and open the Terminal  
 ### 2. Homebrew
-* Install homebrew
+1. Install homebrew
     1. Download 
        ```
        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -63,6 +64,21 @@ To create a development environment with the following characteristics:
            ```
            brew --version
            ```
+2. Homebrew code completion
+   1. Add homebrew's prefix to the `$fpath` in ~/.zshrc.local
+      ```
+      fpath=($(brew --prefix)/share/zsh-completions $fpath)
+      ```
+   2. Enable completion and autoload compinit
+      ```
+      autoload -Uz compinit
+      compinit
+      ```
+   3. Fix permission for the insecure homebrew share directory
+      ```
+      sudo chmod -R go-w /opt/homebrew/share
+      ```
+   5. Reload zsh: `source ~/.zshrc`
 ### 3. Zsh
 1. Install zsh
    ```
@@ -87,18 +103,18 @@ To create a development environment with the following characteristics:
    ```
    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
    ``` 
-3. Zsh theme
-   * *I used to use [Powerlevel10k](https://github.com/romkatv/powerlevel10k#oh-my-zsh) but since that project is not being actively maintained, I switched to [Starship](https://github.com/romkatv/powerlevel10k#oh-my-zsh)*
-
-   ```
-   brew install starship
-   starship init zsh > ~/.zshrc.starship   
-   ```
-   1. Download Starship configuration (I used the following: https://starship.rs/presets/nerd-font), then run the following:
+3. Zsh theme (Powerlevel10k)
+   1. Download [Powerlevel10](https://github.com/romkatv/powerlevel10k)
       ```
-      starship preset nerd-font-symbols -o ~/.config/starship.toml
+      git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k  
       ```
-4. Set `LS_COLORS`
+   2. Add the following line of code to the `~/.zshrc.local` file
+      ```
+      ZSH_THEME="powerlevel10k/powerlevel10k"
+      ```
+   3. Restart zsh `source ~/.zshrc`
+   4. Go through the Powerlevel10k configuration wizard to select your desired settings 
+5. Set `LS_COLORS`
    1. Add the following lines to the `~/.zshrc.local` file
       ```
       export CLICOLOR=1
@@ -109,7 +125,7 @@ To create a development environment with the following characteristics:
       ```
       ls
       ```
-5. Create a script to check for Oh My Zsh updates
+6. Create a script to check for Oh My Zsh updates
    ```
    # Function to check for Oh My Zsh updates and prompt user
    check_omz_update() {
