@@ -443,6 +443,17 @@ To create a development environment with the following characteristics:
    ssh-add --apple-use-keychain ~/.ssh/id_ed25519
    pbcopy < ~/.ssh/id_ed25519.pub
    ssh -T git@github.com
+
+   # Configure gpg signing
+   brew install gnupg
+   # Used the following for the key: RSA (sign only) with 2048 bits keysize and 3y expiration
+   gpg --full-generate-key
+   # Retrieve the keyid
+   gpg --list-secret-keys --keyid-format LONG
+   git config --global user.signingkey §§YOUR_KEY_ID§§
+git config --global commit.gpgSign true
+
+   
    ```
    * gitignore (global)
      1. Create a `~/.gitignore_global` file with the following content
@@ -548,8 +559,17 @@ To create a development environment with the following characteristics:
         ```
         git config --global core.excludesfile ~/.gitignore_global
         ```
-     3. TODO: Add bash scripts to automate git workflow (e.g. add/commit/push)
-     4. TODO: Add the usage of git submodules for dependencies on other repos
+     3. GPG signing
+        ```
+        # Install GPG
+        brew install gnupg
+
+        # Generate GPG key
+        gpg --full-generate-key
+
+        ```
+     5. TODO: Add bash scripts to automate git workflow (e.g. add/commit/push)
+     6. TODO: Add the usage of git submodules for dependencies on other repositories
    * Confirm all the settings are sound by viewing the `~/.gitconfig` file
 
 ### 7. Programming Languages run-time
