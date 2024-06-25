@@ -450,7 +450,7 @@ To create a development environment with the following characteristics:
    gpg --full-generate-key
    # Retrieve the keyid
    gpg --list-secret-keys --keyid-format LONG
-   git config --global user.signingkey §§YOUR_KEY_ID§§
+   git config --global user.signingkey "YOUR_KEY_ID"
 git config --global commit.gpgSign true
 
    
