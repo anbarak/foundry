@@ -412,7 +412,146 @@ To create a development environment with the following characteristics:
     9. install Chrome extensions for Github:
        * [github-hovercard](https://justineo.github.io/github-hovercard/)
        * [octolinker](https://chromewebstore.google.com/detail/octolinker)
+2. Configure git
+   ```
+   git config --global user.name "Your Name"
+   git config --global user.email "your.email@example.com"
+
+   # Preferred editor
+   git config --global core.editor "vim"
    
+   # Useful aliases to speed up common commands
+   git config --global alias.st status
+   git config --global alias.co checkout
+   git config --global alias.br branch
+   git config --global alias.ci commit
+   git config --global alias.lg "log --oneline --graph --all --decorate"
+   git config --global alias.df diff
+   git config --global alias.last "log -1 HEAD"
+   
+   # Enable color for better readability
+   git config --global color.ui auto
+
+   # Configure credential caching to avoid typing my password repeatedly
+   git config --global --get-all credential.helper # only if another credential exists.helper exists
+   git config --global --unset-all credential.helper # only if another credential exists.helper exists
+   git config --global credential.helper osxkeychain
+
+   # Configure SSH for GitHub
+   ssh-keygen -t ed25519 -C "your.email@example.com"
+   eval "$(ssh-agent -s)"
+   ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+   pbcopy < ~/.ssh/id_ed25519.pub
+   ssh -T git@github.com
+   ```
+   * gitignore (global)
+     1. Create a `~/.gitignore_global` file with the following content
+        ```
+        # macOS system files
+        .DS_Store
+        .AppleDouble
+        .LSOverride
+        Icon
+        
+        # Vim and Neovim swap files
+        *.swp
+        *.swo
+        *.swn
+        *.swm
+        *.swl
+        *.swk
+        *.swt
+        *.sws
+        *.swq
+        *.swo
+        *.swl
+        *.swp
+        *.swz
+        *.swn
+        *.swv
+        *.swu
+        
+        # NeoVim
+        *.un~
+        
+        # Vim
+        [._]*.s[a-w][a-z]
+        [._]s[a-w][a-z]
+        [._]S[A-W][A-Z]
+        [._]s[A-W][A-Z]
+        *~
+        *.[a-z][a-z~]
+        
+        # tmux
+        .tmuxinator.yml
+        
+        # Python
+        __pycache__/
+        *.py[cod]
+        *$py.class
+        
+        # Go
+        *.exe
+        *.exe~
+        *.dll
+        *.so
+        *.dylib
+        
+        # Bash
+        *.sh~
+        
+        # Docker
+        .dockerignore
+        .docker/
+        
+        # Kubernetes
+        .kube/
+        
+        # Terraform
+        .terraform/
+        terraform.tfstate
+        terraform.tfstate.backup
+        *.tfplan
+        
+        # AWS
+        .aws-sam/
+        
+        # GCP
+        .gcloud/
+        
+        # General
+        *.log
+        *.tmp
+        *.bak
+        *.old
+        *~
+        
+        # Editor-specific directories
+        .idea/
+        .vscode/
+        
+        # macOS specific directories
+        .DocumentRevisions-V100/
+        .fseventsd/
+        
+        # zsh
+        .zcompdump*
+        
+        # Ignore macOS spotlight and directory cache
+        .Spotlight-V100
+        .Trashes
+        
+        # Windows system files
+        Thumbs.db
+        ```
+     2. Configure git to use the above global ignore file
+        ```
+        git config --global core.excludesfile ~/.gitignore_global
+        ```
+     3. TODO: Add bash scripts to automate git workflow (e.g. add/commit/push)
+     4. TODO: Add the usage of git submodules for dependencies on other repos
+   * Confirm all the settings are sound by viewing the `~/.gitconfig` file
+
 ### 7. Programming Languages run-time
 1. Go
    1. Install Go
