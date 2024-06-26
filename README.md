@@ -47,7 +47,11 @@ To create a development environment with the following characteristics:
     3. Change the character spacing to 1
     4. select gruvbox-dark profile as `Default`
     5. In the `Window` tab change the `Window Size` (I changed the Columns to 125 and Rows to 200)
-    6. close and open the Terminal  
+    6. close and open the Terminal
+3. Ensure mouse reporting is enabled in macOS Terminal (if not update and restart the Terminal)
+
+   ![image](https://github.com/haarabi/dev-env/assets/2755929/680af9b5-164a-49ca-a627-4f740fe5962b)
+
 ### 2. Homebrew
 1. Install homebrew
     1. Download 
@@ -214,9 +218,18 @@ To create a development environment with the following characteristics:
         set -g @plugin 'tmux-plugins/tpm'
         set -g @plugin 'tmux-plugins/tmux-sensible'
 
+        # Set vi mode bindings in copy mode
+        setw -g mode-keys vi
+
+        # Allow 256 colors (useful for syntax highlighting)
+        set -g default-terminal "screen-256color"
+
         # Copy to macOS clipboard using pbcopy
         bind -T copy-mode-vi y send -X copy-pipe-and-cancel "reattach-to-user-namespace pbcopy"
-        
+        bind-key -T copy-mode-vi v send-keys -X begin-selection
+        bind-key -T copy-mode-vi y send-keys -X copy-selection
+        bind-key -T copy-mode-vi Escape send-keys -X cancel
+
         # Ensure vim clipboard works within tmux
         set-option -g default-command "reattach-to-user-namespace -l zsh"
         
