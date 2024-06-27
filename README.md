@@ -117,7 +117,7 @@ To create a development environment with the following characteristics:
       ZSH_THEME="powerlevel10k/powerlevel10k"
       ```
    3. Restart zsh `source ~/.zshrc`
-   4. Go through the Powerlevel10k configuration wizard to select your desired settings 
+   4. Go through the Powerlevel10k configuration wizard to select your desired settings `p10k configure`
 5. Set `LS_COLORS`
    1. Add the following lines to the `~/.zshrc.local` file
       ```
@@ -725,8 +725,40 @@ To create a development environment with the following characteristics:
          ```
          :PlugInstall
          ```
-   3. (optional) Install pyenv
-   4. (optional) Install pipenv
+   3. If working with Python (the below setup will give the best flexible version management, environment isolation, and easy package distribution)
+      *Note: Use Homebrew for installing Python itself (brew install python) and select system-wide packages that are less likely to cause conflicts. Use Virtual Environments (python -m venv) for individual projects or when you need specific versions of packages that differ from those available via Homebrew.*
+      1. [pyenv](https://github.com/pyenv/pyenv) - for managing multiple python versions
+         1. Install
+            `brew install pyenv`
+         2. Add the following to the `~/.zshrc` file
+            ```
+            # Load pyenv automatically
+            export PATH="/opt/homebrew/opt/pyenv/bin:$PATH"
+            eval "$(pyenv init --path)"
+            eval "$(pyenv init -)"
+            eval "$(pyenv virtualenv-init -)"
+            ```
+         3. Apply the changes to the current shell session: `source ~/.zshrc`          
+      2. [pipenv](https://github.com/pypa/pipenv) - to create/manage virtual environments with `pyenv`
+         1. Download
+            ```
+            git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
+            ```
+         3. Add the following to the `~/.zshrc` file
+            ```
+            eval "$(pyenv virtualenv-init -)"
+            ```
+         4. Apply the changes to the current shell session: `source ~/.zshrc` 
+      3. [setuptools](https://github.com/pypa/setuptools) - for developing and distributing Python packages
+         1. Install (pick the python version you are working with)
+            ```
+            pyenv install 3.12.4
+            pyenv virtualenv 3.12.4 myproject-env
+            pyenv activate myproject-env
+            python -m pip install setuptools
+            python -m pip install --upgrade pip
+            pyenv deactivate
+            ```
 3. Node
    ```
    brew install node
