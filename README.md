@@ -358,12 +358,18 @@ To create a development environment with the following characteristics:
    3. Add a file `~/.vim/autoload_plugins.vim`
       ```
       " Contains the Vim-Plug installation and setup
-
       if empty(glob('~/.vim/autoload/plug.vim'))
         silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
           \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
         autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
       endif
+
+      " Automatically run PlugInstall if there are missing plugins
+      autocmd VimEnter *
+        \ if len(filter(values(g:plugs), '!isdirectory(v:val.dir)')) |
+        \   PlugInstall --sync |
+        \   source $MYVIMRC |
+        \ endif
       ```
    5. Add a file `~/.vim/plugin_config.vim`
       ```
@@ -447,8 +453,7 @@ To create a development environment with the following characteristics:
        brew tap craftamap/tap && brew install bb
        ```
     7. install [Sourcetree](https://sourcetreeapp.com/)
-       * Configure `Sourcetree`
-       * 
+       * Configure `Sourcetree` (In the settings update the account to use SSH connection. Copy SSH key and paste it into the bitbucket SSH Key, as a new key [label: my-email-sourcetree]) 
     9. install Chrome extensions for Github:
        * [github-hovercard](https://justineo.github.io/github-hovercard/)
        * [octolinker](https://chromewebstore.google.com/detail/octolinker)
