@@ -1316,3 +1316,7 @@ To create a development environment with the following characteristics:
    ```
    brew install --cask postman
    ```
+9. [airtrash](https://github.com/maciejczyzewski/airtrash/)
+   ```
+   brew update && brew cask install airtrash
+   ```
