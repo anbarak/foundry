@@ -390,7 +390,6 @@ To create a development environment with the following characteristics:
       Plug 'junegunn/fzf.vim'
       Plug 'mattn/emmet-vim'
       Plug 'preservim/nerdtree'            " File system explorer
-      Plug 'terryma/vim-multiple-cursors'
       Plug 'tpope/vim-commentary'
       Plug 'tpope/vim-eunuch'
       Plug 'tpope/vim-fugitive'
