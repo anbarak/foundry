@@ -224,10 +224,10 @@ To create a development environment with the following characteristics:
         # Allow 256 colors (useful for syntax highlighting)
         set -g default-terminal "screen-256color"
 
-        # Copy to macOS clipboard using pbcopy
+        # Automatically copy to clipboard on select
         bind -T copy-mode-vi y send -X copy-pipe-and-cancel "reattach-to-user-namespace pbcopy"
-        bind-key -T copy-mode-vi v send-keys -X begin-selection
-        bind-key -T copy-mode-vi y send-keys -X copy-selection
+        bind-key -T copy-mode-vi v send-keys -X begin-selection \; send-keys -X copy-pipe-and-cancel "pbcopy"
+        bind-key -T copy-mode-vi y send-keys -X copy-selection \; run-shell "echo '$(tmux show-buffer)' | pbcopy"
         bind-key -T copy-mode-vi Escape send-keys -X cancel
 
         # Ensure vim clipboard works within tmux
@@ -835,7 +835,16 @@ To create a development environment with the following characteristics:
       # Deactivate the virtual environment after installation completes
       deactivate
       ```
-   5. Configure YCM for specific languages (e.g. Go, Python)
+   5. Add language formatters for linting
+      1. Add `Chiel92/vim-autoformat` vim plugin to `~/.vim/autoload_plugins.vim` file
+         ```
+         Plug 'Chiel92/vim-autoformat'  " Autoformat plugin
+         ```
+      2. Install various language formatters
+         ```
+         brew install shfmt shellcheck go golangci-lint black flake8 terraform tflint hadolint kube-score prettier eslint stylelint
+         ```
+   6. Configure YCM for specific languages (e.g. Go, Python)
       1. Create a `~/.ycm_extra_conf.py` file
       2. Add the following to the file
          ```
@@ -871,7 +880,7 @@ To create a development environment with the following characteristics:
            >>> for path in sys.path:
            ...     print(path)
            ```
-    6. Additional configuration for tools
+    7. Additional configuration for tools
        1. Add the following to the `~/.zshrc.local` file
           ```
           # Linux commands
