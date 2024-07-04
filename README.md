@@ -630,9 +630,9 @@ To create a development environment with the following characteristics:
 
 ### 7. Programming Languages run-time
 1. Go
-   1. Install Go
+   1. Install Go and [goenv](https://github.com/go-nv/goenv)
       ```
-      brew install go
+      brew install go goenv
       ```
    3. configure the environment
       1. Add the following lines to ~/.zshrc.local to set up the Go environment variables
@@ -1185,7 +1185,7 @@ To create a development environment with the following characteristics:
          ```
          source ~/.zshrc
          ```
-2. AWS CLI
+2. AWS CLI and related tools
    1. Install
       ```
       brew install awscli
@@ -1212,6 +1212,10 @@ To create a development environment with the following characteristics:
          ```
          aws configure --profile personal
          ```
+   4. Install [session-manager-plugin](https://github.com/aws/session-manager-plugin)
+      ```
+      brew install session-manager-plugin
+      ```
 3. GCP CLI
    1. Install Google Cloud SDK
       ```
@@ -1276,9 +1280,9 @@ To create a development environment with the following characteristics:
          ```
          source ~/.zshrc
          ```
-   6. Install [k9s](https://github.com/derailed/k9s)
+   6. Install [k9s](https://github.com/derailed/k9s) and [kubectx](https://github.com/ahmetb/kubectx)
       ```
-      brew install k9s
+      brew install k9s kubectx
       ```
 5. Terraform
    1. Install
@@ -1292,39 +1296,48 @@ To create a development environment with the following characteristics:
    3. Enhance with plugin
       * Add `terraform` to the plugin array in ~/.zshrc.plugins   
 ### 9. Other helpful tools  
-1. [jq](https://github.com/jqlang/jq)
+1. [coreutils](https://github.com/coreutils/coreutils)
+   ```
+   brew install coreutils
+   ```
+   1. Configure so that the commands can be specified without prefixing them with a g (e.g. gls)
+      ```
+      echo 'export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"' >> ~/.zshrc
+      source ~/.zshrc
+      ```
+3. [jq](https://github.com/jqlang/jq)
    ```
    brew install jq
    ```
-2. [tldr](https://github.com/tldr-pages/tldr)
+4. [tldr](https://github.com/tldr-pages/tldr)
    ```
    brew install tldr
    ```
-3. [tre](https://github.com/dduan/tre)
+5. [tre](https://github.com/dduan/tre)
    ```
    brew install tre-command
    ```
-4. [thefuck](https://github.com/nvbn/thefuck)
+6. [thefuck](https://github.com/nvbn/thefuck)
    ```
    brew install thefuck
    ```      
-5. [grammary](https://grammarly.com)
+7. [grammary](https://grammarly.com)
    ```
    brew install --cask grammarly-desktop
    ```
-6. [lsd](https://.com/lsd-rs/lsd)
+8. [lsd](https://.com/lsd-rs/lsd)
    ```
    brew install lsd
    ```
-7. [htop](https://github.com/htop-dev/htop)
+9. [htop](https://github.com/htop-dev/htop)
    ```
    brew install htop
    ```
-8. [postman](https://www.postman.com/)
+10. [postman](https://www.postman.com/)
    ```
    brew install --cask postman
    ```
-9. [airtrash](https://github.com/maciejczyzewski/airtrash/)
+11. [airtrash](https://github.com/maciejczyzewski/airtrash/)
    ```
    brew update && brew cask install airtrash
    ```
