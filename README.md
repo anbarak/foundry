@@ -1294,7 +1294,13 @@ To create a development environment with the following characteristics:
       terraform --version
       ```
    3. Enhance with plugin
-      * Add `terraform` to the plugin array in ~/.zshrc.plugins   
+      * Add `terraform` to the plugin array in ~/.zshrc.plugins
+   4. Install [warrensbox/tap/tfswitch](https://github.com/warrensbox/terraform-switcher)
+      ```
+      brew unlink terraform
+      brew install warrensbox/tap/tfswitch
+      brew link terraform
+      ```
 ### 9. Other helpful tools  
 1. [coreutils](https://github.com/coreutils/coreutils)
    ```
