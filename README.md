@@ -312,6 +312,24 @@ To create a development environment with the following characteristics:
      ```
      brew install reattach-to-user-namespace
      ```
+  4. Install [tmux-powerline](https://github.com/erikw/tmux-powerline)
+     ```
+     git clone https://github.com/erikw/tmux-powerline.git ~/.tmux-powerline
+     ```
+     1. Add the following to the `~/.tmux.conf` file
+        ```
+        # Path to tmux-powerline
+        set -g @plugin 'erikw/tmux-powerline'
+        ```
+        ```
+        # Left side of the status bar
+        set -g status-left-length 40
+        set -g status-left "#(~/tmux-powerline/powerline.sh left)"
+        
+        # Right side of the status bar
+        set -g status-right-length 140
+        set -g status-right "#(~/tmux-powerline/powerline.sh right)"
+        ```
      
 ### 5. Vim
 1. Install vim
