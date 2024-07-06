@@ -1,28 +1,71 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 #####################################################################################
 # This is your main zsh configuration file. It contains settings specific to your   #
 # zsh environment, such as aliases, keybindings, and environment variables. It      #
 # should ideally be focused on core functionality and avoid clutter.                #
 #####################################################################################
 
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
-export PATH="/opt/homebrew/bin:$PATH"  # For Apple Silicon Macs
+# Function to add paths only if they are not already in PATH
+add_to_path() {
+  for DIR in "$@"; do
+    case ":$PATH:" in
+      *":$DIR:"*) ;;
+      *) PATH="$DIR:$PATH" ;;
+    esac
+  done
+}
+
+# Reset PATH to a minimal default to avoid duplicates
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+export USER_HOME="$HOME"
+export HOMEBREW_PREFIX=$(/opt/homebrew/bin/brew --prefix)
+
+# GNU coreutils paths - added at the beginning to take precedence
+add_to_path "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
+
+# Homebrew paths
+if [[ -n "$HOMEBREW_PREFIX" ]]; then
+  add_to_path "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin"
+  export MANPATH="$HOMEBREW_PREFIX/share/man:$MANPATH"
+  export INFOPATH="$HOMEBREW_PREFIX/share/info:$INFOPATH"
+
+  # Cloud SDK paths
+  add_to_path "$HOMEBREW_PREFIX/share/google-cloud-sdk/bin"
+fi
+
+# Python paths
+export PYTHON_USER_BASE="$USER_HOME/Library/Python/3.x/bin"
+add_to_path "$PYTHON_USER_BASE"  # Replace 3.x with your Python version
+
+# Apple security paths
+add_to_path "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin" \
+            "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin" \
+            "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+
+# Go paths
+add_to_path "$USER_HOME/go/bin" "$HOMEBREW_PREFIX/opt/go/libexec/bin"
+
+# Pyenv paths
+add_to_path "$USER_HOME/.pyenv/plugins/pyenv-virtualenv/shims" "$USER_HOME/.pyenv/shims"
+
+# Add krew path
+add_to_path "$USER_HOME/.krew/bin"
 
 # Path to your Oh My Zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
+export ZSH="$USER_HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-#ZSH_THEME="robbyrussel"
-# Used homebrew to install starship theme, should not specifying the theme here
-
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in $ZSH/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -78,10 +121,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-# Plugins are managed in the local configuration file (~/.zshrc.local)
-# Please refer to that file for details on activated plugins.
-# plugins=(git)
-plugins=()
+plugins=() # Refer to ~/.zshrc.plugins
 
 # Load Oh My Zsh
 source $ZSH/oh-my-zsh.sh
@@ -110,13 +150,24 @@ source $ZSH/oh-my-zsh.sh
 # - $ZSH_CUSTOM/aliases.zsh
 # - $ZSH_CUSTOM/macos.zsh
 # For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
+# alias are located in ~/.zshrc.local file
+
+# Load pyenv automatically
+if [[ -d "$USER_HOME/.pyenv" ]]; then
+  add_to_path "$USER_HOME/.pyenv/bin"
+  eval "$(pyenv init --path)"
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+fi
 
 # Source local configuration file
-# Source local configuration file
-if [ -f "$HOME/.zshrc.local" ]; then
-  source "$HOME/.zshrc.local"
+if [ -f "$USER_HOME/.zshrc.local" ]; then
+  source "$USER_HOME/.zshrc.local"
 fi
+# Source git-completion file
+if [ -f "$USER_HOME/.git-completion.zsh" ]; then
+  source "$USER_HOME/.git-completion.zsh"
+fi
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh
+[[ ! -f "$USER_HOME/.p10k.zsh" ]] || source "$USER_HOME/.p10k.zsh"
