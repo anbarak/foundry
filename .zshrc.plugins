@@ -6,8 +6,15 @@
 # Option 1: Using a plugin array (recommended)
 plugins=(
     autojump
+    aws
+    clipboard
+    colorize
+    docker
+    gcloud
+    gcp
     git
     history
+    terraform
     zsh-autosuggestions
     zsh-syntax-highlighting
 )
