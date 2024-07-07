@@ -388,6 +388,9 @@ To create a development environment with the following characteristics:
         \   PlugInstall --sync |
         \   source $MYVIMRC |
         \ endif
+
+      " Custom configuration for vim-yaml-folds
+      let g:vim_yaml_folds_custom_foldtext = 1
       ```
    5. Add a file `~/.vim/plugin_config.vim`
       ```
@@ -415,6 +418,7 @@ To create a development environment with the following characteristics:
       Plug 'tpope/vim-surround'
       Plug 'vim-airline/vim-airline'
       Plug 'w0rp/ale'
+      Plug 'pedrohdz/vim-yaml-folds'
       
       " End of plugin list
       call plug#end()
