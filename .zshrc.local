@@ -52,7 +52,7 @@ alias split='gsplit'
 alias uniq='guniq'
 alias join='gjoin'
 alias comm='gcomm'
-alias diff='gdiff'
+alias diff='/opt/homebrew/opt/diffutils/bin/diff'
 alias patch='gpatch'
 alias tr='gtr'
 alias expand='gexpand'
@@ -199,7 +199,7 @@ alias docker_rmi_all='docker rmi $(docker images -q)'  # Remove all Docker image
 alias docker_prune='docker system prune -af'           # Remove all unused Docker data
 
 # Kubernetes commands
-alias k='kubectl'
+alias kc='kubectl'
 alias kctx='kubectl config use-context'                       # Switch context
 alias kns='kubectl config set-context --current --namespace'  # Set namespace
 alias kget='kubectl get'                                      # Get resources
@@ -421,6 +421,11 @@ fi
 
 # Add Krew to PATH
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+
+# Source k plugin
+if [ -f "$ZSH/custom/plugins/k/k.sh" ]; then
+  source "$ZSH/custom/plugins/k/k.sh"
+fi
 
 # Plugin management (using plugin array)
 if [ -f "$HOME/.zshrc.plugins" ]; then
