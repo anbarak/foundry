@@ -21,8 +21,7 @@
 
 ## Goal
 To create a development environment with the following characteristics:
-* only dependency to install Docker Desktop (to be done)
-* created once and used anywhere (Linux, macOS, Windows)
+* Fast
 * Lightweight
 * Modern
 * Efficient
@@ -30,6 +29,8 @@ To create a development environment with the following characteristics:
 * Easy on the eyes
 * Portable
 * Free of cost
+* TODO: Only dependency to install Docker Desktop
+* TODO: created once and used anywhere (Linux, macOS, Windows)
 
 ## Setup
 ### 1. Terminal
