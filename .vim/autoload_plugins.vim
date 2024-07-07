@@ -51,6 +51,7 @@ Plug 'tpope/vim-eunuch'                     " Unix-like commands for Vim
 Plug 'tpope/vim-sensible'                   " Opinionated defaults for Vim
 Plug 'tpope/vim-surround'                   " Surround text objects
 Plug 'morhetz/gruvbox'                      " Colorsheme for vim
+Plug 'lukas-reineke/virt-column.nvim'       " Add this line to install vim-virtcolumn 
 
 " UI Enhancements
 Plug 'vim-airline/vim-airline'              " Status/tabline
@@ -63,6 +64,7 @@ Plug 'joshdick/onedark.vim'                 " One Dark theme for Vim
 Plug 'sheerun/vim-polyglot'                      " Language pack for Vim
 Plug 'jiangmiao/auto-pairs'                      " Automatic insertion of pairs
 Plug 'neoclide/coc.nvim', {'branch': 'release'}  " LSP client for language aware autocompletion
+Plug 'pedrohdz/vim-yaml-folds'                   " Folding configuration for YAML
 
 " Go development plugins
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
