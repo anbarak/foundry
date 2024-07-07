@@ -7,13 +7,20 @@
 plugins=(
     autojump
     aws
+    brew
     clipboard
+    colored-man-pages
     colorize
+    dirhistory
     docker
+    fzf
     gcloud
     gcp
     git
     history
+    k
+    pip
+    python
     terraform
     zsh-autosuggestions
     zsh-syntax-highlighting
