@@ -1,12 +1,18 @@
 " Enable mouse support
-syntax enable
+syntax enable 
 
 " Force enable syntax highlighting
 syntax on
 
+" File type detection
+filetype off
+filetype plugin indent on
+
 " Essential settings
 set tabstop=4                             " Number of spaces that a <Tab> in the file counts for
 set shiftwidth=4                          " Number of spaces to use for each step of (auto)indent
+set linebreak                             " Line break mode
+set nocompatible                          " Enable Vim's enhanced features 
 set expandtab                             " Use spaces instead of tabs
 set number                                " Show line numbers
 set relativenumber                        " Enable relative line numbers
@@ -30,6 +36,22 @@ set completeopt=menuone,noinsert,noselect " Enable auto-completion
 set showmatch                             " Show matching parantheses
 set foldmethod=syntax                     " Enable folding with syntax
 set foldlevel=99                          " Open all folds by default
+set foldlevelstart=20                     " Folding settings
+
+" Highlight column 80
+set colorcolumn=120
+highlight ColorColumn ctermbg=none ctermfg=gray
+
+" Cursor mode settings
+let &t_SI.="\e[5 q" "SI = INSERT mode
+let &t_SR.="\e[4 q" "SR = REPLACE mode
+let &t_EI.="\e[1 q" "EI = NORMAL mode (ELSE)
+
+" Add fzf to the runtime path
+set rtp+=/usr/local/opt/fzf
+
+" YAML filetype settings
+autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
 
 " Set the colorscheme
 autocmd vimenter * ++nested colorscheme gruvbox
