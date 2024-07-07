@@ -1365,3 +1365,15 @@ To create a development environment with the following characteristics:
    ```
    brew update && brew cask install airtrash
    ```
+12. [diffutils](https://www.gnu.org/software/diffutils/manual/html_node/)
+    ```
+    brew install diffutils
+    ```
+    1. Add the following alias to `~/.zshrc.local` file
+       ```
+       alias diff='/opt/homebrew/opt/diffutils/bin/diff'
+       ```
+    2. Reload zsh configuration
+       ```
+       source ~/.zshrc
+       ```
