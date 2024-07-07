@@ -182,6 +182,9 @@ let g:linters_dockerfile = ['hadolint']
 let g:lintdef_kube_score = "'kube-score score -o ci'"
 let g:linters_yaml = ['kube_score']
 
+" YAML
+let g:vim_yaml_folds_custom_foldtext = 1
+
 " HTML, CSS, JavaScript, React
 let g:formatdef_prettier = "'prettier --stdin-filepath '.expand('%:p')"
 let g:formatters_html = ['prettier']
@@ -202,6 +205,12 @@ let g:autoformat_retab = 0
 let g:autoformat_verbosemode = 0
 let g:autoformat_autoindent = 1
 let g:autoformat_retab = 1
+
+" ALE linting settings
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let g:ale_sign_error = '✘'
+let g:ale_sign_warning = '⚠'
+let g:ale_lint_on_text_changed = 'never'
 
 " Keybindings for formatting
 nnoremap <leader>f :Autoformat<CR>
