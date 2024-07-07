@@ -17,7 +17,7 @@
 * Tmux plugin manager: [Tmux Plugin Manager (TPM)](https://github.com/tmux-plugins/tpm)
 * Text editor: [Vim](https://github.com/vim/vim)
 * Vim plugin manager: [vim-plug](https://github.com/junegunn/vim-plug)
-* Code completion tool: [YouCompleteMe](https://github.com/ycm-core/YouCompleteMe)
+* Code completion tool: [coc.nvim](https://github.com/neoclide/coc.nvim)
 
 ## Goal
 To create a development environment with the following characteristics:
