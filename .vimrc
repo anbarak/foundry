@@ -1,5 +1,8 @@
 " Enable mouse support
-syntax enable 
+syntax enable
+
+" Force enable syntax highlighting
+syntax on
 
 " Essential settings
 set tabstop=4                             " Number of spaces that a <Tab> in the file counts for
