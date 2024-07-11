@@ -1382,3 +1382,11 @@ To create a development environment with the following characteristics:
        ```
        source ~/.zshrc
        ```
+13. [mycli](https://github.com/dbcli/mycli)
+    ```
+    brew install mycli
+    ```
+14. [grep](https://www.gnu.org/software/grep/)
+    ```
+    brew install grep
+    ```
