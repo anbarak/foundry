@@ -537,6 +537,26 @@ To create a development environment with the following characteristics:
    ssh-add -l  # List currently added keys
    ssh-add ~/.ssh/id_ed25519  # Add your GPG key if not listed
    ```
+   * Add the following to the `~/.ssh/config`
+     ```
+     Host github.com
+       HostName github.com
+       User git
+       IdentityFile ~/.ssh/id_ed25519
+       IdentitiesOnly yes
+       PreferredAuthentications publickey
+       UseKeychain yes
+       AddKeysToAgent yes
+     
+     Host bitbucket.org
+       HostName bitbucket.org
+       User git
+       IdentityFile ~/.ssh/id_ed255
+       IdentitiesOnly yes
+       PreferredAuthentications publickey
+       UseKeychain yes
+       AddKeysToAgent yes
+     ```
    * gitignore (global)
      1. Create a `~/.gitignore_global` file with the following content
         ```
