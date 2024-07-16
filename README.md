@@ -1,5 +1,5 @@
 # Development Environment
-## References: 
+## Inspirations: 
 * [youre-missing-out-on-a-better-mac-terminal-experience](https://medium.com/@caulfieldOwen/youre-missing-out-on-a-better-mac-terminal-experience-d73647abf6d7)
 * [use-homebrew-zsh-instead-of-the-osx-default](https://rick.cogley.info/post/use-homebrew-zsh-instead-of-the-osx-default/)
 * [iterm2-zsh](https://opensource.com/article/20/8/iterm2-zsh)
