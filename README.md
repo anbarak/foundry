@@ -1328,12 +1328,12 @@ To create a development environment with the following characteristics:
          ```
    6. Install [k9s](https://github.com/derailed/k9s) and [kubectx](https://github.com/ahmetb/kubectx)
       ```
-      brew install k9s kubectx
+      brew update && brew install k9s kubectx
       ```
 5. Terraform
    1. Install
       ```
-      brew install terraform
+      brew update && brew install terraform
       ```
    2. Confirm (expected: version)
       ```
@@ -1344,13 +1344,13 @@ To create a development environment with the following characteristics:
    4. Install [warrensbox/tap/tfswitch](https://github.com/warrensbox/terraform-switcher)
       ```
       brew unlink terraform
-      brew install warrensbox/tap/tfswitch
+      brew update && brew install warrensbox/tap/tfswitch
       brew link terraform
       ```
 ### 9. Other helpful tools  
 1. [coreutils](https://github.com/coreutils/coreutils)
    ```
-   brew install coreutils
+   brew update && brew install coreutils
    ```
    1. Configure so that the commands can be specified without prefixing them with a g (e.g. gls)
       ```
@@ -1359,35 +1359,35 @@ To create a development environment with the following characteristics:
       ```
 3. [jq](https://github.com/jqlang/jq)
    ```
-   brew install jq
+   brew update && brew install jq
    ```
 4. [tldr](https://github.com/tldr-pages/tldr)
    ```
-   brew install tldr
+   brew update && brew install tldr
    ```
 5. [tre](https://github.com/dduan/tre)
    ```
-   brew install tre-command
+   brew update && brew install tre-command
    ```
 6. [thefuck](https://github.com/nvbn/thefuck)
    ```
-   brew install thefuck
+   brew update && brew install thefuck
    ```      
 7. [grammary](https://grammarly.com)
    ```
-   brew install --cask grammarly-desktop
+   brew update && brew install --cask grammarly-desktop
    ```
 8. [lsd](https://.com/lsd-rs/lsd)
    ```
-   brew install lsd
+   brew update && brew install lsd
    ```
 9. [htop](https://github.com/htop-dev/htop)
    ```
-   brew install htop
+   brew update && brew install htop
    ```
 10. [postman](https://www.postman.com/)
    ```
-   brew install --cask postman
+   brew update && brew install --cask postman
    ```
 11. [airtrash](https://github.com/maciejczyzewski/airtrash/)
    ```
@@ -1395,7 +1395,7 @@ To create a development environment with the following characteristics:
    ```
 12. [diffutils](https://www.gnu.org/software/diffutils/manual/html_node/)
     ```
-    brew install diffutils
+    brew update && brew install diffutils
     ```
     1. Add the following alias to `~/.zshrc.local` file
        ```
@@ -1407,9 +1407,9 @@ To create a development environment with the following characteristics:
        ```
 13. [mycli](https://github.com/dbcli/mycli)
     ```
-    brew install mycli
+    brew update && brew install mycli
     ```
 14. [grep](https://www.gnu.org/software/grep/)
     ```
-    brew install grep
+    brew update && brew install grep
     ```
