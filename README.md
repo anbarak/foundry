@@ -1432,14 +1432,14 @@ To create a development environment with the following characteristics:
         fi
       fi
       ```
-    * Create a `~/.inputrc` file and add the following to it
+    * Create a `~/.editrc` file and add the following to it
       ```
       # Enable autocompletion for MySQL client
-      $if mysql
-      set completion-ignore-case on
-      set show-all-if-ambiguous on
-      TAB: menu-complete
-      $endif
+      # Use vi mode in the MySQL client
+      mysql:bind -v
+      
+      # Enable autocompletion with Tab
+      bind ^I rl_complete
       ```
       * Then load the changes
         ```
