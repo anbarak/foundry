@@ -1,0 +1,60 @@
+# Enable case-insensitive completion
+set completion-ignore-case on
+
+# Show all completions when the input is ambiguous
+set show-all-if-ambiguous on
+
+# Do not ring bell on completion
+set bell-style none
+
+# Enable vi editing mode
+set editing-mode vi
+set keymap vi-command
+
+# Enable advanced tab completion
+TAB: menu-complete
+
+# Treat hyphens and underscores as equivalent
+set completion-map-case on
+
+# Perform partial completion on the first TAB
+set show-all-if-unmodified on
+
+# Allow the same shortcut to cycle through options
+"\e[Z": menu-complete
+
+# Add your own shortcuts and macros
+"\C-r": reverse-search-history
+"\C-a": beginning-of-line
+"\C-e": end-of-line
+"\C-k": kill-line
+"\C-u": unix-line-discard
+"\C-w": unix-word-rubout
+"\e\C-u": backward-kill-line
+
+# Configure for MySQL client
+$if mysql
+set completion-ignore-case on
+set show-all-if-ambiguous on
+TAB: menu-complete
+$endif
+
+# Additional settings for Readline
+set completion-query-items 100  # Ask if there are more than 100 completions
+set history-preserve-point on   # Preserve the point when reusing history lines
+set horizontal-scroll-mode on   # Enable horizontal scrolling in the prompt
+
+# Fix home/end key handling
+"\e[1~": beginning-of-line
+"\e[4~": end-of-line
+"\e[5~": beginning-of-history
+"\e[6~": end-of-history
+"\e[3~": delete-char
+"\e[2~": quoted-insert
+
+# Meta + key bindings
+"\e[1;3C": forward-word  # Alt + Right arrow
+"\e[1;3D": backward-word # Alt + Left arrow
+
+# Custom macro for pasting
+"\e[200~": paste-from-clipboard
