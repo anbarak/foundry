@@ -4,21 +4,6 @@ mysql:bind -v
 # Enable autocompletion with Tab
 bind "^I" rl_complete
 
-# Treat hyphens and underscores as equivalent
-bind "set completion-map-case on"
-
-# Perform partial completion on the first TAB
-bind "set show-all-if-unmodified on"
-
-# Enable case-insensitive completion
-bind "set completion-ignore-case on"
-
-# Show all completions when the input is ambiguous
-bind "set show-all-if-ambiguous on"
-
-# Do not ring bell on completion
-bind "set bell-style none"
-
 # Bind keys for easier navigation (for vi mode)
 bind "^[[1~" beginning-of-line  # Home key
 bind "^[[4~" end-of-line        # End key
@@ -29,9 +14,6 @@ bind "^[[6~" end-of-history        # Page Down key
 # Custom bindings for word navigation
 bind "\e[1;3C" forward-word  # Alt + Right arrow
 bind "\e[1;3D" backward-word # Alt + Left arrow
-
-# Custom macro for pasting
-bind "\e[200~" paste-from-clipboard
 
 # Enable horizontal scrolling
 bind "set horizontal-scroll-mode on"
