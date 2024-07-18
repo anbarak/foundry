@@ -1357,35 +1357,40 @@ To create a development environment with the following characteristics:
       echo 'export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"' >> ~/.zshrc
       source ~/.zshrc
       ```
-3. [jq](https://github.com/jqlang/jq)
+2. [findutils](https://www.gnu.org/software/findutils/)
+   ```
+   brew install findutils
+   
+   ```
+4. [jq](https://github.com/jqlang/jq)
    ```
    brew update && brew install jq
    ```
-4. [tldr](https://github.com/tldr-pages/tldr)
+5. [tldr](https://github.com/tldr-pages/tldr)
    ```
    brew update && brew install tldr
    ```
-5. [tre](https://github.com/dduan/tre)
+6. [tre](https://github.com/dduan/tre)
    ```
    brew update && brew install tre-command
    ```
-6. [thefuck](https://github.com/nvbn/thefuck)
+7. [thefuck](https://github.com/nvbn/thefuck)
    ```
    brew update && brew install thefuck
    ```      
-7. [grammary](https://grammarly.com)
+8. [grammary](https://grammarly.com)
    ```
    brew update && brew install --cask grammarly-desktop
    ```
-8. [lsd](https://.com/lsd-rs/lsd)
+9. [lsd](https://.com/lsd-rs/lsd)
    ```
    brew update && brew install lsd
    ```
-9. [htop](https://github.com/htop-dev/htop)
+10. [htop](https://github.com/htop-dev/htop)
    ```
    brew update && brew install htop
    ```
-10. [postman](https://www.postman.com/)
+11. [postman](https://www.postman.com/)
    ```
    brew update && brew install --cask postman
    ```
@@ -1409,6 +1414,37 @@ To create a development environment with the following characteristics:
     ```
     brew update && brew install mysql
     ```
+    * Install auto-completion:
+      ```
+      curl -o /opt/homebrew/share/mysql/mysql_autocomplete https://raw.githubusercontent.com/mysql/mysql-server/8.0/client/mysql_autocomplete
+      chmod +x /opt/homebrew/share/mysql/mysql_autocomplete
+      ```
+    * Add the following to the `~/.zshrc` file
+      ```
+      # MySQL autocompletion
+      if [ -f "$(brew --prefix)/share/mysql/mysql_autocomplete" ]; then
+        source "$(brew --prefix)/share/mysql/mysql_autocomplete"
+      else
+        # Dynamically find the latest version-specific path
+        latest_mysql_autocomplete=$(find /opt/homebrew/Cellar/mysql -name "mysql_autocomplete" | sort | tail -n 1)
+        if [ -f "$latest_mysql_autocomplete" ]; then
+          source "$latest_mysql_autocomplete"
+        fi
+      fi
+      ```
+    * Create a `~/.inputrc` file and add the following to it
+      ```
+      # Enable autocompletion for MySQL client
+      $if mysql
+      set completion-ignore-case on
+      set show-all-if-ambiguous on
+      TAB: menu-complete
+      $endif
+      ```
+      * Then load the changes
+        ```
+        source ~/.zshrc
+        ```
 14. [grep](https://www.gnu.org/software/grep/)
     ```
     brew update && brew install grep
