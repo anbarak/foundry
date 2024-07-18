@@ -1405,9 +1405,9 @@ To create a development environment with the following characteristics:
        ```
        source ~/.zshrc
        ```
-13. [mycli](https://github.com/dbcli/mycli)
+13. [mysql]](https://github.com/mysql/mysql-shell)
     ```
-    brew update && brew install mycli
+    brew update && brew install mysql
     ```
 14. [grep](https://www.gnu.org/software/grep/)
     ```
