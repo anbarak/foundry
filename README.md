@@ -1463,3 +1463,16 @@ To create a development environment with the following characteristics:
       asdf local terraform 0.13.7
       terraform version # confirm
       ```
+  16. [direnv](https://github.com/direnv/direnv)
+      * Great tool for creating environment variables specific to a particular repo
+      ```
+      brew install direnv
+      ```
+      * Add the following like to `~/.zshrc.local` file
+        ```
+        eval "$(direnv hook zsh)"
+        ```
+      * Note: The .envrc file should be checked-in to git (you can add an `.envrc` entry to the `.gitignore` file in the working repo
+      * Create an `.envrc` file and fill it with content
+      * Run the following to all direnv to load the .envrc file: `direnv allow`
+      * Run the following to confirm the variables are loaded into the env variable: e.g. `env | grep TF_VAR_`
