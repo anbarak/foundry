@@ -1330,23 +1330,8 @@ To create a development environment with the following characteristics:
       ```
       brew update && brew install k9s kubectx
       ```
-5. Terraform
-   1. Install
-      ```
-      brew update && brew install terraform
-      ```
-   2. Confirm (expected: version)
-      ```
-      terraform --version
-      ```
-   3. Enhance with plugin
-      * Add `terraform` to the plugin array in ~/.zshrc.plugins
-   4. Install [warrensbox/tap/tfswitch](https://github.com/warrensbox/terraform-switcher)
-      ```
-      brew unlink terraform
-      brew update && brew install warrensbox/tap/tfswitch
-      brew link terraform
-      ```
+5. Terraform (use `asdf` tool; homebrew will not support newer versions of Terraform per license change)
+   
 ### 9. Other helpful tools  
 1. [coreutils](https://github.com/coreutils/coreutils)
    ```
@@ -1449,3 +1434,32 @@ To create a development environment with the following characteristics:
     ```
     brew update && brew install grep
     ```
+15. [asdf](https://github.com/asdf-vm/asdf)
+    ```
+    brew update && brew install asdf
+    ```
+    * Add asdf to shell configuration in `~/.zshrc.local` file
+      ```
+      # Add asdf to shell configuration
+      if [ -f "$(brew --prefix)/libexe/asdf.sh" ]; then
+        source "$(brew --prefix)/libexe/asdf.sh"
+      fi
+      ```
+    * Then load the changes
+      ```
+      source ~/.zshrc
+      ```
+    * Add Terraform plugin
+      ```
+      asdf plugin add terraform https://github.com/asdf-community/asdf-hashicorp.git
+      ```
+    * Install Terraform versions
+      ```
+      curl -LO https://releases.hashicorp.com/terraform/0.13.7/terraform_0.13.7_darwin_arm64.zip
+      mkdir -p ~/.asdf/installs/terraform/0.13.7/bin
+      unzip ~/Downloads/terraform_0.13.7_darwin_amd64.zip -d ~/.asdf/installs/terraform/0.13.7/bin
+      asdf reshim terraform
+      # Optional, local a specific repo to use a specific Terraform version
+      asdf local terraform 0.13.7
+      terraform version # confirm
+      ```
