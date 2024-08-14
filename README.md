@@ -1479,4 +1479,10 @@ To create a development environment with the following characteristics:
   17. Install Bitwarden
       ```
       brew install --cask bitwarden
+      brew install bitwarden-cli
+      bw login
+
+      # Unlock your vault (the session is kept for 30 mins by default)
+      BW_SESSION=$(bw unlock --raw)
+      echo $BW_SESSION
       ```
