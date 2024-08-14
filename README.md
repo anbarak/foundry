@@ -1476,3 +1476,7 @@ To create a development environment with the following characteristics:
       * Create an `.envrc` file and fill it with content
       * Run the following to all direnv to load the .envrc file: `direnv allow`
       * Run the following to confirm the variables are loaded into the env variable: e.g. `env | grep TF_VAR_`
+  17. Install Bitwarden
+      ```
+      brew install --cask bitwarden
+      ```
