@@ -1262,6 +1262,7 @@ To create a development environment with the following characteristics:
       ```
       brew install session-manager-plugin
       ```
+   5. Create `config` and `credentails` file in `~/.aws` directory
 3. GCP CLI
    1. Install Google Cloud SDK
       ```
