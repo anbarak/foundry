@@ -28,12 +28,13 @@ To create a development environment with the following characteristics:
 * Productive
 * Easy on the eyes
 * Portable
+* Accessible
+* Quick to bring up on a clean environment
 * Minimal dependencies
 * Self-contained
 * Configurable
 * Free of cost
-* TODO: Only dependency to install Docker Desktop
-* TODO: created once and used anywhere (Linux, macOS, Windows)
+* TODO: Configure [yadm](https://yadm.io/) or [chezmoi](https://www.chezmoi.io/)
 
 ## Setup
 ### 1. Terminal
