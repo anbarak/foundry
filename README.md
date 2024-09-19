@@ -34,7 +34,7 @@ To create a development environment with the following characteristics:
 * Self-contained
 * Configurable
 * Free of cost
-* TODO: Configure [yadm](https://yadm.io/) or [chezmoi](https://www.chezmoi.io/)
+* TODO: Configure [chezmoi](https://www.chezmoi.io/)
 
 ## Setup
 ### 1. Terminal
