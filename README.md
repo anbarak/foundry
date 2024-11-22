@@ -538,6 +538,89 @@ To create a development environment with the following characteristics:
    ssh-add -l  # List currently added keys
    ssh-add ~/.ssh/id_ed25519  # Add your GPG key if not listed
    ```
+   * How to prevent getting prompted for the gpg passphrase on every commit: 
+   If GPG is asking for your passphrase every time you commit a change, it likely means that your GPG agent isn’t caching the passphrase. Here’s how you can fix it on macOS:
+
+      1. Ensure the GPG Agent is Enabled
+      
+      Edit your ~/.gnupg/gpg.conf file to ensure the agent is used:
+      
+      echo "use-agent" >> ~/.gnupg/gpg.conf
+      
+      2. Enable GPG Agent Caching
+      
+      Update your ~/.gnupg/gpg-agent.conf file to enable passphrase caching:
+      
+      cat <<EOF >> ~/.gnupg/gpg-agent.conf
+      default-cache-ttl 3600
+      max-cache-ttl 14400
+      pinentry-program /usr/local/bin/pinentry-mac
+      EOF
+      
+      	•	default-cache-ttl 600: Caches the passphrase for 10 minutes (600 seconds).
+      	•	max-cache-ttl 7200: Caches the passphrase for up to 2 hours (7200 seconds).
+      
+      You can adjust these values to your preference.
+      
+      3. Restart the GPG Agent
+      
+      Kill and restart the GPG agent for the changes to take effect:
+      
+      gpgconf --kill gpg-agent
+      gpgconf --launch gpg-agent
+      
+      4. Ensure pinentry-mac is Installed
+      
+      Install pinentry-mac, which provides a graphical prompt for the GPG passphrase:
+      
+      brew install pinentry-mac
+      
+      5. Link GPG to Use pinentry-mac
+      
+      Set pinentry-mac as the pinentry program in GPG:
+      
+      ln -sf /usr/local/bin/pinentry-mac $(gpgconf --list-dirs libexecdir)/pinentry
+      
+      6. Use the GPG Key Without Repeated Prompts
+      
+      Test it with a simple signing command:
+      
+      echo "test" | gpg --clearsign
+      
+      When prompted for the passphrase, enter it once. It should cache the passphrase according to the TTL settings.
+      
+      7. Enable GPG Agent Integration with macOS Keychain (Optional)
+      
+      If you want even more convenience, configure GPG to store the passphrase in your macOS Keychain:
+      	1.	Install gpg-suite from GPG Tools.
+      	2.	Open the GPG Keychain app.
+      	3.	Enable the option for storing passphrases in the Keychain.
+      
+      8. Add GPG Configuration to Git
+      
+      Ensure Git uses the correct GPG key and settings:
+      
+      git config --global user.signingkey YOUR_KEY_ID
+      git config --global commit.gpgsign true
+      
+      Final Test
+      
+      Now, try committing changes in your repository:
+      
+      git commit -m "Test GPG caching"
+      
+      It should not ask for your passphrase repeatedly as long as the caching time hasn’t expired.
+      
+      Troubleshooting:
+      
+      If the issue persists:
+      	1.	Confirm that the correct GPG agent is running:
+      
+          gpgconf --list-dirs
+      
+      	2.	Check for errors in ~/.gnupg/gpg-agent.conf.
+      	3.	Verify that pinentry-mac is correctly installed and linked.
+
    * Add the following to the `~/.ssh/config`
      ```
      Host github.com
