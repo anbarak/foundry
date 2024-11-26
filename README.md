@@ -869,20 +869,30 @@ To create a development environment with the following characteristics:
             ```
          3. Apply the changes to the current shell session: `source ~/.zshrc`          
       2. [pipenv](https://github.com/pypa/pipenv) - to create/manage virtual environments with `pyenv`
-         1. Download
-            ```
-            git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
-            ```
+         1. Install
+            `brew install pyenv-virtualenv`
          3. Add the following to the `~/.zshrc` file
             ```
             eval "$(pyenv virtualenv-init -)"
             ```
          4. Apply the changes to the current shell session: `source ~/.zshrc` 
-      3. [setuptools](https://github.com/pypa/setuptools) - for developing and distributing Python packages
+      3. [poetry](https://python-poetry.org/) - for Python packaging and dependency management
+         1. Install
+            `brew install poetry`
+      4. Install Python specific version with pyenv
+         1. Install Python `3.13.0`
+            `pyenv install 3.13.0`
+         2. Set Python `3.13.0` globally
+            `pyenv global 3.13.0`
+         3. Set Python `3.13.0` locally for your Project (this creats a .python-version file in your project folder)
+            ```
+            cd ~/path/to/your-project
+            pyenv local 3.13.0
+            ```
+      5. [setuptools](https://github.com/pypa/setuptools) - for developing and distributing Python packages for legacy code compatibility
          1. Install (pick the python version you are working with)
             ```
-            pyenv install 3.12.4
-            pyenv virtualenv 3.12.4 myproject-env
+            pyenv virtualenv 3.13.0 myproject-env
             pyenv activate myproject-env
             python -m pip install setuptools
             python -m pip install --upgrade pip
