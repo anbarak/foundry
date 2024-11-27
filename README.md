@@ -538,6 +538,10 @@ To create a development environment with the following characteristics:
    ssh-add -l  # List currently added keys
    ssh-add ~/.ssh/id_ed25519  # Add your GPG key if not listed
    ```
+   > [!TIP]
+   > Add the following like to ~/.zshrc file
+   > ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield"
+   
    * How to prevent getting prompted for the gpg passphrase on every commit: 
    If GPG is asking for your passphrase every time you commit a change, it likely means that your GPG agent isn’t caching the passphrase. Here’s how you can fix it on macOS:
 
