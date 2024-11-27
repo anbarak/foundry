@@ -539,7 +539,7 @@ To create a development environment with the following characteristics:
    ssh-add ~/.ssh/id_ed25519  # Add your GPG key if not listed
    ```
    > [!TIP]
-   > Add the following like to ~/.zshrc file
+   > Add the following like to ~/.zshrc file to ensure that the SSH key is loaded every time you start your system or session:
    > ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield"
    
    * How to prevent getting prompted for the gpg passphrase on every commit: 
