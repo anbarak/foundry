@@ -201,8 +201,29 @@ To create a development environment with the following characteristics:
          ```
          ccat "some_file_name"
          ```
-      
-### 4. Tmux
+### 4. yadm
+```
+# Install
+brew install yadm
+# Configure
+yadm init
+yadm remote add origin git@github.com:<yourusername>/<project_name>.git
+yadm add ~/.bashrc ~/.vimrc ~/.config/nvim/init.vim  # Add your dotfiles
+yadm commit -m "Initial dotfiles"
+yadm push origin main
+
+# On another machine, you can now clone and apply dotfiles
+yadm clone git@github.com:yourusername/dotfiles.git
+
+# Sync changes across machines. Make changes on Machine A, then pull the changes on Machine B
+# Machine A
+yadm add ~/.bashrc
+yadm commit -m "Updated bashrc"
+yadm push
+# Machine B
+yadm pull
+```
+### 5. Tmux
 1. Install Tmux
    ```
    brew install tmux
@@ -336,7 +357,7 @@ To create a development environment with the following characteristics:
         set -g status-right "#(~/tmux-powerline/powerline.sh right)"
         ```
      
-### 5. Vim
+### 6. Vim
 1. Install vim
    ```
    brew install vim
@@ -449,7 +470,7 @@ To create a development environment with the following characteristics:
       1. Remove the plug from the `~/.vimrc` file (the line for the plugin that start with `Plug ...`)
       2. Run the following command to remove the plugin file: `:PlugClean`
 
-### 6. Git
+### 7. Git
 1. Git plugins
    1. git-extras
       ```
@@ -762,7 +783,7 @@ To create a development environment with the following characteristics:
      6. TODO: Add the usage of git submodules for dependencies on other repositories
    * Confirm all the settings are sound by viewing the `~/.gitconfig` file
 
-### 7. Programming Languages run-time
+### 8. Programming Languages run-time
 1. Go
    1. Install Go and [goenv](https://github.com/go-nv/goenv)
       ```
@@ -1269,7 +1290,7 @@ To create a development environment with the following characteristics:
       }
       ```
    6. Restart vim
-### 8. DevOps tools
+### 9. DevOps tools
 1. Docker
    1. Install Docker Desktop
       ```
@@ -1431,7 +1452,7 @@ To create a development environment with the following characteristics:
       ```
 5. Terraform (use `asdf` tool; homebrew will not support newer versions of Terraform per license change)
    
-### 9. Other helpful tools  
+### 10. Other helpful tools  
 1. [coreutils](https://github.com/coreutils/coreutils)
    ```
    brew update && brew install coreutils
