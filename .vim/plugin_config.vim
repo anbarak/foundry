@@ -18,6 +18,20 @@ nnoremap <silent> <C-j> :TmuxNavigateDown<cr>
 nnoremap <silent> <C-k> :TmuxNavigateUp<cr>
 nnoremap <silent> <C-l> :TmuxNavigateRight<cr>
 
+" Key mappings for toggling paste mode
+nnoremap <F2> :set paste!<CR>"+gP
+
+" Configure Visual Mode for copying, ensuring seamless mouse integration
+vnoremap <C-c> "+y
+nnoremap <C-p> "+gP
+
+" Automatically copy text to clipboard when using the mouse in visual mode
+vmap <silent> <LeftMouse> "+y
+
+" Alternative approach using pbcopy
+" Visual mode yank to clipboard
+vnoremap <C-c> :w !pbcopy<CR><CR>
+
 " coc.nvim configuration
 " Use tab for trigger completion with characters ahead and navigate
 inoremap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
@@ -106,6 +120,12 @@ endif
 " Use CTRL-S for selections ranges.
 nmap <silent> <C-s> <Plug>(coc-range-select)
 xmap <silent> <C-s> <Plug>(coc-range-select)
+
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocActionAsync('format')
@@ -212,6 +232,10 @@ let g:ale_sign_error = '✘'
 let g:ale_sign_warning = '⚠'
 let g:ale_lint_on_text_changed = 'never'
 
+" Keybinding for OSCYank
+nmap <Leader>y <Plug>OSCYank
+
 " Keybindings for formatting
 nnoremap <leader>f :Autoformat<CR>
 vnoremap <leader>f :Autoformat<CR>
+

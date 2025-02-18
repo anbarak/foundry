@@ -38,8 +38,8 @@ set foldmethod=syntax                     " Enable folding with syntax
 set foldlevel=99                          " Open all folds by default
 set foldlevelstart=20                     " Folding settings
 
-" Highlight column 80
-set colorcolumn=120
+" Highlight column
+set colorcolumn=88
 highlight ColorColumn ctermbg=none ctermfg=gray
 
 " Cursor mode settings
@@ -66,3 +66,6 @@ source ~/.vim/autoload_plugins.vim
 
 " Source plugin configurations
 source ~/.vim/plugin_config.vim
+
+" Set file format to unix only when the buffer is modifiable
+autocmd BufReadPost * if &modifiable | set fileformat=unix | endif

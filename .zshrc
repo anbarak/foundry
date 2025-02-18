@@ -11,6 +11,9 @@ fi
 # should ideally be focused on core functionality and avoid clutter.                #
 #####################################################################################
 
+# Set USER_HOME variable
+export USER_HOME="$HOME"
+
 # Function to add paths only if they are not already in PATH
 add_to_path() {
   for DIR in "$@"; do
@@ -24,11 +27,16 @@ add_to_path() {
 # Reset PATH to a minimal default to avoid duplicates
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-export USER_HOME="$HOME"
-export HOMEBREW_PREFIX=$(/opt/homebrew/bin/brew --prefix)
+# Ensure Homebrew is in the PATH
+add_to_path "/opt/homebrew/bin"
+
+export HOMEBREW_PREFIX=$(brew --prefix)
 
 # GNU coreutils paths - added at the beginning to take precedence
 add_to_path "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
+
+# GNU findutils paths - added at the beginning to take precedence
+add_to_path "$HOMEBREW_PREFIX/opt/findutils/libexec/gnubin"
 
 # Homebrew paths
 if [[ -n "$HOMEBREW_PREFIX" ]]; then
@@ -39,6 +47,9 @@ if [[ -n "$HOMEBREW_PREFIX" ]]; then
   # Cloud SDK paths
   add_to_path "$HOMEBREW_PREFIX/share/google-cloud-sdk/bin"
 fi
+
+# Docker
+add_to_path "/Applications/Docker.app/Contents/Resources/bin"
 
 # Python paths
 export PYTHON_USER_BASE="$USER_HOME/Library/Python/3.x/bin"
@@ -55,8 +66,28 @@ add_to_path "$USER_HOME/go/bin" "$HOMEBREW_PREFIX/opt/go/libexec/bin"
 # Pyenv paths
 add_to_path "$USER_HOME/.pyenv/plugins/pyenv-virtualenv/shims" "$USER_HOME/.pyenv/shims"
 
+# Java paths
+export JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk"
+add_to_path "$JAVA_HOME/bin"
+
 # Add krew path
 add_to_path "$USER_HOME/.krew/bin"
+
+if [[ -d "$USER_HOME/scripts" ]]; then
+  add_to_path "$USER_HOME/scripts"
+fi
+
+if [[ -d "$USER_HOME/code/cf/datalot/.datalot" ]]; then
+  add_to_path "$USER_HOME/code/cf/datalot/.datalot/bin"
+fi  
+
+# Add asdf to PATH and source asdf
+if [ -f "$(brew --prefix)/opt/asdf/libexec/asdf.sh" ]; then
+  . "$(brew --prefix)/opt/asdf/libexec/asdf.sh"
+fi
+
+# Add asdf paths
+add_to_path "$HOME/.asdf/bin" "$HOME/.asdf/shims"
 
 # Path to your Oh My Zsh installation.
 export ZSH="$USER_HOME/.oh-my-zsh"
@@ -152,6 +183,9 @@ source $ZSH/oh-my-zsh.sh
 # For a full list of active aliases, run `alias`.
 # alias are located in ~/.zshrc.local file
 
+# Add SSH key to macOS keychain
+ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" &>/dev/null
+
 # Load pyenv automatically
 if [[ -d "$USER_HOME/.pyenv" ]]; then
   add_to_path "$USER_HOME/.pyenv/bin"
@@ -164,10 +198,9 @@ fi
 if [ -f "$USER_HOME/.zshrc.local" ]; then
   source "$USER_HOME/.zshrc.local"
 fi
-# Source git-completion file
-if [ -f "$USER_HOME/.git-completion.zsh" ]; then
-  source "$USER_HOME/.git-completion.zsh"
-fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh
 [[ ! -f "$USER_HOME/.p10k.zsh" ]] || source "$USER_HOME/.p10k.zsh"
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

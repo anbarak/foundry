@@ -58,3 +58,4 @@ set horizontal-scroll-mode on   # Enable horizontal scrolling in the prompt
 
 # Custom macro for pasting
 "\e[200~": paste-from-clipboard
+

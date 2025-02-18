@@ -1,15 +1,15 @@
 " Contains the Vim-Plug installation and setup
 
+" Ensure Vim-Plug is installed
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
 " Automatically run PlugInstall if there are missing plugins
 autocmd VimEnter *
   \ if len(filter(values(g:plugs), '!isdirectory(v:val.dir)')) |
-  \   PlugInstall --sync |
+  \   execute 'PlugInstall --sync' |
   \   source $MYVIMRC |
   \ endif
 
@@ -28,6 +28,7 @@ Plug 'editorconfig/editorconfig-vim'        " EditorConfig support
 Plug 'ekalinin/dockerfile.vim'              " Dockerfile syntax highlighting
 Plug 'hashivim/vim-terraform'               " Terraform syntax and indentation
 Plug 'itchyny/lightline.vim'                " Lightweight status line
+Plug 'junegunn/vim-easy-align'              " Dynamic alignment
 Plug 'w0rp/ale'                             " Asynchronous Lint Engine
 
 " Productivity and Navigation
@@ -38,12 +39,17 @@ Plug 'preservim/tagbar'                     " Tagbar plugin for Vim
 Plug 'Chiel92/vim-autoformat'               " Autoformat plugin
 Plug 'machakann/vim-highlightedyank'        " Automatically yank highlighted text to system clipboard
 Plug 'christoomey/vim-tmux-navigator'       " Improved navigation between vim and tmux
+Plug 'ojroques/vim-oscyank'                 " Enhance clipboard management
 
 " Python Development
 Plug 'vim-python/python-syntax'             " Python syntax highlighting
 Plug 'davidhalter/jedi-vim'                 " Python autocompletion
 Plug 'tmhedberg/SimpylFold'                 " Python folding
 Plug 'vim-scripts/indentpython.vim'         " Improved Python indentation
+
+" SQL 
+Plug 'kezhenxu94/vim-mysql-plugin'          " MySQL syntax highlighting
+Plug 'tpope/vim-dadbod'                     " Interacting with databases directly within vim                           
 
 " Vim Configuration and Enhancements
 Plug 'tpope/vim-commentary'                 " Commenting plugin
@@ -75,7 +81,3 @@ Plug 'mattn/emmet-vim'                      " Emmet support for HTML/CSS
 " End of plugin list
 call plug#end()
 
-"" Install plugins
-"if executable('vim-plug')
-"  PlugInstall
-"endif
