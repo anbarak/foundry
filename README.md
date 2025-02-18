@@ -5,7 +5,8 @@
 * [iterm2-zsh](https://opensource.com/article/20/8/iterm2-zsh)
 
 ## Tools/OS:
-* OS: macOS
+* OS: macOs, Linux, Windows
+  * *Instructions below are for macOs, but this setup should I also work for Linux or Windows as well*
 * Package Manager: Homebrew
   * *Don't use Homebrew to install zsh package. Use Oh My Zsh. Use Homebrew for system-wide tools, such as git, and a few others (see below)*
 * Terminal: Default macOS terminal
@@ -18,6 +19,7 @@
 * Text editor: [Vim](https://github.com/vim/vim)
 * Vim plugin manager: [vim-plug](https://github.com/junegunn/vim-plug)
 * Code completion tool: [coc.nvim](https://github.com/neoclide/coc.nvim)
+* dotfile management tool: [yadm](https://yadm.io/)
 
 ## Goal
 To create a development environment with the following characteristics:
@@ -31,10 +33,8 @@ To create a development environment with the following characteristics:
 * Accessible
 * Quick to bring up on a clean environment
 * Minimal dependencies
-* Self-contained
 * Configurable
 * Free of cost
-* TODO: Configure [chezmoi](https://www.chezmoi.io/)
 
 ## Setup
 ### 1. Terminal
