@@ -46,7 +46,7 @@ To create a development environment with the following characteristics:
         ```
 2. Terminal theme
    * *I used [gruvbox-dark theme](https://github.com/morhetz/gruvbox)*
-     
+ 
     1. Import the following file to Terminal settings: [gruvbox-dark.terminal](gruvbox-dark.terminal)
     2. Change the Font to `Hack Nerd Font Mono`, style `regular`, size `12`
     3. Change the character spacing to 1
@@ -94,7 +94,7 @@ To create a development environment with the following characteristics:
    brew install zsh zsh-completions
    ```
    *for upgrading: `brew upgrade zsh zsh-completions`*
-   
+
     1. Confirm (expected: zsh version)
        ```
        zsh --version
@@ -158,7 +158,7 @@ To create a development environment with the following characteristics:
 7. Oh My Zsh plugins
    * Create a file called `~/.zshrc.local` that will store your customizations and plugin management (This keeps the main `~\.zshrc`file clean. The .zshrc.local file referenced in the .zshrc file)
    * Create another file called `~/.zshrc.plugins` that will define the plugin array for the zsh environment (The .zshrc.plugin file is referenced in the .zshrc.local file)
-   
+
    1. [autojump](https://github.com/wting/autojump)
       ```
       brew install autojump
@@ -205,23 +205,23 @@ To create a development environment with the following characteristics:
 ```
 # Install
 brew install yadm
-# Configure
-yadm init
-yadm remote add origin git@github.com:<yourusername>/<project_name>.git
-yadm add ~/.bashrc ~/.vimrc ~/.config/nvim/init.vim  # Add your dotfiles
-yadm commit -m "Initial dotfiles"
-yadm push origin main
 
-# On another machine, you can now clone and apply dotfiles
-yadm clone git@github.com:yourusername/dotfiles.git
+# Initial set up for a new machine only
+yadm clone git@github.com:haarabi/dev-env.git
+yadm checkout # Apply the dotfiles on the new machine
+ls -la ~ # Verify all dotfiles are in place
+exec zsh # Reload your shell
 
 # Sync changes across machines. Make changes on Machine A, then pull the changes on Machine B
 # Machine A
+yadm status
 yadm add ~/.bashrc
 yadm commit -m "Updated bashrc"
 yadm push
 # Machine B
-yadm pull
+yadm fetch # Check for updates
+yadm pull # Pull the latest changes
+exec zsh # Reload your shell, if there were changes
 ```
 ### 5. Tmux
 1. Install Tmux
@@ -356,7 +356,7 @@ yadm pull
         set -g status-right-length 140
         set -g status-right "#(~/tmux-powerline/powerline.sh right)"
         ```
-     
+ 
 ### 6. Vim
 1. Install vim
    ```
@@ -562,12 +562,12 @@ yadm pull
    > [!TIP]
    > Add the following like to ~/.zshrc file to ensure that the SSH key is loaded every time you start your system or session:
    > ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield"
-   
+ 
    * How to prevent getting prompted for the gpg passphrase on every commit: 
    If GPG is asking for your passphrase every time you commit a change, it likely means that your GPG agent isn’t caching the passphrase. Here’s how you can fix it on macOS:
 
       1. Ensure the GPG Agent is Enabled
-      
+ 
       Edit your ~/.gnupg/gpg.conf file to ensure the agent is used:
       
       echo "use-agent" >> ~/.gnupg/gpg.conf
@@ -581,14 +581,14 @@ yadm pull
       max-cache-ttl 14400
       pinentry-program /usr/local/bin/pinentry-mac
       EOF
-      
+
       	•	default-cache-ttl 600: Caches the passphrase for 10 minutes (600 seconds).
       	•	max-cache-ttl 7200: Caches the passphrase for up to 2 hours (7200 seconds).
-      
+
       You can adjust these values to your preference.
       
       3. Restart the GPG Agent
-      
+
       Kill and restart the GPG agent for the changes to take effect:
       
       gpgconf --kill gpg-agent
@@ -892,7 +892,7 @@ yadm pull
             eval "$(pyenv init -)"
             eval "$(pyenv virtualenv-init -)"
             ```
-         3. Apply the changes to the current shell session: `source ~/.zshrc`          
+         3. Apply the changes to the current shell session: `source ~/.zshrc` 
       2. [pipenv](https://github.com/pypa/pipenv) - to create/manage virtual environments with `pyenv`
          1. Install
             `brew install pyenv-virtualenv`

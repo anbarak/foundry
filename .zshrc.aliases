@@ -347,6 +347,7 @@ alias gcp_instances='gcloud compute instances list'    # List instances
 
 # Homebrew commands
 alias brewup='brew update; brew upgrade; brew cleanup'    # Update Homebrew and upgrade all packages
+alias brewupdate="brew bundle dump --file=~/.Brewfile --force && yadm add ~/.Brewfile && yadm commit -m \"Updated Brewfile\" && yadm push"
 
 # Tmux commands
 alias tmux='tmux -2'                                      # Force tmux to assume 256-color terminal

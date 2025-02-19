@@ -4,33 +4,20 @@ mysql:bind -v
 # Enable autocompletion with Tab
 bind "^I" rl_complete
 
-# Bind keys for easier navigation (for vi mode)
-bind "^[[1~" beginning-of-line  # Home key
-bind "^[[4~" end-of-line        # End key
-bind "^[[3~" delete-char        # Delete key
-bind "^[[5~" beginning-of-history  # Page Up key
-bind "^[[6~" end-of-history        # Page Down key
+# Basic key bindings for navigation
+bind "^[[H" ed-move-to-beg  # Home key
+bind "^[[F" ed-move-to-end  # End key
+bind "^[[3~" ed-delete-next-char  # Delete key
+bind "^[[5~" ed-search-prev-history  # Page Up key
+bind "^[[6~" ed-search-next-history  # Page Down key
 
-# Custom bindings for word navigation
-bind "\e[1;3C" forward-word  # Alt + Right arrow
-bind "\e[1;3D" backward-word # Alt + Left arrow
+# Incremental search
+bind "^R" ed-search-prev-history
 
-# Enable horizontal scrolling
-bind "set horizontal-scroll-mode on"
+# Additional common actions
+bind "^A" ed-move-to-beg
+bind "^E" ed-move-to-end
+bind "^K" ed-kill-line
+bind "^U" ed-kill-line
+bind "^W" ed-delete-prev-word
 
-# Preserve the point when reusing history lines
-bind "set history-preserve-point on"
-
-# Ask if there are more than 100 completions
-bind "set completion-query-items 100"
-
-# Enable incremental search
-bind "^R" reverse-search-history
-
-# Bind additional keys for common actions
-bind "^A" beginning-of-line
-bind "^E" end-of-line
-bind "^K" kill-line
-bind "^U" unix-line-discard
-bind "^W" unix-word-rubout
-bind "\e\C-u" backward-kill-line
