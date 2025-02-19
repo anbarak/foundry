@@ -1,0 +1,97 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Vim and Neovim swap files
+*.swp
+*.swo
+*.swn
+*.swm
+*.swl
+*.swk
+*.swt
+*.sws
+*.swq
+*.swo
+*.swl
+*.swp
+*.swz
+*.swn
+*.swv
+*.swu
+
+# NeoVim
+*.un~
+
+# Vim
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+[._]S[A-W][A-Z]
+[._]s[A-W][A-Z]
+*~
+#*.[a-z][a-z~]
+
+# tmux
+.tmuxinator.yml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Bash
+*.sh~
+
+# Docker
+.dockerignore
+.docker/
+
+# Kubernetes
+.kube/
+
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfplan
+
+# AWS
+.aws-sam/
+
+# GCP
+.gcloud/
+
+# General
+*.log
+*.tmp
+*.bak
+*.old
+*~
+
+# Editor-specific directories
+.idea/
+.vscode/
+
+# macOS specific directories
+.DocumentRevisions-V100/
+.fseventsd/
+
+# zsh
+.zcompdump*
+
+# Ignore macOS spotlight and directory cache
+.Spotlight-V100
+.Trashes
+
+# Windows system files
+Thumbs.db
+
