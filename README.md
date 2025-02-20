@@ -7,11 +7,11 @@ Features:
 * ✅ Cross-platform compatibility (macOS, Linux, Windows)
 * 🚀 Fast and lightweight setup process
 * 🛠️ Preconfigured tools for various types of development, including:
- * Shell & Terminal: zsh, Oh My Zsh, Powerlevel10k
- * Text Editors & IDEs: Vim, Tmux
- * Programming Languages: Python, Go, Node.js
- * Package Management: Homebrew
- * DevOps & Cloud Tools: Docker, Kubernetes, Terraform, AWS CLI, GCP CLI
+  * Shell & Terminal: zsh, Oh My Zsh, Powerlevel10k
+  * Text Editors & IDEs: Vim, Tmux
+  * Programming Languages: Python, Go, Node.js
+  * Package Management: Homebrew
+  * DevOps & Cloud Tools: Docker, Kubernetes, Terraform, AWS CLI, GCP CLI
 * 🔄 Dotfile management with yadm to keep configurations synchronized across machines
 * 🔧 Minimal dependencies and easy customization 
 
@@ -20,7 +20,7 @@ Features:
 * [use-homebrew-zsh-instead-of-the-osx-default](https://rick.cogley.info/post/use-homebrew-zsh-instead-of-the-osx-default/)
 * [iterm2-zsh](https://opensource.com/article/20/8/iterm2-zsh)
 
-##Supported Operating Systems & Tools
+## Supported Operating Systems & Tools
 
 OS Compatibility
 * macOS
