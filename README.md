@@ -36,37 +36,6 @@ Core Tools & Technologies
 * Dotfile Management: yadm 
 
 ## Setup Instructions
-### 1. Homebrew
-1. Install homebrew
-    1. Download 
-       ```
-       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-       ```
-    2. Set PATH (permanently):
-        1. Add the following line to the beginning of both `~/.bash_profile` and `~/.zshrc` files
-           ```
-           export PATH="/opt/homebrew/bin:$PATH" # For Apple Silicon Macs
-           ```
-        2. Save files and restart the terminal
-        3. confirm (expected: Homebrew version):
-           ```
-           brew --version
-           ```
-2. Homebrew code completion
-   1. Add homebrew's prefix to the `$fpath` in ~/.zshrc.local
-      ```
-      fpath=($(brew --prefix)/share/zsh-completions $fpath)
-      ```
-   2. Enable completion and autoload compinit
-      ```
-      autoload -Uz compinit
-      compinit
-      ```
-   3. Fix permission for the insecure homebrew share directory
-      ```
-      sudo chmod -R go-w /opt/homebrew/share
-      ```
-   5. Reload zsh: `source ~/.zshrc`
 ### 3. Zsh
 1. Install zsh
    ```
