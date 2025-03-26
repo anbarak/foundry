@@ -97,3 +97,23 @@ terraform.tfstate.backup
 # Windows system files
 Thumbs.db
 
+# Ignore oh-my-zsh framework
+.oh-my-zsh/
+
+
+# Ignore Vim plugin manager folders
+.vim/plugged/
+.vim/dein/
+
+# VS Code extensions or workspace storage
+.vscode/
+
+# System-managed paths that caused permission errors
+Library/Application Support/FileProvider/
+
+# Node / Python / Go environment folders if used
+.node_modules/
+.python-version
+.venv/
+.gvm/
+
