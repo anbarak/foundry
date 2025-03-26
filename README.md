@@ -37,12 +37,10 @@ Core Tools & Technologies
 
 ## Setup Instructions
 ### 1. Terminal
-1. Fonts
-    1. Download and uncompress the font package from Github: https://github.com/ryanoasis/nerd-fonts/releases
-    2. In the terminal, go to the directory where you download the font file, then copy the TFF files to the following directory:
-        ```
-        cp *.ttf ~/Library/Fonts/
-        ```
+1. Install Fonts (https://github.com/ryanoasis/nerd-fonts/releases)
+   ```
+   brew install font-hack-nerd-font
+   ```
 2. Terminal theme
    * *I used [gruvbox-dark theme](https://github.com/morhetz/gruvbox)*
  
