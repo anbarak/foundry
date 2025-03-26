@@ -36,25 +36,7 @@ Core Tools & Technologies
 * Dotfile Management: yadm 
 
 ## Setup Instructions
-### 1. Terminal
-1. Install Fonts (https://github.com/ryanoasis/nerd-fonts/releases)
-   ```
-   brew install font-hack-nerd-font
-   ```
-2. Terminal theme
-   * *I used [gruvbox-dark theme](https://github.com/morhetz/gruvbox)*
- 
-    1. Import the following file to Terminal settings: [gruvbox-dark.terminal](gruvbox-dark.terminal)
-    2. Change the Font to `Hack Nerd Font Mono`, style `regular`, size `12`
-    3. Change the character spacing to 1
-    4. select gruvbox-dark profile as `Default`
-    5. In the `Window` tab change the `Window Size` (I changed the Columns to 125 and Rows to 200)
-    6. close and open the Terminal
-3. Ensure mouse reporting is enabled in macOS Terminal (if not update and restart the Terminal)
-
-   ![image](https://github.com/haarabi/dev-env/assets/2755929/680af9b5-164a-49ca-a627-4f740fe5962b)
-
-### 2. Homebrew
+### 1. Homebrew
 1. Install homebrew
     1. Download 
        ```
