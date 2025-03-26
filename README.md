@@ -36,57 +36,6 @@ Core Tools & Technologies
 * Dotfile Management: yadm 
 
 ## Setup Instructions
-### 1. Terminal
-1. Fonts
-    1. Download and uncompress the font package from Github: https://github.com/ryanoasis/nerd-fonts/releases
-    2. In the terminal, go to the directory where you download the font file, then copy the TFF files to the following directory:
-        ```
-        cp *.ttf ~/Library/Fonts/
-        ```
-2. Terminal theme
-   * *I used [gruvbox-dark theme](https://github.com/morhetz/gruvbox)*
- 
-    1. Import the following file to Terminal settings: [gruvbox-dark.terminal](gruvbox-dark.terminal)
-    2. Change the Font to `Hack Nerd Font Mono`, style `regular`, size `12`
-    3. Change the character spacing to 1
-    4. select gruvbox-dark profile as `Default`
-    5. In the `Window` tab change the `Window Size` (I changed the Columns to 125 and Rows to 200)
-    6. close and open the Terminal
-3. Ensure mouse reporting is enabled in macOS Terminal (if not update and restart the Terminal)
-
-   ![image](https://github.com/haarabi/dev-env/assets/2755929/680af9b5-164a-49ca-a627-4f740fe5962b)
-
-### 2. Homebrew
-1. Install homebrew
-    1. Download 
-       ```
-       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-       ```
-    2. Set PATH (permanently):
-        1. Add the following line to the beginning of both `~/.bash_profile` and `~/.zshrc` files
-           ```
-           export PATH="/opt/homebrew/bin:$PATH" # For Apple Silicon Macs
-           ```
-        2. Save files and restart the terminal
-        3. confirm (expected: Homebrew version):
-           ```
-           brew --version
-           ```
-2. Homebrew code completion
-   1. Add homebrew's prefix to the `$fpath` in ~/.zshrc.local
-      ```
-      fpath=($(brew --prefix)/share/zsh-completions $fpath)
-      ```
-   2. Enable completion and autoload compinit
-      ```
-      autoload -Uz compinit
-      compinit
-      ```
-   3. Fix permission for the insecure homebrew share directory
-      ```
-      sudo chmod -R go-w /opt/homebrew/share
-      ```
-   5. Reload zsh: `source ~/.zshrc`
 ### 3. Zsh
 1. Install zsh
    ```
