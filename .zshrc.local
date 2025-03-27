@@ -20,9 +20,9 @@ brew() {
 }
 
 # Source git-completion file
-if [ -f "$HOME/.git-completion.zsh" ]; then
-  source "$HOME/.git-completion.zsh"
-fi
+#if [ -f "$HOME/.git-completion.zsh" ]; then
+#  source "$HOME/.git-completion.zsh"
+#fi
 
 # Source aliases
 if [ -f "$HOME/.zshrc.aliases" ]; then
@@ -34,15 +34,15 @@ autoload bashcompinit
 bashcompinit
 
 # MySQL autocompletion
-if [ -f "$(brew --prefix)/share/mysql/mysql_autocomplete" ]; then
-  source "$(brew --prefix)/share/mysql/mysql_autocomplete"
-else
-  # Dynamically find the latest version-specific path
-  latest_mysql_autocomplete=$(find /opt/homebrew/Cellar/mysql -name "mysql_autocomplete" | sort | tail -n 1)
-  if [ -f "$latest_mysql_autocomplete" ]; then
-    source "$latest_mysql_autocomplete"
-  fi
-fi
+#if [ -f "$(brew --prefix)/share/mysql/mysql_autocomplete" ]; then
+#  source "$(brew --prefix)/share/mysql/mysql_autocomplete"
+#else
+#  # Dynamically find the latest version-specific path
+#  latest_mysql_autocomplete=$(find /opt/homebrew/Cellar/mysql -name "mysql_autocomplete" | sort | tail -n 1)
+#  if [ -f "$latest_mysql_autocomplete" ]; then
+#    source "$latest_mysql_autocomplete"
+#  fi
+#fi
 
 # Ensure completion system is initialized
 autoload -Uz compinit
