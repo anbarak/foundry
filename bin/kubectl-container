@@ -3,7 +3,7 @@
 version="$1"
 shift
 
-image="kubectl-matrix:${version}"
+image="devopscloudycontainers/kubectl:${version}"
 docker run --rm -it \
   -v "$HOME/.kube:/root/.kube" \
   -v "$HOME/.aws:/root/.aws" \
