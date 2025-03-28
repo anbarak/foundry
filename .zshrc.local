@@ -4,25 +4,19 @@
 # this file from your ~/.zshrc to activate the settings within.                   #
 ###################################################################################
 
-# Set the fpath for Homebrew completions
-fpath=($(brew --prefix)/share/zsh-completions $fpath)
-
-# Ensure ~/.Brewfile is updated every time you install/uninstall something
+# Ensure ~/.config/dotfiles/Brewfile is updated every time you install/uninstall something
 brew() {
     command brew "$@"
     if [[ "$1" == "install" || "$1" == "upgrade" || "$1" == "uninstall" ]]; then
         echo "Updating Brewfile..."
-        brew bundle dump --file=~/.Brewfile --force
-        yadm add ~/.Brewfile
-        yadm commit -m "Updated Brewfile"
-        yadm push
+        brew bundle dump --file="$HOME/.config/dotfiles/Brewfile" --force
+        yadm add "$HOME/.config/dotfiles/Brewfile"
+        yadm commit -m "Updated Brewfile" --no-gpg-sign 2>/dev/null || echo "Skipping signed commit"
+        yadm push 2>/dev/null || echo "Push skipped"
     fi
 }
 
-# Source git-completion file
-#if [ -f "$HOME/.git-completion.zsh" ]; then
-#  source "$HOME/.git-completion.zsh"
-#fi
+export GPG_TTY=$(tty)
 
 # Source aliases
 if [ -f "$HOME/.zshrc.aliases" ]; then
@@ -34,17 +28,17 @@ autoload bashcompinit
 bashcompinit
 
 # MySQL autocompletion
-#if [ -f "$(brew --prefix)/share/mysql/mysql_autocomplete" ]; then
-#  source "$(brew --prefix)/share/mysql/mysql_autocomplete"
-#else
-#  # Dynamically find the latest version-specific path
-#  latest_mysql_autocomplete=$(find /opt/homebrew/Cellar/mysql -name "mysql_autocomplete" | sort | tail -n 1)
-#  if [ -f "$latest_mysql_autocomplete" ]; then
-#    source "$latest_mysql_autocomplete"
-#  fi
-#fi
+if [ -z "$MYSQL_AUTOCOMPLETE_SOURCED" ]; then
+  # Dynamically find the latest version-specific path
+  MYSQL_AUTOCOMPLETE_SOURCED=1
+  latest_mysql_autocomplete=$(find "$(brew --prefix)/Cellar/mysql" -name "mysql_autocomplete" 2>/dev/null | sort | tail -n 1)
+  if [ -f "$latest_mysql_autocomplete" ]; then
+    source "$latest_mysql_autocomplete"
+  fi
+fi
 
 # Ensure completion system is initialized
+fpath=(~/.zsh/completions $fpath)
 autoload -Uz compinit
 compinit
 
