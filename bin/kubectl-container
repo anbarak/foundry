@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+version="$1"
+shift
+
+image="kubectl-matrix:${version}"
+docker run --rm -it \
+  -v "$HOME/.kube:/root/.kube" \
+  -v "$HOME/.aws:/root/.aws" \
+  --network host \
+  "$image" "$@"
