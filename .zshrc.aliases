@@ -226,6 +226,11 @@ alias kapply='kubectl apply -f'                               # Apply configurat
 alias kdel='kubectl delete -f'                                # Delete configuration
 alias kexec='kubectl exec -it'                                # Execute command in pod
 alias k9s='k9s'                                               # K9s Kubernetes CLI
+alias k128='kubectl-container 1.28'                           # kubectl for EKS 1.28 (containerized)
+alias k129='kubectl-container 1.29'                           # kubectl for EKS 1.29 (containerized)
+alias k130='kubectl-container 1.30'                           # kubectl for EKS 1.30 (containerized)
+alias k131='kubectl-container 1.31'                           # kubectl for EKS 1.31 (containerized)
+alias k132='kubectl-container 1.32'                           # kubectl for EKS 1.32 (containerized)
 
 # Terraform commands
 alias tf='terraform'
