@@ -1,0 +1,15 @@
+#compdef terraform
+
+_arguments \
+  '1: :->subcmds' \
+  '*::arg:->args' && return 0
+
+case $state in
+  subcmds)
+    _values 'terraform subcommands' \
+      apply destroy fmt get graph import init output plan providers refresh show state taint test untaint validate version workspace
+    ;;
+  args)
+    _arguments '*:filename:_files'
+    ;;
+esac
