@@ -70,6 +70,9 @@ add_to_path "$USER_HOME/.pyenv/plugins/pyenv-virtualenv/shims" "$USER_HOME/.pyen
 export JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk"
 add_to_path "$JAVA_HOME/bin"
 
+# Runner scripts path
+add_to_path "$USER_HOME/bin"
+
 # Add krew path
 add_to_path "$USER_HOME/.krew/bin"
 
