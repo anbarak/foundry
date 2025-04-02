@@ -1,4 +1,5 @@
 tap "craftamap/tap"
+tap "fluxcd/tap"
 tap "homebrew/bundle"
 tap "homebrew/services"
 tap "versent/taps"
