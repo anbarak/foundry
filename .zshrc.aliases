@@ -62,9 +62,9 @@ alias dirname='gdirname'
 alias realpath='grealpath'
 
 # Additional custom aliases
-alias ll='gls -lAh'         # Detailed list with hidden files, human-readable sizes
-alias la='gls -A'           # List all files except . and ..
-alias l='gls -CF'           # List directories with /
+alias ll='gls -lAh'        # Detailed list with hidden files, human-readable sizes
+alias la='gls -A'          # List all files except . and ..
+alias l='gls -CF'          # List directories with /
 alias ..='cd ..'           # Move up one directory
 alias ...='cd ../..'       # Move up two directories
 alias cls='clear'          # Clear terminal
@@ -96,9 +96,13 @@ alias top='htop'                                       # Use htop if available
 alias path='echo -e ${PATH//:/\\n}'                    # Show PATH variable
 
 # Networking
-alias ip='ip -c -br addr'                              # Show IP addresses
-alias ports='netstat -tulanp'                          # Show listening ports
-alias ping='ping -c 5'                                 # Ping with 5 packets
+alias ip='ifconfig | grep "inet " | grep -v 127.0.0.1'           # Show non-loopback IPs
+alias myip='ipconfig getifaddr en0'                              # Get local IP (Wi-Fi)
+alias myip_public='curl -s https://ifconfig.me'                  # Get public IP address
+alias myipall='ipconfig getifaddr en0 && ipconfig getifaddr en1' # Get IPs for Wi-Fi and Ethernet
+alias ports='lsof -nP -iTCP -sTCP:LISTEN'                        # Show open TCP ports (macOS way)
+alias ping='ping -c 5'                                           # Ping 5 times
+alias netinfo='networksetup -listallhardwareports'               # Show network interfaces and devices
 
 # SSH
 alias ssh_server='ssh user@server.com'                 # Quick SSH to server
@@ -309,7 +313,7 @@ alias gcl='git clone'                           # Clone a repository into a new 
 alias gss='git stash save'                      # Stash changes in a dirty working directory
 alias gsp='git stash pop'                       # Apply stashed changes to the working directory
 alias gstl='git stash list'                     # List all stashed changes
-alias grb='git rebase'                          # Reapply commits on top of another base tip
+alias grb='git rebase'                          # Reapply commits on top of another base ip
 alias grba='git rebase --abort'                 # Abort a rebase
 alias grbc='git rebase --continue'              # Continue a rebase after resolving conflicts
 alias gclean='git clean -fd'                    # Remove untracked files from the working directory
@@ -381,3 +385,5 @@ alias vimcd='vim -c "cd %:p:h"'                  # Open Vim and change to the di
 alias vimtab='vim --remote-tab'                  # Open the file in a new tab in an existing Vim instance
 alias vimsplit='vim --remote-silent'             # Open file in a new split in an existing Vim instance
 
+# My custom aliases
+alias abzaarak='cd ~/code/my/abzaarak'
