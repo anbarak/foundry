@@ -67,7 +67,6 @@ brew "stern"
 brew "stylelint"
 brew "telnet"
 brew "terraform", link: false
-brew "tfenv"
 brew "tflint"
 brew "thefuck"
 brew "tldr"
