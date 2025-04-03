@@ -229,7 +229,9 @@ alias klogs='kubectl logs'                                    # Show logs
 alias kapply='kubectl apply -f'                               # Apply configuration
 alias kdel='kubectl delete -f'                                # Delete configuration
 alias kexec='kubectl exec -it'                                # Execute command in pod
+# Kubernetes helper tools
 alias k9s='k9s'                                               # K9s Kubernetes CLI
+# Kubectl (containerized)
 alias k128='kubectl-container 1.28'                           # kubectl for EKS 1.28 (containerized)
 alias k129='kubectl-container 1.29'                           # kubectl for EKS 1.29 (containerized)
 alias k130='kubectl-container 1.30'                           # kubectl for EKS 1.30 (containerized)
@@ -249,6 +251,21 @@ alias tfw='terraform workspace'                        # Terraform workspace
 alias tfw_list='terraform workspace list'              # List Terraform workspaces
 alias tfw_new='terraform workspace new'                # Create new Terraform workspace
 alias tfw_select='terraform workspace select'          # Select Terraform workspace
+# Terraform helper tools
+alias tfdoc='terraform-docs markdown table .'           # Generate module docs
+alias tfl='tflint'                                      # Linter
+alias tfs='tfsec'                                       # Security scanner
+# Terraform (containerized)
+alias tfabzaar="~/bin/terraform-container.sh"  # Container runner
+alias tf13='tfabzaar 0.13.7'
+alias tf14='tfabzaar 0.14.11'
+alias tf15='tfabzaar 0.15.5'
+alias tf16='tfabzaar 1.6.6'
+alias tf17='tfabzaar 1.7.5'
+alias tf18='tfabzaar 1.8.5'
+alias tf19='tfabzaar 1.9.8'
+alias tf110='tfabzaar 1.10.5'
+alias tf111='tfabzaar 1.11.3'
 
 # Go development aliases
 alias gobuild='go build'                   # Compile packages and dependencies
