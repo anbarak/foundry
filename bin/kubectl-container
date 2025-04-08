@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-version="$1"
+if [[ -z "${1:-}" ]]; then
+  echo "Usage: $0 <kubectl-version> [kubectl args...]"
+  exit 1
+fi
+
+KUBE_VERSION="$1"
 shift
 
-image="devopscloudycontainers/kubectl:${version}"
 docker run --rm -it \
+  --platform linux/amd64 \
+  --network host \
   -v "$HOME/.kube:/root/.kube" \
   -v "$HOME/.aws:/root/.aws" \
-  --network host \
-  "$image" kubectl "$@"
+  devopscloudycontainers/kubectl:"$KUBE_VERSION" kubectl "$@"
