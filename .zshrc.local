@@ -18,9 +18,12 @@ brew() {
 
 export GPG_TTY=$(tty)
 
-# Source aliases
-if [ -f "$HOME/.zshrc.aliases" ]; then
-  source "$HOME/.zshrc.aliases"
+# Source modular aliases from ~/.config/zsh/modules
+ZSH_MODULES="$HOME/.config/zsh/modules"
+if [ -d "$ZSH_MODULES" ]; then
+  for module in "$ZSH_MODULES"/*.zsh; do
+    source "$module"
+  done
 fi
 
 # Enable bash completion for zsh
