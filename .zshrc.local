@@ -4,13 +4,13 @@
 # this file from your ~/.zshrc to activate the settings within.                   #
 ###################################################################################
 
-# Ensure ~/.config/dotfiles/Brewfile is updated every time you install/uninstall something
+# Ensure ~/.config/homebrew/Brewfile is updated every time you install/uninstall something
 brew() {
     command brew "$@"
     if [[ "$1" == "install" || "$1" == "upgrade" || "$1" == "uninstall" ]]; then
         echo "Updating Brewfile..."
-        brew bundle dump --file="$HOME/.config/dotfiles/Brewfile" --force
-        yadm add "$HOME/.config/dotfiles/Brewfile"
+        brew bundle dump --file="$HOME/.config/homebrew/Brewfile" --force
+        yadm add "$HOME/.config/homebrew/Brewfile"
         yadm commit -m "Updated Brewfile" --no-gpg-sign 2>/dev/null || echo "Skipping signed commit"
         yadm push 2>/dev/null || echo "Push skipped"
     fi
