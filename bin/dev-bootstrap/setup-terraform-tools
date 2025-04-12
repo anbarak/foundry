@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "🔧 Setting up Terraform CLI helpers..."
+
+# Ensure runners/helpers/terraform exists
+mkdir -p "$HOME/bin/runners/helpers/terraform"
+
+# Symlink helpers into ~/bin
+ln -sf "$HOME/bin/runners/helpers/terraform/tf-versions" "$HOME/bin/tf-versions"
+ln -sf "$HOME/bin/runners/helpers/terraform/tf-check"    "$HOME/bin/tf-check"
+ln -sf "$HOME/bin/runners/helpers/terraform/tf-help"     "$HOME/bin/tf-help"
+
+echo "✅ Terraform helper scripts linked:"
+echo "   • tf-versions"
+echo "   • tf-check"
+echo "   • tf-help"
+
+# Check dependencies
+command -v docker >/dev/null || echo "⚠️ Docker is not installed or not in PATH."
+command -v terraform >/dev/null || echo "⚠️ terraform is not installed or not in PATH."

@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "⚙️ Initializing dev machine..."
+
+# -----------------------------------------------------------------------------
+# Step 1: Install Homebrew and core CLI tools via Brewfile
+# -----------------------------------------------------------------------------
+if ! command -v brew &>/dev/null; then
+  echo "🛠️ Homebrew not found — installing..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+else
+  echo "🍺 Homebrew already installed."
+fi
+
+echo "📦 Updating Homebrew..."
+brew update
+
+BREWFILE="$HOME/.config/brew/Brewfile"
+if [[ -f "$BREWFILE" ]]; then
+  echo "📦 Installing packages from Brewfile..."
+  brew bundle --file="$BREWFILE"
+else
+  echo "⚠️ Brewfile not found at $BREWFILE"
+fi
+
+# -----------------------------------------------------------------------------
+# Step 2: Create dotfiles structure
+# -----------------------------------------------------------------------------
+echo "📁 Setting up dotfiles structure..."
+[ -f "$HOME/.zshrc.local" ] || touch "$HOME/.zshrc.local"
+mkdir -p "$HOME/.config/zsh/modules"
+mkdir -p "$HOME/bin"
+
+# -----------------------------------------------------------------------------
+# Step 2b: Create code directory structure
+# -----------------------------------------------------------------------------
+echo "📁 Creating code folders (cf, my, tmp)..."
+mkdir -p "$HOME/code/cf" "$HOME/code/my" "$HOME/code/tmp"
+
+# -----------------------------------------------------------------------------
+# Step 3: Modular setup scripts (cloud/dev tools)
+# -----------------------------------------------------------------------------
+SCRIPTS=(
+  "$HOME/bin/dev-bootstrap/setup-core-tools"
+  "$HOME/bin/dev-bootstrap/setup-terraform-tools"
+  "$HOME/bin/dev-bootstrap/setup-kubernetes-tools"
+  "$HOME/bin/dev-bootstrap/setup-cloud-core"
+)
+
+for script in "${SCRIPTS[@]}"; do
+  if [[ -x "$script" ]]; then
+    echo "➡️  Running $(basename "$script")..."
+    "$script"
+  else
+    echo "⚠️ Skipping missing or non-executable: $script"
+  fi
+done
+
+echo "✅ Bootstrap complete."
+echo "💡 Tip: Run 'exec zsh' or restart terminal to apply shell changes."
+echo "🧪 Tip: Run '~/bin/lint-dotfiles.sh' to validate dotfiles."

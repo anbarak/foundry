@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "📦 Terraform Containerized Tooling:"
+echo
+echo "• tf-versions        → List supported containerized versions"
+echo "• tf-check <ver>     → Check if docker image exists locally or remotely"
+echo "• tf-help            → This help message"
+echo
+echo "🧠 Tip: Use tf<VERSION> to run a specific Terraform version."
+echo "      e.g. tf1-4, tf1-5"

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# ~/bin/runners/helpers/terraform/tf-versions
+
+set -euo pipefail
+
+echo "📦 Local Terraform container versions:"
+docker images --format '{{.Repository}}:{{.Tag}}' \
+  | grep '^devopscloudycontainers/terraform:' \
+  | sort
+
+# Optional: show remote tags
+if [[ "${1:-}" == "--remote" ]]; then
+  echo
+  echo "🌐 Remote (Docker Hub) tags for Terraform:"
+  echo "Visit: https://hub.docker.com/r/devopscloudycontainers/terraform/tags"
+fi

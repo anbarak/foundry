@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "🧠 kubectl Helper"
+echo "──────────────────────────────"
+echo ""
+echo "🧰 Available Versions:"
+"$HOME/bin/runners/helpers/kubectl/kc-versions" || echo "⚠️ kc-versions not found"
+
+echo ""
+echo "🔌 Installed kubectl plugins:"
+if command -v kubectl >/dev/null && kubectl plugin list &>/dev/null; then
+  kubectl plugin list
+else
+  echo "⚠️ kubectl or plugins not available"
+fi
+
+echo ""
+echo "📦 Helpful Aliases (defined in ~/.config/zsh/modules/08-kubernetes.zsh):"
+alias | grep -E "^alias k( |[a-z]+)=" | sort
+
+echo ""
+echo "📘 Tip: Use k<version> to run containerized kubectl (e.g. k128, k129)"
+echo "📘       Or add more aliases as new versions release"

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# ~/bin/runners/helpers/terraform/tf-check
+
+set -euo pipefail
+
+if [[ -z "${1:-}" ]]; then
+  echo "Usage: tf-check <version>"
+  exit 1
+fi
+
+VERSION="$1"
+
+echo "🔍 Checking image: devopscloudycontainers/terraform:$VERSION"
+if docker image inspect "devopscloudycontainers/terraform:$VERSION" &>/dev/null; then
+  echo "✅ Found locally."
+else
+  echo "⚠️  Not found locally."
+  echo "🔄 Try pulling it:"
+  echo "    docker pull devopscloudycontainers/terraform:$VERSION"
+fi

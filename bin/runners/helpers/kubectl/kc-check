@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# ~/bin/runners/helpers/kubectl/kc-check
+
+set -euo pipefail
+
+if [[ -z "${1:-}" ]]; then
+  echo "Usage: kc-check <version>"
+  exit 1
+fi
+
+IMAGE="devopscloudycontainers/kubectl:$1"
+
+echo "🔍 Checking if $IMAGE exists locally..."
+if docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^$IMAGE$"; then
+  echo "✅ Found locally"
+else
+  echo "❌ Not found locally"
+  echo "🌐 Checking Docker Hub..."
+
+  # Very basic remote check via curl (unauthenticated)
+  if curl --silent --fail "https://hub.docker.com/v2/repositories/devopscloudycontainers/kubectl/tags/$1/" >/dev/null; then
+    echo "✅ Exists on Docker Hub"
+  else
+    echo "❌ Not found on Docker Hub either"
+  fi
+fi

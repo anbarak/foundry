@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# ~/bin/runners/helpers/kubectl/kc-versions
+
+set -euo pipefail
+
+echo "📦 Local kubectl container versions:"
+docker images --format '{{.Repository}}:{{.Tag}}' \
+  | grep '^devopscloudycontainers/kubectl:' \
+  | sort
+
+# Optional: show remote tags
+if [[ "${1:-}" == "--remote" ]]; then
+  echo
+  echo "🌐 Remote (Docker Hub) tags for kubectl:"
+  echo "Visit: https://hub.docker.com/r/devopscloudycontainers/kubectl/tags"
+fi

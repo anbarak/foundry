@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# ~/bin/runners/helpers/kubectl/kc-plugins
+
+set -euo pipefail
+
+if ! command -v kubectl &>/dev/null; then
+  echo "❌ kubectl is not installed on this machine."
+  exit 1
+fi
+
+if ! kubectl krew &>/dev/null; then
+  echo "❌ krew is not installed. Skipping plugin listing."
+  exit 1
+fi
+
+echo "🔌 Installed kubectl plugins (via krew):"
+kubectl krew list

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "🔧 Setting up Kubernetes CLI helpers..."
+
+# Ensure runners/helpers/kubectl exists
+mkdir -p "$HOME/bin/runners/helpers/kubectl"
+
+# Symlink helpers into ~/bin
+ln -sf "$HOME/bin/runners/helpers/kubectl/kc-help" "$HOME/bin/kc-help"
+ln -sf "$HOME/bin/runners/helpers/kubectl/kc-versions" "$HOME/bin/kc-versions"
+ln -sf "$HOME/bin/runners/helpers/kubectl/kc-check" "$HOME/bin/kc-check"
+ln -sf "$HOME/bin/runners/helpers/kubectl/kc-plugins" "$HOME/bin/kc-plugins"
+
+echo "✅ Kubernetes helper scripts linked:"
+echo "   • kc-versions"
+echo "   • kc-check"
+echo "   • kc-plugins"
+
+# Check dependencies
+command -v docker >/dev/null || echo "⚠️ Docker is not installed or not in PATH."
+command -v kubectl >/dev/null || echo "⚠️ kubectl is not installed or not in PATH."
+kubectl krew &>/dev/null || echo "⚠️ kubectl krew not installed. You may need to install it."
