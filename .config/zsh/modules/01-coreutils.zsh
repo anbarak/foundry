@@ -60,3 +60,18 @@ alias yes='gyes'
 alias basename='gbasename'
 alias dirname='gdirname'
 alias realpath='grealpath'
+
+# =============================================================================
+# Modern CLI Replacements
+# =============================================================================
+# Better 'cat'
+alias bat='bat'
+
+# Modern 'ls' replacement
+alias eza='eza'
+alias ls='eza'
+alias ll='eza -lh'
+alias la='eza -lah'
+
+# Modern 'grep' replacement (use carefully — don't override grep globally unless you're confident)
+alias rg='rg --hidden --no-ignore'  # safe to use alongside ggrep
