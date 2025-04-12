@@ -25,7 +25,7 @@ alias tfs='tfsec'
 # =============================================================================
 
 # Native runner script
-alias tfabzaar="~/bin/runners/terraform-container"
+alias tfabzaar="$HOME/bin/runners/terraform-container"
 
 # Dynamic containerized Terraform command: usage -> tfx 1.6.6 plan
 tfx() {
@@ -34,10 +34,10 @@ tfx() {
     return 1
   fi
   local version="$1"; shift
-  terraform-container "$version" "$@"
+  tfabzaar "$version" "$@"
 }
 
 # Dynamic helpers
-alias tf-versions="~/bin/runners/helpers/terraform/tf-versions"
-alias tf-check="~/bin/runners/helpers/terraform/tf-check"
-alias tf-help="~/bin/runners/helpers/terraform/tf-help"
+alias tf-versions="$HOME/bin/runners/helpers/terraform/tf-versions"
+alias tf-check="$HOME/bin/runners/helpers/terraform/tf-check"
+alias tf-help="$HOME/bin/runners/helpers/terraform/tf-help"

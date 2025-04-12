@@ -1,40 +1,49 @@
 # =============================================================================
-# Kubernetes (native kubectl)
+# Kubernetes
 # =============================================================================
 
-alias kc='kubectl'                                           # shorthand for kubectl
-alias kctl='kubectl'                                         # native kubectl (explicit)
-alias kctx='kubectl config use-context'                      # switch context
-alias kns='kubectl config set-context --current --namespace' # change namespace
+# Local kubectl aliases
+alias kc='kubectl'
+alias kctx='kubectl config use-context'
+alias kns='kubectl config set-context --current --namespace'
 alias kget='kubectl get'
 alias kdesc='kubectl describe'
 alias klogs='kubectl logs'
 alias kapply='kubectl apply -f'
 alias kdel='kubectl delete -f'
 alias kexec='kubectl exec -it'
+
+# Kubernetes TUI
 alias k9s='k9s'
 
-# =============================================================================
-# Kubernetes (containerized kubectl)
-# =============================================================================
+# -----------------------------------------------------------------------------
+# Containerized kubectl (via runners/kubectl-container)
+# -----------------------------------------------------------------------------
 
-alias kct='kubectl-container'  # containerized runner shortcut
+# Base alias pointing to your containerized runner
+alias kcabzaar="$HOME/bin/runners/kubectl-container"
+# Containerized kubectl helpers
+alias kc-versions="$HOME/bin/runners/helpers/kubectl/kc-versions"
+alias kc-check="$HOME/bin/runners/helpers/kubectl/kc-check"
+alias kc-plugins="$HOME/bin/runners/helpers/kubectl/kc-plugins"
+alias kc-help="$HOME/bin/runners/helpers/kubectl/kc-help"
 
-# Dynamic containerized kubectl command: usage -> kcx 1.30 get pods
+# Dynamic wrapper for any version of containerized kubectl
+# Usage: kcx <version> [kubectl args...]
 kcx() {
   if [[ -z "$1" ]]; then
-    echo "Usage: kcx <kubectl-version> [kubectl-args...]"
+    echo "Usage: kcx <version> [kubectl args...]"
     return 1
   fi
   local version="$1"; shift
-  kubectl-container "$version" "$@"
+  kcabzaar "$version" "$@"
 }
 
-# =============================================================================
-# Kubernetes Utility Functions
-# =============================================================================
+# -----------------------------------------------------------------------------
+# Helper Functions
+# -----------------------------------------------------------------------------
 
-# Update kubeconfig for EKS
+# EKS update helper (defaults to us-east-1)
 eks-update-cluster() {
   if [[ -z "$1" ]]; then
     echo "Usage: eks-update-cluster <cluster-name>"
@@ -55,7 +64,7 @@ kdesc-all-pods() {
   done
 }
 
-# Switch EKS cluster context
+# Switch EKS cluster with optional region (default: us-east-1)
 use-eks() {
   if [[ -z "$1" ]]; then
     echo "Usage: use-eks <cluster-name> [region]"
@@ -66,11 +75,3 @@ use-eks() {
   echo "🔄 Now using EKS cluster: $1 in $REGION"
 }
 
-# =============================================================================
-# Kubernetes Helpers (runner scripts)
-# =============================================================================
-
-alias kc-versions="~/bin/runners/helpers/kubectl/kc-versions"
-alias kc-check="~/bin/runners/helpers/kubectl/kc-check"
-alias kc-plugins="~/bin/runners/helpers/kubectl/kc-plugins"
-alias kc-help="~/bin/runners/helpers/kubectl/kc-help"
