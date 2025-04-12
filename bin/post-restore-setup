@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+echo "⚙️ Setting up Oh My Zsh + plugins"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
+  "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k"
+git clone https://github.com/zsh-users/zsh-autosuggestions \
+  "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
+  "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
+
+echo "🧪 Setting up TPM + completions"
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+mkdir -p ~/.tmux/resurrect
+curl -fsSL https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh \
+  -o ~/.zsh/completions/_git
+curl -fLo ~/.oh-my-zsh/plugins/docker/_docker \
+  https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
+
+echo "📦 Installing vim plugins"
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+vim +PlugInstall +qall
+
+echo "📚 Setting up Kubectl plugins via Krew"
+(
+  cd "$(mktemp -d)" &&
+  OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+  ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/aarch64$/arm64/')" &&
+  KREW="krew-${OS}_${ARCH}" &&
+  curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+  tar zxvf "${KREW}.tar.gz" &&
+  ./"${KREW}" install krew
+)
+
+kubectl krew install ctx ns tree whoami neat ktop
+
+echo "🐘 Configuring MySQL"
+mysql_config_editor set \
+  --login-path=datalot_prod_writer_r5m2_auroramysql_useast1a \
+  --host=encrypted-r5m2.c6uqsvavlrra.us-east-1.rds.amazonaws.com \
+  --user=dlroot \
+  --password \
+  --port=3306
+chmod 600 ~/.config/mysql/*

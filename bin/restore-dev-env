@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "🚀 Starting full dev environment restore..."
+
+# Step 1: Bootstrap core tools, configs, and dotfiles
+echo "🔧 Bootstrapping system with init-machine..."
+~/bin/dev-bootstrap/init-machine
+
+# Step 2: Restore secrets from Bitwarden or backup
+echo "🔐 Restoring secrets from backup..."
+~/bin/restore-secrets
+
+# Step 3: Run final setup (like plugins, completions, terminal tweaks)
+echo "🧩 Running post-restore setup..."
+~/bin/post-restore-setup
+
+echo "✅ Dev environment restored successfully!"
