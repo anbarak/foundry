@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "🧪 Running dotfile linter..."
+"$HOME/bin/lint-dotfiles.sh"
+
+echo "✅ Linting complete."
+
+read -rp "📝 Commit message: " msg
+yadm commit -am "$msg"
+yadm push origin main
+
+echo "🚀 Dotfiles committed and pushed to GitHub!"
