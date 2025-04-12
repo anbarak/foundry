@@ -1,0 +1,33 @@
+# User data and history
+.bash_history
+.zsh_history
+.lesshst
+.viminfo
+.zcompdump*
+.zsh_sessions/
+
+# OS and desktop clutter
+.DS_Store
+.Trash/
+Library/
+Downloads/
+Documents/
+Desktop/
+Movies/
+Music/
+Pictures/
+Public/
+
+# Secrets and sensitive credentials
+.ssh/
+.gnupg/
+.mylogin.cnf
+.aws/credentials
+.vpn-configs/
+.bitwarden-ssh-agent.sock
+
+# App-specific and auto-generated runtime folders
+.kube/
+.krew/
+.docker/
+.parallel/
