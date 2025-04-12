@@ -1,26 +1,40 @@
 # =============================================================================
-# Kubernetes
+# Kubernetes (native kubectl)
 # =============================================================================
-alias kc='kubectl'
-alias kctx='kubectl config use-context'
-alias kns='kubectl config set-context --current --namespace'
+
+alias kc='kubectl'                                           # shorthand for kubectl
+alias kctl='kubectl'                                         # native kubectl (explicit)
+alias kctx='kubectl config use-context'                      # switch context
+alias kns='kubectl config set-context --current --namespace' # change namespace
 alias kget='kubectl get'
 alias kdesc='kubectl describe'
 alias klogs='kubectl logs'
 alias kapply='kubectl apply -f'
 alias kdel='kubectl delete -f'
 alias kexec='kubectl exec -it'
-
-# Containerized kubectl
-alias k128='kubectl-container 1.28'
-alias k129='kubectl-container 1.29'
-alias k130='kubectl-container 1.30'
-alias k131='kubectl-container 1.31'
-alias k132='kubectl-container 1.32'
-
-# Kubernetes helper tools
 alias k9s='k9s'
 
+# =============================================================================
+# Kubernetes (containerized kubectl)
+# =============================================================================
+
+alias kct='kubectl-container'  # containerized runner shortcut
+
+# Dynamic containerized kubectl command: usage -> kcx 1.30 get pods
+kcx() {
+  if [[ -z "$1" ]]; then
+    echo "Usage: kcx <kubectl-version> [kubectl-args...]"
+    return 1
+  fi
+  local version="$1"; shift
+  kubectl-container "$version" "$@"
+}
+
+# =============================================================================
+# Kubernetes Utility Functions
+# =============================================================================
+
+# Update kubeconfig for EKS
 eks-update-cluster() {
   if [[ -z "$1" ]]; then
     echo "Usage: eks-update-cluster <cluster-name>"
@@ -29,6 +43,7 @@ eks-update-cluster() {
   aws eks update-kubeconfig --name "$1" --region us-east-1
 }
 
+# Describe all pods in a namespace
 kdesc-all-pods() {
   if [[ -z "$1" ]]; then
     echo "Usage: kdesc-all-pods <namespace>"
@@ -40,6 +55,7 @@ kdesc-all-pods() {
   done
 }
 
+# Switch EKS cluster context
 use-eks() {
   if [[ -z "$1" ]]; then
     echo "Usage: use-eks <cluster-name> [region]"
@@ -49,3 +65,12 @@ use-eks() {
   aws eks update-kubeconfig --name "$1" --region "$REGION"
   echo "🔄 Now using EKS cluster: $1 in $REGION"
 }
+
+# =============================================================================
+# Kubernetes Helpers (runner scripts)
+# =============================================================================
+
+alias kc-versions="~/bin/runners/helpers/kubectl/kc-versions"
+alias kc-check="~/bin/runners/helpers/kubectl/kc-check"
+alias kc-plugins="~/bin/runners/helpers/kubectl/kc-plugins"
+alias kc-help="~/bin/runners/helpers/kubectl/kc-help"
