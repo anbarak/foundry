@@ -75,3 +75,6 @@ alias la='eza -lah'
 
 # Modern 'grep' replacement (use carefully — don't override grep globally unless you're confident)
 alias rg='rg --hidden --no-ignore'  # safe to use alongside ggrep
+
+# Use to lint dotfile before yadm commit
+alias lintdot='lint-dotfiles.sh'

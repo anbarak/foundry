@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "🔍 Linting shell scripts with shellcheck..."
+find "$HOME/.config/zsh/modules" -type f -name '*.zsh' -exec shellcheck {} +
+
+echo "🔍 Formatting check for shell scripts with shfmt..."
+shfmt -d "$HOME/.config/zsh/modules"
+
+echo "🔍 YAML linting..."
+yamllint "$HOME/.pre-commit-config.yaml"
+
+echo "✅ All linting checks passed!"
