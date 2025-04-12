@@ -50,3 +50,6 @@ Public/
 
 # GCP SDK (runtime only)
 .config/gcloud/
+
+# my local code repository
+code/

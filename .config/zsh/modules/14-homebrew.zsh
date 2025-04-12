@@ -3,4 +3,18 @@
 # Homebrew
 # =============================================================================
 alias brewup='brew update; brew upgrade; brew cleanup'
-alias brewupdate="brew bundle dump --file=$HOME/.config/homebrew/Brewfile --force && yadm add $HOME/.config/homebrew/Brewfile && yadm commit -m \"Updated Brewfile\" --no-gpg-sign && yadm push"
+
+brewupdate() {
+  local brewfile="$HOME/.config/homebrew/Brewfile"
+  brew bundle dump --file="$brewfile" --force &&
+  yadm add "$brewfile" &&
+  yadm commit -m "Updated Brewfile" --no-gpg-sign &&
+  yadm push
+}
+
+brewupall() {
+  brewup
+  echo "📦 Done updating. Do you want to update your Brewfile? (y/n)"
+  read -r ans
+  [[ $ans == y* ]] && brewupdate
+}
