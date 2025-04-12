@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # =============================================================================
 # Cloud Environment Switchers
 # =============================================================================
@@ -6,20 +7,21 @@ alias gcp-activate='switch-cloud gcp'
 alias azure-activate='switch-cloud azure'
 
 switch-cloud() {
-  case "$1" in
-    aws)
-      [[ -f $HOME/.config/clouds/aws.sh ]] && source $HOME/.config/clouds/aws.sh || echo "aws.sh not found"
-      export CLOUD="aws"
-      ;;
-    gcp)
-      [[ -f $HOME/.config/clouds/gcp.sh ]] && source $HOME/.config/clouds/gcp.sh || echo "gcp.sh not found"
-      export CLOUD="gcp"
+  local provider="${1:-}"
+  local profile="${2:-centerfield}"
+
+  case "$provider" in
+    aws | gcp)
+      [[ -f "$HOME/.config/clouds/load_all.sh" ]] \
+        && source "$HOME/.config/clouds/load_all.sh" "$profile" \
+        || echo "load_all.sh not found"
+      export CLOUD="$provider"
       ;;
     azure)
       export CLOUD="azure"
       ;;
     *)
-      echo "Unknown cloud provider: $1"
+      echo "Unknown cloud provider: $provider"
       ;;
   esac
 }

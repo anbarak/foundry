@@ -22,6 +22,7 @@ Public/
 .ssh/
 .gnupg/
 .mylogin.cnf
+.aws/config
 .aws/credentials
 .vpn-configs/
 .bitwarden-ssh-agent.sock
@@ -31,3 +32,21 @@ Public/
 .krew/
 .docker/
 .parallel/
+
+# AWS VPN Client
+.config/AWSVPNClient/
+.config/AWS\ VPN\ Client/
+
+# coc.nvim runtime
+.config/coc/extensions/
+.config/coc/memos.json
+
+# Local-only Git and MySQL
+.config/git/config_local
+.config/mysql/
+
+# yadm internals
+.config/yadm/config
+
+# GCP SDK (runtime only)
+.config/gcloud/

@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # =============================================================================
 # Terraform (native local install)
 # =============================================================================
@@ -25,7 +26,7 @@ alias tfs='tfsec'
 # =============================================================================
 
 # Native runner script
-alias tfabzaar="$HOME/bin/runners/terraform-container"
+alias tfabzaar='"$HOME/bin/runners/terraform-container"'
 
 # Dynamic containerized Terraform command: usage -> tfx 1.6.6 plan
 tfx() {
@@ -38,6 +39,6 @@ tfx() {
 }
 
 # Dynamic helpers
-alias tf-versions="$HOME/bin/runners/helpers/terraform/tf-versions"
-alias tf-check="$HOME/bin/runners/helpers/terraform/tf-check"
-alias tf-help="$HOME/bin/runners/helpers/terraform/tf-help"
+alias tf-versions='"$HOME/bin/runners/helpers/terraform/tf-versions"'
+alias tf-check='"$HOME/bin/runners/helpers/terraform/tf-check"'
+alias tf-help='"$HOME/bin/runners/helpers/terraform/tf-help"'

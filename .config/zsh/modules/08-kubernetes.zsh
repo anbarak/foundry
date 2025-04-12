@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # =============================================================================
 # Kubernetes
 # =============================================================================
@@ -21,12 +22,12 @@ alias k9s='k9s'
 # -----------------------------------------------------------------------------
 
 # Base alias pointing to your containerized runner
-alias kcabzaar="$HOME/bin/runners/kubectl-container"
-# Containerized kubectl helpers
-alias kc-versions="$HOME/bin/runners/helpers/kubectl/kc-versions"
-alias kc-check="$HOME/bin/runners/helpers/kubectl/kc-check"
-alias kc-plugins="$HOME/bin/runners/helpers/kubectl/kc-plugins"
-alias kc-help="$HOME/bin/runners/helpers/kubectl/kc-help"
+alias kcabzaar='"$HOME/bin/runners/kubectl-container"'
+# Containerized kubectl helpersi
+alias kc-versions='"$HOME/bin/runners/helpers/kubectl/kc-versions"'
+alias kc-check='"$HOME/bin/runners/helpers/kubectl/kc-check"'
+alias kc-plugins='"$HOME/bin/runners/helpers/kubectl/kc-plugins"'
+alias kc-help='"$HOME/bin/runners/helpers/kubectl/kc-help"'
 
 # Dynamic wrapper for any version of containerized kubectl
 # Usage: kcx <version> [kubectl args...]

@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # =============================================================================
 # GNU Coreutils Aliases
 # =============================================================================
@@ -77,4 +78,5 @@ alias la='eza -lah'
 alias rg='rg --hidden --no-ignore'  # safe to use alongside ggrep
 
 # Use to lint dotfile before yadm commit
-alias lintdot='lint-dotfiles.sh'
+alias lintdot='"$HOME/bin/lint-dotfiles"'
+alias ycommit='"$HOME/bin/yadm-commit"'

@@ -2,7 +2,9 @@
 set -euo pipefail
 
 echo "🔍 Linting shell scripts with shellcheck..."
-find "$HOME/.config/zsh/modules" -type f -name '*.zsh' -exec shellcheck {} +
+for file in "$HOME"/.config/zsh/modules/*.zsh; do
+  shellcheck -x "$file"
+done
 
 echo "🔍 Formatting check for shell scripts with shfmt..."
 shfmt -d "$HOME/.config/zsh/modules"
