@@ -63,11 +63,17 @@ To launch the interactive setup menu:
 
 You’ll get a clean menu UI powered by [`gum`](https://github.com/charmbracelet/gum) with options to:
 
-- Restore environment
-- Finalize plugins
-- Backup or restore secrets
-- Lint dotfiles
-- Exit
+```bash
+Choose:
+> 🛠  Run Full Restore
+  🔐  Restore Secrets Only
+  📤  Backup Secrets to Bitwarden
+  🔁  Finalize Setup (plugins, completions)
+  📦  Lint Dotfiles
+  ❌  Exit
+
+←↓↑→ navigate • enter submit
+```
 
 Install `gum` if not already:
 
