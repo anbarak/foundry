@@ -32,6 +32,11 @@ echo "📁 Setting up dotfiles structure..."
 mkdir -p "$HOME/.config/zsh/modules"
 mkdir -p "$HOME/bin"
 
+if [[ ! -L "$HOME/bin/ycommit" ]]; then
+  echo "🔗 Linking ycommit command..."
+  ln -sf "$HOME/bin/git/yadm-commit" "$HOME/bin/ycommit"
+fi
+
 # -----------------------------------------------------------------------------
 # Step 2b: Create code directory structure
 # -----------------------------------------------------------------------------
