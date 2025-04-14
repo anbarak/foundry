@@ -15,28 +15,71 @@ This project defines a **portable, idempotent, and intuitive** macOS development
 
 ## 🚀 Bootstrap Strategy
 
-The environment is broken into the following parts:
+The environment is broken into modular parts under `~/bin/`, making it easy to automate, debug, and customize:
+
+### `~/bin/setup`
+- **TUI launcher** built with [gum](https://github.com/charmbracelet/gum)
+- Provides an interactive menu to run:
+  - `restore` (initial setup)
+  - `finalize` (plugin setup)
+  - `backup.sh` / `restore.sh` (Bitwarden secrets)
+  - `lint-dotfiles`
+  - Exit
+
+> 💡 This is the recommended entrypoint for a smooth restore experience:
+> ```bash
+> ~/bin/setup
+> ```
 
 ### `~/bin/bootstrap/`
-- `init-machine` – Installs Homebrew and core folders
-- `setup-core-tools`, `setup-kubernetes-tools`, `setup-terraform-tools` – Installs CLI helpers and links runners
+- `init-machine` – Installs Homebrew, sets up base folders
+- `setup-core-tools`, `setup-kubernetes-tools`, `setup-terraform-tools` – Installs key CLI tools and symlinks runners
 
 ### `~/bin/dev-env/`
-- `restore` – Main entrypoint to restore full environment
-- `finalize` – Handles plugin setups (Oh My Zsh, Tmux, Vim, Krew, etc.)
-- `lint-dotfiles` – Runs shellcheck and format validations
+- `restore` – Core logic for restoring the dev environment (used by the TUI)
+- `finalize` – Handles plugin setups (Oh My Zsh, Powerlevel10k, Tmux, Vim, kubectl Krew, etc.)
+- `lint-dotfiles` – Validates shell scripts and formatting (can be run manually or via TUI)
 
 ### `~/bin/secrets/`
 - `backup.sh` – Encrypts and uploads secrets to Bitwarden
-- `restore.sh` – Downloads secrets archive and Git config from Bitwarden
-- `ensure-cron.sh` – Adds a crontab entry to auto-backup secrets every weekday at 9 AM
+- `restore.sh` – Downloads secrets and git identity
+- `ensure-cron.sh` – Sets up a weekday cron job to auto-backup secrets at 9 AM
 
 ### `~/bin/runners/`
-Containerized wrappers for `kubectl` and `terraform` (via Docker), with helpers under `helpers/`.
+- Dockerized CLI wrappers (e.g., `kubectl-1.29`, `terraform-1.6`)
+- Helpers under `~/bin/runners/helpers/` for launching version-specific tools
 
 ---
 
 ## 🔁 Restore Flow
+
+### 🧭 One-Liner TUI Launcher (Recommended)
+
+To launch the interactive setup menu:
+
+```bash
+~/bin/setup
+```
+
+You’ll get a clean menu UI powered by [`gum`](https://github.com/charmbracelet/gum) with options to:
+
+- Restore environment
+- Finalize plugins
+- Backup or restore secrets
+- Lint dotfiles
+- Exit
+
+Install `gum` if not already:
+
+```bash
+brew install gum
+```
+
+---
+
+### 🛠 Manual Restore (Advanced)
+
+If you prefer running scripts directly (e.g., in CI or custom automation), use:
 
 ```bash
 ~/bin/dev-env/restore

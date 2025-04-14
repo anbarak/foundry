@@ -1,18 +1,25 @@
+# ~/bin/setup
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "🚀 Starting full dev environment restore..."
+if ! command -v gum &>/dev/null; then
+  echo "gum is not installed. Please run 'brew install gum'"
+  exit 1
+fi
 
-# Step 1: Bootstrap core tools, configs, and dotfiles
-echo "🔧 Bootstrapping system with init-machine..."
-"$HOME/bin/bootstrap/init-machine"
+choice=$(gum choose \
+  "🛠  Run Full Restore" \
+  "🔐  Restore Secrets Only" \
+  "📤  Backup Secrets to Bitwarden" \
+  "🔁  Finalize Setup (plugins, completions)" \
+  "📦  Lint Dotfiles" \
+  "❌  Exit")
 
-# Step 2: Restore secrets from Bitwarden or backup
-echo "🔐 Restoring secrets from backup..."
-"$HOME/bin/secrets/restore.sh"
-
-# Step 3: Run final setup (like plugins, completions, terminal tweaks)
-echo "🧩 Running post-restore setup..."
-"$HOME/bin/dev-env/finalize"
-
-echo "✅ Dev environment restored successfully!"
+case "$choice" in
+  "🛠  Run Full Restore")       ~/bin/dev-env/restore ;;
+  "🔐  Restore Secrets Only")  ~/bin/secrets/restore ;;
+  "📤  Backup Secrets to Bitwarden")  ~/bin/secrets/backup ;;
+  "🔁  Finalize Setup (plugins, completions)") ~/bin/dev-env/finalize ;;
+  "📦  Lint Dotfiles")         ~/bin/dev-env/lint-dotfiles ;;
+  "❌  Exit")                  echo "Bye 👋"; exit 0 ;;
+esac
