@@ -2,7 +2,7 @@
 set -euo pipefail
 
 echo "🧪 Running dotfile linter..."
-"$HOME/bin/lint-dotfiles"
+"$HOME/bin/dev-env/lint-dotfiles"
 
 echo "✅ Linting complete."
 

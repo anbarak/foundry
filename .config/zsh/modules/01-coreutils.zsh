@@ -78,6 +78,6 @@ alias la='eza -lah'
 alias rg='rg --hidden --no-ignore'  # safe to use alongside ggrep
 
 # Use to lint dotfile before yadm commit
-alias lintdot='"$HOME/dev-env/lint-dotfiles"'
-alias ycommit='"$HOME/git/yadm-commit"'
+alias lintdot='"$HOME/bin/dev-env/lint-dotfiles"'
+alias ycommit='"$HOME/bin/git/yadm-commit"'
 alias devsetup='"$HOME/bin/setup"'
