@@ -26,6 +26,9 @@ Public/
 .aws/credentials
 .vpn-configs/
 .bitwarden-ssh-agent.sock
+.gitconfig
+.gitconfig-centerfield
+.saml2aws
 
 # App-specific and auto-generated runtime folders
 .kube/
