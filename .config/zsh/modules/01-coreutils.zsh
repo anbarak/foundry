@@ -80,4 +80,4 @@ alias rg='rg --hidden --no-ignore'  # safe to use alongside ggrep
 # Use to lint dotfile before yadm commit
 alias lintdot='"$HOME/bin/lint-dotfiles"'
 alias ycommit='"$HOME/bin/yadm-commit"'
-alias devrestore='"$HOME/bin/restore-dev-env"'
+alias devsetup='"$HOME/bin/setup"'

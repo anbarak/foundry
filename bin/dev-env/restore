@@ -5,14 +5,14 @@ echo "🚀 Starting full dev environment restore..."
 
 # Step 1: Bootstrap core tools, configs, and dotfiles
 echo "🔧 Bootstrapping system with init-machine..."
-~/bin/dev-bootstrap/init-machine
+"$HOME/bin/bootstrap/init-machine"
 
 # Step 2: Restore secrets from Bitwarden or backup
 echo "🔐 Restoring secrets from backup..."
-~/bin/restore-secrets
+"$HOME/bin/secrets/restore.sh"
 
 # Step 3: Run final setup (like plugins, completions, terminal tweaks)
 echo "🧩 Running post-restore setup..."
-~/bin/post-restore-setup
+"$HOME/bin/dev-env/finalize"
 
 echo "✅ Dev environment restored successfully!"

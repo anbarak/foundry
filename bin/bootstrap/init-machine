@@ -42,10 +42,10 @@ mkdir -p "$HOME/code/cf" "$HOME/code/my" "$HOME/code/tmp"
 # Step 3: Modular setup scripts (cloud/dev tools)
 # -----------------------------------------------------------------------------
 SCRIPTS=(
-  "$HOME/bin/dev-bootstrap/setup-core-tools"
-  "$HOME/bin/dev-bootstrap/setup-terraform-tools"
-  "$HOME/bin/dev-bootstrap/setup-kubernetes-tools"
-  "$HOME/bin/dev-bootstrap/setup-cloud-core"
+  "$HOME/bin/bootstrap/setup-core-tools"
+  "$HOME/bin/bootstrap/setup-terraform-tools"
+  "$HOME/bin/bootstrap/setup-kubernetes-tools"
+  "$HOME/bin/bootstrap/setup-cloud-core"
 )
 
 for script in "${SCRIPTS[@]}"; do
