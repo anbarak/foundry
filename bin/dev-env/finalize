@@ -1,45 +1,105 @@
 #!/usr/bin/env bash
 
-echo "⚙️ Setting up Oh My Zsh + plugins"
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
-  "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k"
-git clone https://github.com/zsh-users/zsh-autosuggestions \
-  "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
-  "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
+# -----------------------------------------------------------------------------
+# 🧠 Setting up Oh My Zsh + Powerlevel10k + Plugins
+# -----------------------------------------------------------------------------
+echo "────────────────────────────────────────────"
+echo "⚙️  Setting up Oh My Zsh + Plugins"
+echo "────────────────────────────────────────────"
+if [[ -d "$HOME/.oh-my-zsh" ]]; then
+  echo "✅ Oh My Zsh already installed. Skipping..."
+else
+  echo "⚙️ Installing Oh My Zsh..."
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
 
-echo "🧪 Setting up TPM + completions"
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+
+[[ -d "$ZSH_CUSTOM/themes/powerlevel10k" ]] || \
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
+
+[[ -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]] || \
+  git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+
+[[ -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]] || \
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+
+echo "────────────────────────────────────────────"
+echo "🧪 Setting up TPM + Completions"
+echo "────────────────────────────────────────────"
+if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
+  echo "✅ TPM already installed"
+else
+  git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+fi
 mkdir -p ~/.tmux/resurrect
 curl -fsSL https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh \
   -o ~/.zsh/completions/_git
 curl -fLo ~/.oh-my-zsh/plugins/docker/_docker \
   https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
 
+# -----------------------------------------------------------------------------
+# 📦 Install Vim Plugins
+# -----------------------------------------------------------------------------
+echo "────────────────────────────────────────────"
 echo "📦 Installing vim plugins"
+echo "────────────────────────────────────────────"
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
      https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim +PlugInstall +qall
 
+# -----------------------------------------------------------------------------
+# 🛠️  Ensure Secrets Cron Job
+# -----------------------------------------------------------------------------
 # Ensure secrets backup cron job exists
-echo "🛠️ Ensuring secrets backup cron job is set..."
+echo "────────────────────────────────────────────"
+echo "🛠️ Ensuring secrets backup cron job is set"
+echo "────────────────────────────────────────────"
 "$HOME/bin/secrets/ensure-cron"
 
+# -----------------------------------------------------------------------------
+# 📚 Kubectl Krew Plugins
+# -----------------------------------------------------------------------------
+echo "────────────────────────────────────────────"
 echo "📚 Setting up Kubectl plugins via Krew"
-(
-  cd "$(mktemp -d)" &&
-  OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
-  ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/aarch64$/arm64/')" &&
-  KREW="krew-${OS}_${ARCH}" &&
-  curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
-  tar zxvf "${KREW}.tar.gz" &&
-  ./"${KREW}" install krew
-)
+echo "────────────────────────────────────────────"
+# Install krew if not installed
+if ! kubectl krew version &>/dev/null; then
+  (
+    cd "$(mktemp -d)" &&
+    OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+    ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/aarch64$/arm64/')" &&
+    KREW="krew-${OS}_${ARCH}" &&
+    curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+    tar zxvf "${KREW}.tar.gz" &&
+    ./"${KREW}" install krew
+  )
+else
+  echo "✅ krew already installed"
+fi
 
-kubectl krew install ctx ns tree whoami neat ktop
+# Define list of desired plugins
+KREW_PLUGINS=(ctx ns tree whoami neat ktop)
 
+# Install missing plugins only
+for plugin in "${KREW_PLUGINS[@]}"; do
+  if ! kubectl krew list | grep -q "^${plugin}$"; then
+    echo "🔌 Installing kubectl plugin: $plugin"
+    kubectl krew install "$plugin"
+  else
+    echo "✅ Plugin already installed: $plugin"
+  fi
+done
+
+# -----------------------------------------------------------------------------
+# 🐘 MySQL Configuration (manual password entry)
+# -----------------------------------------------------------------------------
+echo "────────────────────────────────────────────"
 echo "🐘 Configuring MySQL"
+echo "────────────────────────────────────────────"
+echo "🔑 Please enter the password for user 'dlroot'."
+echo "ℹ️  You can find it in Bitwarden Vault under: dlroot"
+echo
 mysql_config_editor set \
   --login-path=datalot_prod_writer_r5m2_auroramysql_useast1a \
   --host=encrypted-r5m2.c6uqsvavlrra.us-east-1.rds.amazonaws.com \
@@ -47,5 +107,6 @@ mysql_config_editor set \
   --password \
   --port=3306
 chmod 600 ~/.config/mysql/*
+echo "✅ MySQL login path configured."
 
 echo "✅ Dev environment restored successfully. You may start working in your environment now!"
