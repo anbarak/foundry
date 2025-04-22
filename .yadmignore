@@ -54,5 +54,8 @@ Public/
 # GCP SDK (runtime only)
 .config/gcloud/
 
+# Go modules
+go/pkg/
+
 # my local code repository
 code/
