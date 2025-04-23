@@ -1,23 +1,22 @@
 #!/usr/bin/env bash
 
-# Segment name
-segment_name="cpu_load_percent"
-segment_priority=20
-
 print_segment() {
-  load=$(sysctl -n vm.loadavg | awk -F'[{} ]' '{print $3}')
+  load=$(sysctl -n vm.loadavg | awk -F'[{} ]' '{print $3}') # 1-minute load
   cores=$(sysctl -n hw.ncpu)
-  load_percent=$(awk "BEGIN { printf \"%.0f\", ($load/$cores)*100 }")
+  load_percent=$(awk "BEGIN { printf \"%.1f\", ($load/$cores)*100 }")
 
   if [ "$load_percent" -lt 70 ]; then
     color="#[fg=green]"
+    emoji="✅"
   elif [ "$load_percent" -le 100 ]; then
     color="#[fg=yellow]"
+    emoji="⚠️"
   else
     color="#[fg=red]"
+    emoji="🔥"
   fi
 
-  echo "${color}CPU: ${load_percent}%#[default]"
+  echo "${color}🖥 CPU: ${load_percent}% $emoji#[default]"
 }
 
 run_segment() {
