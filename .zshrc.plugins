@@ -1,33 +1,38 @@
 ############################################################################################
-# This file defines the plugin array for your zsh environment.                             #
+# This file defines the plugin array and sources each plugin manually without a plugin 
+# manager.                             #
 ############################################################################################
 
-# Plugin management (choose one approach)
-# Option 1: Using a plugin array (recommended)
+# Define the list of plugins to load
 plugins=(
-    autojump
-    aws
-    brew
-    clipboard
-    colored-man-pages
-    colorize
-    dirhistory
-    docker
-    fzf
-    gcloud
-    gcp
-    git
-    history
-    k
-    pip
-    python
-    terraform
-    zsh-autosuggestions
-    zsh-syntax-highlighting
-)
+  # 🔁 Navigation & Productivity
+  autojump                 # Fast directory jumping using usage history
+  fzf                      # Fuzzy finding for history, files, directories, etc.
+  clipboard                # macOS clipboard tools (copyfile, copypath)
+  colored-man-pages        # Color-enhanced `man` pages for better readability
 
-# Option 2: Sourcing individual plugin files (if not using a plugin manager)
-# source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh  # Example
+  # ☁️ Cloud & DevOps Tools
+  aws                      # AWS CLI profile/region completions + prompt integration
+  gcloud                   # Google Cloud SDK CLI completions
+  docker                   # Docker CLI aliases and completions
+  helm                     # Helm CLI completions and aliases
+  terraform                # Terraform completions, prompt info, aliases
+  k                        # Wrapper for `kubectl` with shorthand
+  kubectl                  # Core Kubernetes CLI support
+  kubectx                  # Show/switch active kube contexts easily
+
+  # 💻 Development Tools
+  pip                      # Python package manager completions
+  python                   # Aliases for python and virtualenv helpers
+  git                      # Git aliases and functions
+  gh                       # GitHub CLI completions
+  tmux                     # Tmux aliases and completions
+
+  # 📜 History & Quality of Life
+  history                  # Handy aliases for history inspection
+  zsh-autosuggestions      # Suggest previous commands as you type
+  zsh-syntax-highlighting  # Highlight valid/invalid commands in real time
+)
 
 # Load the plugins
 for plugin ($plugins); do
