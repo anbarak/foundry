@@ -1,25 +1,38 @@
 #!/usr/bin/env bash
+echo "CPU segment running at $(date)" >> /tmp/tmux-cpu.log
 
-print_segment() {
-  load=$(sysctl -n vm.loadavg | awk -F'[{} ]' '{print $3}') # 1-minute load
-  cores=$(sysctl -n hw.ncpu)
-  load_percent=$(awk "BEGIN { printf \"%.1f\", ($load/$cores)*100 }")
+get_cpu_load_percent() {
+  local cores
+  cores=$(sysctl -n hw.ncpu 2>/dev/null) || return 1
 
-  if [ "$load_percent" -lt 70 ]; then
-    color="#[fg=green]"
-    emoji="✅"
-  elif [ "$load_percent" -le 100 ]; then
-    color="#[fg=yellow]"
-    emoji="⚠️"
-  else
-    color="#[fg=red]"
-    emoji="🔥"
+  local load
+  load=$(uptime | awk -F'load averages?: ' '{print $2}' | cut -d',' -f1 | tr -d ' ') || return 1
+
+  local percent
+  percent=$(awk "BEGIN { printf \"%.0f\", ($load / $cores) * 100 }") || return 1
+
+  echo "$percent"
+}
+
+main() {
+  local percent
+  percent=$(get_cpu_load_percent)
+
+  if [ -z "$percent" ]; then
+    echo "󰍛 CPU: N/A"
+    return
   fi
 
-  echo "${color}🖥 CPU: ${load_percent}% $emoji#[default]"
+  local icon
+  if [ "$percent" -lt 70 ]; then
+    icon="🟢"
+  elif [ "$percent" -lt 100 ]; then
+    icon="🟡"
+  else
+    icon="🔴"
+  fi
+
+  echo "󰍛 CPU: ${percent}% ${icon}"
 }
 
-run_segment() {
-  print_segment
-  return 0
-}
+main

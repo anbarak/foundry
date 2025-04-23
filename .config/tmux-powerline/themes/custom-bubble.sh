@@ -57,7 +57,7 @@ if [ -z "$TMUX_POWERLINE_LEFT_STATUS_SEGMENTS" ]; then
     "tmux_session_info $blue $thm_bg"
     "hostname $eggplant $thm_bg"
     "vpn $sky_blue $thm_bg ${TMUX_POWERLINE_SEPARATOR_RIGHT_THIN}"
-    "vcs_branch $mauve $thm_bg"
+    "vcs_branch $peach $thm_bg"
   )
 fi
 
@@ -67,7 +67,7 @@ if [ -z "$TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS" ]; then
     "aws_profile $green $thm_bg"
     "k8s_context $blue $thm_bg"
     "cpu_load_percent $teal $thm_bg"
-    "time $teal $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}"
-    "utc_time $teal $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}"
+    "time $mauve $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}"
+    "utc_time $surface2 $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}"
   )
 fi
