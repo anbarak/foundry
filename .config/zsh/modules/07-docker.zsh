@@ -2,37 +2,34 @@
 # =============================================================================
 # Docker
 # =============================================================================
-alias dk='docker'
-alias dkb='docker build'
-alias dkc='docker-compose'
-alias dki='docker images'
-alias dkp='docker ps'
-alias dkpa='docker ps -a'
-alias dkr='docker run'
-alias dkrm='docker rm'
-alias dkrmi='docker rmi'
-alias dkl='docker logs'
-alias docker_stop_all='docker stop $(docker ps -aq)'
-alias docker_rmi_all='docker rmi $(docker images -q)'
-alias docker_prune='docker system prune -af'
-alias docker_restart_all='docker restart $(docker ps -aq)'
+### ── Docker CLI Shortcuts ─────────────────────────────
+alias d="docker"
+alias dc="docker compose"
+alias dps="docker ps -a"
+alias dimg="docker images"
+alias dstats="docker stats"
+alias dexec="docker exec -it"  # Usage: dexec <container> bash
+alias dlog="docker logs -f"    # Usage: dlog <container>
+alias dnet="docker network ls"
+alias dvol="docker volume ls"
 
-docker-clean-all() {
-  echo "Stopping all containers..."
-  docker stop "$(docker ps -aq)"
-  echo "Removing all containers..."
-  docker rm "$(docker ps -aq)"
-  echo "Removing all images..."
-  docker rmi "$(docker images -q)"
-  echo "Pruning unused resources..."
-  docker system prune -af
-}
+### ── Docker Cleanup Shortcuts ─────────────────────────
+alias docker-clean-all='
+  echo "Stopping all containers...";
+  docker stop $(docker ps -aq) 2>/dev/null;
+  echo "Removing all containers...";
+  docker rm $(docker ps -aq) 2>/dev/null;
+  echo "Removing all images...";
+  docker rmi $(docker images -q) 2>/dev/null;
+  echo "Pruning unused resources...";
+  docker system prune -f;
+'
 
-docker_rm_all() {
-  read -rp "Remove all containers? (y/n) " yn
-  if [[ $yn == "y" ]]; then
-    docker stop "$(docker ps -aq)"
-    docker rm "$(docker ps -aq)"
-    docker rmi "$(docker images -q)"
-  fi
-}
+### ── Colima Management ────────────────────────────────
+alias colima-start="colima start --cpu 2 --memory 2 --disk 20"
+alias colima-stop="colima stop"
+alias colima-restart="colima stop && colima start"
+alias colima-status="colima status"
+
+### ── Kubernetes Context (if using Colima k3s) ─────────
+alias kctx-colima="kubectl config use-context colima"

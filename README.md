@@ -161,53 +161,81 @@ This setup includes:
 
 ---
 
-## 🐳 Docker Desktop (Manual Setup)
+## 🐳 Docker via Colima (Replaces Docker Desktop)
 
-Docker Desktop is **not installed via Homebrew**.  
-Download from [docker.com](https://www.docker.com/products/docker-desktop).
+Docker is now powered by [`Colima`](https://github.com/abiosoft/colima) — a lightweight, fast, and scriptable alternative to Docker Desktop using native macOS virtualization.
 
-After install, open **Docker Desktop → Settings** and apply the following configuration:
+### 🛠 Installation
 
-### 🧠 CPU / Memory / Swap Settings
+Install Colima and the Docker CLI:
 
-![CPU Config](https://github.com/haarabi/dev-env/assets/2755929/a16138e7-5cf3-4b25-a1b1-394c4b9dca05)  
-![Memory Config](https://github.com/haarabi/dev-env/assets/2755929/6ad63deb-fa8a-489f-9741-1c59abae9ce2)  
-![Swap Config](https://github.com/haarabi/dev-env/assets/2755929/4e1bf8cc-bfff-4b25-8b92-b58ee39d389f)
-
-### 🧱 Docker Engine (JSON)
-
-Go to **Settings → Docker Engine** and replace the config with:
-
-```json
-{
-  "builder": {
-    "gc": {
-      "defaultKeepStorage": "20GB",
-      "enabled": true
-    }
-  },
-  "experimental": false,
-  "storage-driver": "overlay2",
-  "log-opts": {
-    "max-size": "100m",
-    "max-file": "3"
-  },
-  "features": {
-    "buildkit": true
-  }
-}
+```bash
+brew install colima docker
 ```
 
-### 🔧 Additional Screenshots for Configuration Reference
+### 🚀 Start Colima VM
 
-![General Settings](https://github.com/haarabi/dev-env/assets/2755929/b402612d-3a7a-41c4-8e04-f36beb6968d1)  
-![Disk Settings](https://github.com/haarabi/dev-env/assets/2755929/064a22a8-1c60-44ee-9d15-9d5599bbcf8a)  
-![Advanced Tabs](https://github.com/haarabi/dev-env/assets/2755929/a733c5ad-b834-4db2-b733-c1e9a276466d)  
-![Kubernetes Settings](https://github.com/haarabi/dev-env/assets/2755929/9c98ba13-cb63-40ff-bbbc-c666cf26f6ec)  
-![VM Settings](https://github.com/haarabi/dev-env/assets/2755929/fea0be1e-d3f5-488b-b53b-73ac28821676)  
-![Resources Storage](https://github.com/haarabi/dev-env/assets/2755929/b04c0e00-31a2-4f56-aab8-ec4233a7ca67)  
-![File Sharing Settings](https://github.com/haarabi/dev-env/assets/2755929/60d5a5f2-4dbf-4fe3-8741-5ba0a91aac40)  
-![Software Updates](https://github.com/haarabi/dev-env/assets/2755929/71f056fa-085b-4801-b1ac-e44a2dba0982)
+Start Colima with custom resource limits:
+
+```bash
+colima start --cpu 2 --memory 2 --disk 20
+```
+
+Optional: Start Colima with Kubernetes (via k3s):
+
+```bash
+colima start --cpu 2 --memory 4 --disk 20 --kubernetes
+```
+
+### 🐳 Usage
+
+The Docker CLI (`docker`, `docker compose`) works out of the box:
+
+```bash
+docker ps
+docker run hello-world
+docker compose up
+```
+
+Colima VM management:
+
+```bash
+colima stop
+colima restart
+colima status
+```
+
+### 📦 Migration from Docker Desktop
+
+If migrating from Docker Desktop:
+
+- **Images**  
+  Save from Docker Desktop:  
+  ```bash
+  docker save my-image:tag -o my-image.tar
+  ```  
+  Load into Colima:  
+  ```bash
+  docker load -i my-image.tar
+  ```
+
+- **Volumes**  
+  Migration is manual; recreate or restore via backup.
+
+- **Uninstall Docker Desktop**  
+  Optional cleanup:  
+  ```bash
+  sudo rm -rf /Applications/Docker.app
+  rm -rf ~/.docker ~/Library/Containers/com.docker.docker
+  ```
+
+### ✅ Notes
+
+- Colima is scriptable and integrates well with dotfile-based setups.
+- You can manage different environments using `colima start --profile <name> ...`.
+- Works with your `~/bin/runners/`, aliases, and containerized workflows.
+
+> 💡 This setup eliminates heavy resource usage from Docker Desktop and improves startup time and system performance.
 
 ---
 
