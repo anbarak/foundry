@@ -10,29 +10,6 @@ notify() {
   osascript -e "display notification \"$1\" with title \"Network Alert\""
 }
 
-# 🔌 Network Interfaces
-WIFI_DEVICE=$(networksetup -listallhardwareports | awk '/Wi-Fi/{getline; print $2}')
-WIFI_STATUS=$(networksetup -getairportpower "$WIFI_DEVICE" 2>/dev/null | awk '{print $NF}')
-ETHERNET_ACTIVE=""
-for iface in $(ifconfig -l | grep -E '^en[0-9]+$'); do
-  if ifconfig "$iface" | grep -q "status: active"; then
-    ETHERNET_ACTIVE="$iface"
-    break
-  fi
-done
-
-# 🌍 Connectivity
-PING_TARGET="8.8.8.8"
-DNS_TARGET="google.com"
-ping -q -t 1 -c 1 "$PING_TARGET" &>/dev/null || curl -s --max-time 2 https://www.google.com >/dev/null; PING_OK=$?
-dig +short "$DNS_TARGET" &>/dev/null; DNS_OK=$?
-LATENCY=$(ping -c 1 "$PING_TARGET" | grep 'time=' | awk -F'time=' '{print $2}' | cut -d' ' -f1)
-PUBLIC_IP=$(curl -s ifconfig.me)
-GATEWAY=$(netstat -rn | awk '/default/ {print $2}' | head -n 1)
-
-# 🔐 VPN
-VPN_NAME=$(scutil --nc list | awk -F'"' '/Connected/ {print $2}' | head -n1)
-
 # ✅ Top Bar Status
 if [[ "$PING_OK" -eq 0 && "$DNS_OK" -eq 0 ]]; then
   echo "✅ Internet OK"
@@ -49,6 +26,7 @@ echo "---"
 
 # 🔐 VPN
 # Track VPN status and notify only on change
+VPN_NAME=$(scutil --nc list | awk -F'"' '/Connected/ {print $2}' | head -n1)
 VPN_STATUS_FILE="/tmp/.xbar-vpn-status"
 VPN_STATE="disconnected"
 if [[ -n "$VPN_NAME" ]]; then
@@ -70,8 +48,10 @@ fi
 
 echo "$VPN_STATE" > "$VPN_STATUS_FILE"
 
-# 📶 Interfaces
+# 📶 Network Interfaces
 # Track Wi-Fi status and notify only on change
+WIFI_DEVICE=$(networksetup -listallhardwareports | awk '/Wi-Fi/{getline; print $2}')
+WIFI_STATUS=$(networksetup -getairportpower "$WIFI_DEVICE" 2>/dev/null | awk '{print $NF}')
 WIFI_STATUS_FILE="/tmp/.xbar-wifi-status"
 WIFI_STATE="off"
 if [[ "$WIFI_STATUS" == "On" ]]; then
@@ -93,13 +73,38 @@ fi
 
 echo "$WIFI_STATE" > "$WIFI_STATUS_FILE"
 
-if [[ -n "$ETHERNET_ACTIVE" ]]; then
-  echo "🔌 Ethernet: $ETHERNET_ACTIVE ✅"
+# Better Ethernet detection (include all active non-Wi-Fi en* devices)
+ETHERNET_ACTIVE=()
+for iface in $(networksetup -listallhardwareports | awk '/Device/ {print $2}'); do
+  # Skip if it's the known Wi-Fi device
+  if [[ "$iface" == "$WIFI_DEVICE" ]]; then
+    continue
+  fi
+
+  # Check if active and is an enX interface
+  if [[ "$iface" == en* ]] && ifconfig "$iface" | grep -q "status: active"; then
+    ETHERNET_ACTIVE+=("$iface")
+  fi
+done
+
+if [[ ${#ETHERNET_ACTIVE[@]} -gt 0 ]]; then
+  for eth in "${ETHERNET_ACTIVE[@]}"; do
+    echo "🔌 Ethernet: $eth ✅"
+  done
 else
   echo "❌ Ethernet: Disconnected"
 fi
 
 echo "---"
+
+# 🌍 Connectivity
+PING_TARGET="8.8.8.8"
+DNS_TARGET="google.com"
+ping -q -t 1 -c 1 "$PING_TARGET" &>/dev/null || curl -s --max-time 2 https://www.google.com >/dev/null; PING_OK=$?
+dig +short "$DNS_TARGET" &>/dev/null; DNS_OK=$?
+LATENCY=$(ping -c 1 "$PING_TARGET" | grep 'time=' | awk -F'time=' '{print $2}' | cut -d' ' -f1)
+PUBLIC_IP=$(curl -s ifconfig.me)
+GATEWAY=$(netstat -rn | awk '/default/ {print $2}' | head -n 1)
 
 # 🌍 Diagnostics
 if [[ "$PING_OK" -eq 0 ]]; then
