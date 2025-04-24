@@ -48,20 +48,50 @@ echo "⚡️ Run Speed Test | bash='$HOME/bin/tools/xbar-scripts/xbar-speedtest.
 echo "---"
 
 # 🔐 VPN
+# Track VPN status and notify only on change
+VPN_STATUS_FILE="/tmp/.xbar-vpn-status"
+VPN_STATE="disconnected"
 if [[ -n "$VPN_NAME" ]]; then
+  VPN_STATE="connected"
   echo "🛡️ VPN: $VPN_NAME (Connected)"
 else
   echo "🛡️ VPN: Not Connected"
+fi
+
+if [[ -f "$VPN_STATUS_FILE" ]]; then
+  LAST_VPN_STATE=$(<"$VPN_STATUS_FILE")
+else
+  LAST_VPN_STATE=""
+fi
+
+if [[ "$VPN_STATE" != "$LAST_VPN_STATE" && "$VPN_STATE" == "disconnected" ]]; then
   notify "VPN is disconnected"
 fi
 
+echo "$VPN_STATE" > "$VPN_STATUS_FILE"
+
 # 📶 Interfaces
+# Track Wi-Fi status and notify only on change
+WIFI_STATUS_FILE="/tmp/.xbar-wifi-status"
+WIFI_STATE="off"
 if [[ "$WIFI_STATUS" == "On" ]]; then
+  WIFI_STATE="on"
   echo "📶 Wi-Fi: $WIFI_DEVICE (active)"
 else
   echo "📶 Wi-Fi: $WIFI_DEVICE (off)"
+fi
+
+if [[ -f "$WIFI_STATUS_FILE" ]]; then
+  LAST_WIFI_STATE=$(<"$WIFI_STATUS_FILE")
+else
+  LAST_WIFI_STATE=""
+fi
+
+if [[ "$WIFI_STATE" != "$LAST_WIFI_STATE" && "$WIFI_STATE" == "off" ]]; then
   notify "Wi-Fi is disconnected"
 fi
+
+echo "$WIFI_STATE" > "$WIFI_STATUS_FILE"
 
 if [[ -n "$ETHERNET_ACTIVE" ]]; then
   echo "🔌 Ethernet: $ETHERNET_ACTIVE ✅"
