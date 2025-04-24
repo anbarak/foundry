@@ -14,8 +14,13 @@ notify() {
 MEM_STATS=$(vm_stat)
 PAGES_FREE=$(echo "$MEM_STATS" | awk '/Pages free/ {gsub("\\.",""); print $3}')
 PAGES_ACTIVE=$(echo "$MEM_STATS" | awk '/Pages active/ {gsub("\\.",""); print $3}')
-TOTAL=$((PAGES_FREE + PAGES_ACTIVE))
-RAM_USAGE_PERCENT=$(awk "BEGIN { printf \"%.1f\", 100 * $PAGES_ACTIVE / $TOTAL }")
+PAGES_INACTIVE=$(echo "$MEM_STATS" | awk '/Pages inactive/ {gsub("\\.",""); print $3}')
+PAGES_SPECULATIVE=$(echo "$MEM_STATS" | awk '/Pages speculative/ {gsub("\\.",""); print $3}')
+PAGES_WIRED=$(echo "$MEM_STATS" | awk '/Pages wired down/ {gsub("\\.",""); print $4}')
+PAGE_SIZE=$(sysctl -n hw.pagesize)
+TOTAL_USED=$((PAGES_ACTIVE + PAGES_INACTIVE + PAGES_SPECULATIVE + PAGES_WIRED))
+TOTAL_PAGES=$(($(sysctl -n hw.memsize) / PAGE_SIZE))
+RAM_USAGE_PERCENT=$(awk "BEGIN { printf \"%.1f\", 100 * $TOTAL_USED / $TOTAL_PAGES }")
 
 RAM_ICON="🧠"
 if (( $(echo "$RAM_USAGE_PERCENT > 90" | bc -l) )); then
