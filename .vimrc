@@ -1,71 +1,85 @@
-" Enable mouse support
-syntax enable 
-
-" Force enable syntax highlighting
+" ─── Syntax & Mouse ─────────────────────────────────────────────
+syntax enable
 syntax on
-
-" File type detection
 filetype off
 filetype plugin indent on
+set mouse=a
 
-" Essential settings
-set tabstop=4                             " Number of spaces that a <Tab> in the file counts for
-set shiftwidth=4                          " Number of spaces to use for each step of (auto)indent
-set linebreak                             " Line break mode
-set nocompatible                          " Enable Vim's enhanced features 
-set expandtab                             " Use spaces instead of tabs
-set number                                " Show line numbers
-set relativenumber                        " Enable relative line numbers
-set autoindent                            " Copy indent from current line when starting a new line
-set smartindent                           " Do smart autoindenting when starting a new line
-set ignorecase                            " Ignore case when searching
-set smartcase                             " Override 'ignorecase' if search pattern contains uppercase characters
-set hlsearch                              " Highlight search results
-set incsearch                             " Do incremental searching
-set mouse=a                               " Enable mouse support in all modes
-set clipboard=unnamedplus                 " Use system clipboard for copy/paste
-set backspace=indent,eol,start            " Allow backspacing over auto-indent, line breaks, and start of insert
-set encoding=utf-8                        " Set default encoding to UTF-8
-set fileformat=unix                       " Set default file format to Unix (LF)
-set showcmd                               " Show incomplete commands in the bottom right corner
-set undofile                              " Enable persistent undo
-set undodir=~/.vim/undodir                " Enable persistent undo
-set laststatus=2                          " Enable status line
-set updatetime=300                        " Set updatetime for faster completion
-set completeopt=menuone,noinsert,noselect " Enable auto-completion
-set showmatch                             " Show matching parantheses
-set foldmethod=syntax                     " Enable folding with syntax
-set foldlevel=99                          " Open all folds by default
-set foldlevelstart=20                     " Folding settings
+" ─── Essential Editor Settings ──────────────────────────────────
+set tabstop=4
+set shiftwidth=4
+set linebreak
+set nocompatible
+set expandtab
+set number
+set relativenumber
+set autoindent
+set smartindent
+set ignorecase
+set smartcase
+set hlsearch
+set incsearch
+set clipboard=unnamedplus
+set backspace=indent,eol,start
+set encoding=utf-8
+set fileformat=unix
+set showcmd
+set undofile
+set undodir=~/.vim/undodir
+set laststatus=2
+set updatetime=300
+set completeopt=menuone,noinsert,noselect
+set showmatch
+set foldmethod=syntax
+set foldlevel=99
+set foldlevelstart=20
 
-" Highlight column
+" ─── UI & Visuals ───────────────────────────────────────────────
 set colorcolumn=88
 highlight ColorColumn ctermbg=none ctermfg=gray
 
 " Cursor mode settings
-let &t_SI.="\e[5 q" "SI = INSERT mode
-let &t_SR.="\e[4 q" "SR = REPLACE mode
-let &t_EI.="\e[1 q" "EI = NORMAL mode (ELSE)
+let &t_SI.="\e[5 q"
+let &t_SR.="\e[4 q"
+let &t_EI.="\e[1 q"
 
 " Add fzf to the runtime path
 set rtp+=/usr/local/opt/fzf
 
-" YAML filetype settings
+" YAML-specific indentation
 autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
 
-" Set the colorscheme
+" Colorscheme
 autocmd vimenter * ++nested colorscheme gruvbox
 set background=dark
 
-" Set the Vim title
+" Vim window title
 set title
 set titlestring=%t\ %(\ %M%)\ %(%{&ff}\ -\ %y%)
 
-" Source autoload plugins
+" Load plugin files
 source ~/.vim/autoload_plugins.vim
-
-" Source plugin configurations
 source ~/.vim/plugin_config.vim
 
-" Set file format to unix only when the buffer is modifiable
+" Force fileformat=unix only when modifiable
 autocmd BufReadPost * if &modifiable | set fileformat=unix | endif
+
+" ─── Spellchecking Setup ────────────────────────────────────────
+
+" Enable basic spellcheck in key writing filetypes
+autocmd FileType gitcommit,markdown,text setlocal spell spelllang=en_us
+
+" Enable spellcheck in common dotfiles (like .tmux.conf)
+autocmd BufRead,BufNewFile .tmux.conf,.zshrc,.bashrc,.bash_profile setlocal filetype=sh
+autocmd FileType sh setlocal spell spelllang=en_us
+
+" Optional: comment-only spellcheck (safe, limited filetypes)
+augroup CommentSpell
+  autocmd!
+  autocmd FileType gitcommit,markdown,text syntax match CommentSpell "\v\c.*" containedin=Comment
+augroup END
+
+" Make misspelled words visually obvious
+highlight clear SpellBad
+highlight SpellBad cterm=underline ctermfg=Red
+highlight def link CommentSpell SpellBad

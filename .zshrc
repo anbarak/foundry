@@ -63,6 +63,9 @@ add_to_path "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/loc
 # Go paths
 add_to_path "$USER_HOME/go/bin" "$HOMEBREW_PREFIX/opt/go/libexec/bin"
 
+# Add custom tools to PATH
+add_to_path "$USER_HOME/bin/tools"
+
 # Pyenv paths
 add_to_path "$USER_HOME/.pyenv/plugins/pyenv-virtualenv/shims" "$USER_HOME/.pyenv/shims"
 
@@ -72,6 +75,8 @@ add_to_path "$JAVA_HOME/bin"
 
 # Runner scripts path
 add_to_path "$USER_HOME/bin"
+add_to_path "$USER_HOME/bin/tools"
+add_to_path "$USER_HOME/bin/git"
 
 # Add krew path
 add_to_path "$USER_HOME/.krew/bin"
@@ -198,8 +203,8 @@ if [[ -d "$USER_HOME/.pyenv" ]]; then
 fi
 
 # Source local configuration file
-if [ -f "$USER_HOME/.zshrc.local" ]; then
-  source "$USER_HOME/.zshrc.local"
+if [ -f "$HOME/.zshrc.local" ]; then
+  source "$HOME/.zshrc.local"
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh

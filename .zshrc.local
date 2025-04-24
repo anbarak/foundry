@@ -11,8 +11,12 @@ brew() {
         echo "Updating Brewfile..."
         brew bundle dump --file="$HOME/.config/homebrew/Brewfile" --force
         yadm add "$HOME/.config/homebrew/Brewfile"
-        yadm commit -m "Updated Brewfile" --no-gpg-sign 2>/dev/null || echo "Skipping signed commit"
-        yadm push 2>/dev/null || echo "Push skipped"
+        if ! yadm diff --quiet --cached "$HOME/.config/homebrew/Brewfile"; then
+            yadm commit -m "Updated Brewfile" --no-gpg-sign 2>/dev/null || echo "Skipping signed commit"
+            yadm push 2>/dev/null || echo "Push skipped"
+        else
+            echo "No changes in Brewfile to commit."
+        fi
     fi
 }
 

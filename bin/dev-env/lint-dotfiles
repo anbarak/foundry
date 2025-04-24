@@ -1,15 +1,30 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+command -v shellcheck >/dev/null || { echo "shellcheck not found"; exit 1; }
+command -v shfmt >/dev/null || { echo "shfmt not found"; exit 1; }
+command -v yamllint >/dev/null || { echo "yamllint not found"; exit 1; }
+
 echo "🔍 Linting shell scripts with shellcheck..."
-for file in "$HOME"/.config/zsh/modules/*.zsh; do
-  shellcheck -x "$file"
-done
+sh_files=("$HOME"/.config/zsh/modules/*.zsh)
+if [[ -e "${sh_files[0]}" ]]; then
+  for file in "${sh_files[@]}"; do
+    shellcheck -x "$file"
+  done
+else
+    echo "No .zsh files found in ~/.config/zsh/modules"
+fi
 
 echo "🔍 Formatting check for shell scripts with shfmt..."
-shfmt -d "$HOME/.config/zsh/modules"
+shfmt -d --shell=bash "$HOME/.config/zsh/modules"
 
 echo "🔍 YAML linting..."
 yamllint "$HOME/.pre-commit-config.yaml"
+
+echo "🔍 Spellchecking and style linting with codespell..."
+codespell "$HOME"
+
+echo "🔍 Prose linting with vale..."
+vale "$HOME/.pre-commit-config.yaml" || true  # Don't hard-fail on Vale
 
 echo "✅ All linting checks passed!"
