@@ -1,0 +1,5 @@
+[client]
+#ssl-ca=/path/to/ca-cert.pem
+#ssl-cert=/path/to/client-cert.pem
+#ssl-key=/path/to/client-key.pem
+#connect-timeout=10

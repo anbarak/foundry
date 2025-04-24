@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-echo "CPU segment running at $(date)" >> /tmp/tmux-cpu.log
 
 get_cpu_load_percent() {
   local cores
@@ -14,7 +13,7 @@ get_cpu_load_percent() {
   echo "$percent"
 }
 
-main() {
+print_segment() {
   local percent
   percent=$(get_cpu_load_percent)
 
@@ -35,4 +34,7 @@ main() {
   echo "󰍛 CPU: ${percent}% ${icon}"
 }
 
-main
+run_segment() {
+  print_segment
+  return 0
+}

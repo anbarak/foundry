@@ -4,13 +4,21 @@
 # Catppuccin Macchiato Palette (bubble-style)
 thm_bg="#24273A"
 thm_fg="#c6d0f5"
-blue="#8caaee"
 eggplant="#e889d2"
 sky_blue="#a7c7e7"
-teal="#81c8be"
-green="#a6d189"
-mauve="#ca9ee6"
-surface0="#414559"
+peach="#fab387"
+blue="#89b4fa"
+green="#a6e3a1"
+teal="#94e2d5"
+mauve="#cba6f7"
+peach="#fab387"
+surface0="#313244"
+surface2="#cdd6f4"
+dark_fg="#a5adce"
+purple="#b4befe"
+steel="#89b4fa"
+aws_fg="#89b4fa"
+k8s_fg="#b4befe"
 
 TMUX_POWERLINE_SEPARATOR_LEFT_BOLD=""
 TMUX_POWERLINE_SEPARATOR_LEFT_THIN=""
@@ -57,17 +65,17 @@ if [ -z "$TMUX_POWERLINE_LEFT_STATUS_SEGMENTS" ]; then
     "tmux_session_info $blue $thm_bg"
     "hostname $eggplant $thm_bg"
     "vpn $sky_blue $thm_bg ${TMUX_POWERLINE_SEPARATOR_RIGHT_THIN}"
-    "vcs_branch $peach $thm_bg"
+    "vcs_branch $peach $thm_bg "
   )
 fi
 
 # ✅ RIGHT SIDE: AWS, K8s, CPU, Time, UTC
 if [ -z "$TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS" ]; then
   TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS=(
-    "aws_profile $green $thm_bg"
-    "k8s_context $blue $thm_bg"
-    "cpu_load_percent $teal $thm_bg"
-    "time $mauve $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}"
-    "utc_time $surface2 $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}"
+    "aws_profile $aws_fg $thm_bg "
+    "k8s_context $k8s_fg $thm_bg ⎈"
+    "cpu_load_percent $teal $thm_bg 󰍛"
+    "time $mauve $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN} 🕒"
+    "utc_time $surface2 $thm_bg ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN} 🌍"
   )
 fi

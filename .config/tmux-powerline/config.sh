@@ -1,8 +1,15 @@
-export TMUX_POWERLINE_DEBUG_MODE_ENABLED="false"
-export TMUX_POWERLINE_THEME="custom-bubble"
-export TMUX_POWERLINE_DIR_USER_SEGMENTS="$HOME/.config/tmux-powerline/segments"
+#!/usr/bin/env bash
 
-source_if_exists "$TMUX_POWERLINE_DIR_USER_SEGMENTS/aws_profile.sh"
-source_if_exists "$TMUX_POWERLINE_DIR_USER_SEGMENTS/k8s_context.sh"
-source_if_exists "$TMUX_POWERLINE_DIR_USER_SEGMENTS/cpu_load_percent.sh"
-source_if_exists "$TMUX_POWERLINE_DIR_USER_SEGMENTS/utc_time.sh"
+# Recommended by tmux-powerline
+export TMUX_POWERLINE_DEBUG_MODE_ENABLED="false"
+export XDG_CONFIG_HOME="$HOME/.config"
+
+
+# Use your custom theme name (no extension)
+export TMUX_POWERLINE_THEME="custom-bubble"
+
+# Theme location
+export TMUX_POWERLINE_THEME_PATH="$HOME/.config/tmux-powerline/themes/custom-bubble.sh"
+
+# Path to your custom segments
+export TMUX_POWERLINE_DIR_USER_SEGMENTS="$HOME/.config/tmux-powerline/segments"
