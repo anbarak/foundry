@@ -1,8 +1,11 @@
+#!/usr/bin/env zsh
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+if [ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-$(basename "$TTY").zsh" ]; then
+  # shellcheck source=/dev/null
+  . "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-$(basename "$TTY").zsh"
 fi
 
 #####################################################################################
@@ -30,7 +33,8 @@ export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 # Ensure Homebrew is in the PATH
 add_to_path "/opt/homebrew/bin"
 
-export HOMEBREW_PREFIX=$(brew --prefix)
+HOMEBREW_PREFIX=$(brew --prefix)
+export HOMEBREW_PREFIX
 
 # GNU coreutils paths - added at the beginning to take precedence
 add_to_path "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
@@ -39,7 +43,7 @@ add_to_path "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
 add_to_path "$HOMEBREW_PREFIX/opt/findutils/libexec/gnubin"
 
 # Homebrew paths
-if [[ -n "$HOMEBREW_PREFIX" ]]; then
+if [ -n "$HOMEBREW_PREFIX" ]; then
   add_to_path "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin"
   export MANPATH="$HOMEBREW_PREFIX/share/man:$MANPATH"
   export INFOPATH="$HOMEBREW_PREFIX/share/info:$INFOPATH"
@@ -81,16 +85,17 @@ add_to_path "$USER_HOME/bin/git"
 # Add krew path
 add_to_path "$USER_HOME/.krew/bin"
 
-if [[ -d "$USER_HOME/scripts" ]]; then
+if [ -d "$USER_HOME/scripts" ]; then
   add_to_path "$USER_HOME/scripts"
 fi
 
-if [[ -d "$USER_HOME/code/cf/datalot/.datalot" ]]; then
+if [ -d "$USER_HOME/code/cf/datalot/.datalot" ]; then
   add_to_path "$USER_HOME/code/cf/datalot/.datalot/bin"
 fi  
 
 # Add asdf to PATH and source asdf
 if [ -f "$(brew --prefix)/opt/asdf/libexec/asdf.sh" ]; then
+  # shellcheck source=/dev/null
   . "$(brew --prefix)/opt/asdf/libexec/asdf.sh"
 fi
 
@@ -104,7 +109,7 @@ export ZSH="$USER_HOME/.oh-my-zsh"
 # load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="powerlevel10k/powerlevel10k"
+export ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -160,10 +165,12 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
+# shellcheck disable=SC2034,SC2039 # plugins is used by Oh My Zsh internally
 plugins=() # Refer to ~/.zshrc.plugins
 
 # Load Oh My Zsh
-source $ZSH/oh-my-zsh.sh
+# shellcheck source=/dev/null
+. "$ZSH/oh-my-zsh.sh"
 
 # User configuration
 
@@ -192,10 +199,10 @@ source $ZSH/oh-my-zsh.sh
 # alias are located in ~/.zshrc.local file
 
 # Add SSH key to macOS keychain
-ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" &>/dev/null
+ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
 
 # Load pyenv automatically
-if [[ -d "$USER_HOME/.pyenv" ]]; then
+if [ -d "$USER_HOME/.pyenv" ]; then
   add_to_path "$USER_HOME/.pyenv/bin"
   eval "$(pyenv init --path)"
   eval "$(pyenv init -)"
@@ -204,11 +211,13 @@ fi
 
 # Source local configuration file
 if [ -f "$HOME/.zshrc.local" ]; then
-  source "$HOME/.zshrc.local"
+  . "$HOME/.zshrc.local"
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh
-[[ ! -f "$USER_HOME/.p10k.zsh" ]] || source "$USER_HOME/.p10k.zsh"
+# shellcheck source=/dev/null
+[ -f "$USER_HOME/.p10k.zsh" ] && . "$USER_HOME/.p10k.zsh"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# shellcheck source=/dev/null
+[ ! -f "$USER_HOME/.p10k.zsh" ] || . "$USER_HOME/.p10k.zsh"

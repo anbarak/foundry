@@ -24,7 +24,7 @@ export GPG_TTY=$(tty)
 
 # Source modular aliases from ~/.config/zsh/modules
 ZSH_MODULES="$HOME/.config/zsh/modules"
-if [ -d "$ZSH_MODULES" ]; then
+if [[ -d "$ZSH_MODULES" ]]; then
   for module in "$ZSH_MODULES"/*.zsh; do
     source "$module"
   done
@@ -35,7 +35,7 @@ autoload bashcompinit
 bashcompinit
 
 # MySQL autocompletion
-if [ -z "$MYSQL_AUTOCOMPLETE_SOURCED" ]; then
+if [[ -z "$MYSQL_AUTOCOMPLETE_SOURCED" ]]; then
   # Dynamically find the latest version-specific path
   MYSQL_AUTOCOMPLETE_SOURCED=1
   latest_mysql_autocomplete=$(find "$(brew --prefix)/Cellar/mysql" -name "mysql_autocomplete" 2>/dev/null | sort | tail -n 1)
@@ -108,12 +108,12 @@ if [[ ":$PYTHONPATH:" != *":$HOME/code/cf/my/insurance-services-utils/scripts:"*
 fi
 
 # Add Google Cloud SDK to PATH
-if [ -f "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc" ]; then
+if [[ -f "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc" ]]; then
   source "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
 fi
 
 # Enable shell command completion for gcloud
-if [ -f "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc" ]; then
+if [[ -f "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc" ]]; then
   source "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
 fi
 
@@ -121,26 +121,30 @@ fi
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 # Source k plugin
-if [ -f "$ZSH/custom/plugins/k/k.sh" ]; then
+if [[ -f "$ZSH/custom/plugins/k/k.sh" ]]; then
   source "$ZSH/custom/plugins/k/k.sh"
 fi
 
 # Load cloud profiles and configurations
-if [ -f "$HOME/.config/clouds/load_all.sh" ]; then
+if [[ -f "$HOME/.config/clouds/load_all.sh" ]]; then
   source "$HOME/.config/clouds/load_all.sh" centerfield
 fi
 
 # Plugin management (using plugin array)
-if [ -f "$HOME/.zshrc.plugins" ]; then
+if [[ -f "$HOME/.zshrc.plugins" ]]; then
   source "$HOME/.zshrc.plugins"
 fi
 
 # Add asdf to shell configuration
-if [ -f "$(brew --prefix)/libexe/asdf.sh" ]; then
+if [[ -f "$(brew --prefix)/libexe/asdf.sh" ]]; then
   source "$(brew --prefix)/libexe/asdf.sh"
 fi
 
 eval "$(direnv hook zsh)"
+
+# Default editors for Git, Yadm, and general shell use
+export EDITOR=vim
+export VISUAL=vim
 
 # Sourcing additional configuration files (optional)
 # source ~/.oh-my-zsh/custom/themes/mytheme.zsh  # Example: Source a theme file
