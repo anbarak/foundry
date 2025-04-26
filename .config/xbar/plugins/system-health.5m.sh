@@ -12,7 +12,6 @@ notify() {
 
 # 🧠 RAM USAGE
 MEM_STATS=$(vm_stat)
-PAGES_FREE=$(echo "$MEM_STATS" | awk '/Pages free/ {gsub("\\.",""); print $3}')
 PAGES_ACTIVE=$(echo "$MEM_STATS" | awk '/Pages active/ {gsub("\\.",""); print $3}')
 PAGES_INACTIVE=$(echo "$MEM_STATS" | awk '/Pages inactive/ {gsub("\\.",""); print $3}')
 PAGES_SPECULATIVE=$(echo "$MEM_STATS" | awk '/Pages speculative/ {gsub("\\.",""); print $3}')
@@ -44,20 +43,30 @@ fi
 # 🔋 BATTERY
 BATTERY_INFO=$(pmset -g batt)
 BATTERY_PERCENT=$(echo "$BATTERY_INFO" | grep -Eo "\d+%" | head -1)
-BATTERY_LEVEL=${BATTERY_PERCENT%\%}
-BATTERY_MAH=$(ioreg -rc AppleSmartBattery 2>/dev/null | awk '/"CurrentCapacity"/ {cap=$3} /"MaxCapacity"/ {max=$3} END {if(cap && max) printf "(%s / %s mAh)", cap, max}')
-BATTERY_CHARGING=$(echo "$BATTERY_INFO" | grep -i "AC Power")
 
+HEALTH_INFO=$(system_profiler SPPowerDataType)
+MAX_CAPACITY=$(echo "$HEALTH_INFO" | awk -F': ' '/Maximum Capacity/ {print $2}')
+CONDITION=$(echo "$HEALTH_INFO" | awk -F': ' '/Condition/ {print $2}')
+CYCLE_COUNT=$(echo "$HEALTH_INFO" | awk -F': ' '/Cycle Count/ {print $2}')
+
+# Build battery health suffix
+BATTERY_HEALTH=""
+if [[ "$CONDITION" != "Normal" ]]; then
+  BATTERY_HEALTH+=" | Condition: $CONDITION"
+fi
+
+if [[ "$CYCLE_COUNT" -ge 900 ]]; then
+  BATTERY_HEALTH+=" | Cycles: $CYCLE_COUNT"
+fi
+
+# Choose battery icon
 BATTERY_ICON="🔋"
-if [[ -z "$BATTERY_CHARGING" ]]; then
-  if [[ $BATTERY_LEVEL -le 20 ]]; then
-    BATTERY_ICON="🔋⚠️"
-    notify "⚠️ Battery low: $BATTERY_PERCENT"
-  elif [[ $BATTERY_LEVEL -le 40 ]]; then
-    BATTERY_ICON="🔋🔸"
-  fi
-else
+if echo "$BATTERY_INFO" | grep -qi "AC Power"; then
   BATTERY_ICON="🔌🔋"
+elif [[ ${BATTERY_PERCENT%\%} -le 20 ]]; then
+  BATTERY_ICON="🔋⚠️"
+elif [[ ${BATTERY_PERCENT%\%} -le 40 ]]; then
+  BATTERY_ICON="🔋🔸"
 fi
 
 # --- Top bar summary ---
@@ -68,7 +77,7 @@ echo "---"
 echo "$RAM_ICON RAM: $RAM_USAGE_PERCENT% used"
 
 # 💾 Disk details
-echo "$DISK_ICON Disk: $DISK_USAGE"
+echo "$DISK_ICON Disk: $DISK_USAGE used"
 
 # 🔋 Battery details
-echo "$BATTERY_ICON Battery: $BATTERY_PERCENT $BATTERY_MAH"
+echo "$BATTERY_ICON Battery: $BATTERY_PERCENT ($MAX_CAPACITY)${BATTERY_HEALTH}"

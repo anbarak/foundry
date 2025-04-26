@@ -25,17 +25,26 @@ echo "⚡️ Run Speed Test | bash='$HOME/bin/tools/xbar-scripts/xbar-speedtest.
 echo "---"
 
 # 🔐 VPN
-# Track VPN status and notify only on change
-VPN_NAME=$(scutil --nc list | awk -F'"' '/Connected/ {print $2}' | head -n1)
-VPN_STATUS_FILE="/tmp/.xbar-vpn-status"
+# Look for an active utun interface with an IP address assigned
 VPN_STATE="disconnected"
-if [[ -n "$VPN_NAME" ]]; then
-  VPN_STATE="connected"
-  echo "🛡️ VPN: $VPN_NAME (Connected)"
+
+# Scan all utun interfaces and check if any has an active IP address
+for iface in $(ifconfig | awk -F: '/^utun[0-9]+:/ {print $1}'); do
+  if ifconfig "$iface" | grep -q "inet "; then
+    VPN_STATE="connected"
+    break
+  fi
+done
+
+# Output VPN status
+if [[ "$VPN_STATE" == "connected" ]]; then
+  echo "🛡️ VPN: Connected"
 else
   echo "🛡️ VPN: Not Connected"
 fi
 
+# Notification on VPN disconnection
+VPN_STATUS_FILE="/tmp/.xbar-vpn-status"
 if [[ -f "$VPN_STATUS_FILE" ]]; then
   LAST_VPN_STATE=$(<"$VPN_STATUS_FILE")
 else
