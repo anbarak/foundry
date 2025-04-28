@@ -8,8 +8,8 @@ alias dc="docker compose"
 alias dps="docker ps -a"
 alias dimg="docker images"
 alias dstats="docker stats"
-alias dexec="docker exec -it"  # Usage: dexec <container> bash
-alias dlog="docker logs -f"    # Usage: dlog <container>
+alias dexec="docker exec -it" # Usage: dexec <container> bash
+alias dlog="docker logs -f"   # Usage: dlog <container>
 alias dnet="docker network ls"
 alias dvol="docker volume ls"
 

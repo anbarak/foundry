@@ -15,9 +15,9 @@ alias tailf1k='tail -f -n 1000'
 alias tailf2k='tail -f -n 2000'
 
 taillog() {
-  if [[ -z "$1" ]]; then
-    echo "Usage: taillog <filename>"
-    return 1
-  fi
-  tail -f "$LOG_DIR/$1"
+	if [[ -z "$1" ]]; then
+		echo "Usage: taillog <filename>"
+		return 1
+	fi
+	tail -f "$LOG_DIR/$1"
 }

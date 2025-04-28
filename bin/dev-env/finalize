@@ -91,22 +91,51 @@ for plugin in "${KREW_PLUGINS[@]}"; do
   fi
 done
 
-# -----------------------------------------------------------------------------
-# 🐘 MySQL Configuration (manual password entry)
-# -----------------------------------------------------------------------------
-echo "────────────────────────────────────────────"
-echo "🐘 Configuring MySQL"
-echo "────────────────────────────────────────────"
-echo "🔑 Please enter the password for user 'dlroot'."
-echo "ℹ️  You can find it in Bitwarden Vault under: dlroot"
-echo
-mysql_config_editor set \
-  --login-path=datalot_prod_writer_r5m2_auroramysql_useast1a \
-  --host=encrypted-r5m2.c6uqsvavlrra.us-east-1.rds.amazonaws.com \
-  --user=dlroot \
-  --password \
-  --port=3306
-chmod 600 ~/.config/mysql/*
-echo "✅ MySQL login path configured."
+# Optional MySQL configuration
+# ────────────────────────────────────────────
+# 🐘 Optional: Configure MySQL Credentials
+# ────────────────────────────────────────────
 
-echo "✅ Dev environment restored successfully. You may start working in your environment now!"
+echo "────────────────────────────────────────────"
+echo "🐘 Optional: Configuring MySQL"
+echo "────────────────────────────────────────────"
+
+if gum confirm "🔔 Do you want to configure a MySQL login path now?"; then
+  db_choice=$(gum choose \
+    "Centerfield - Production Writer (datalot_prod_writer_r5m2_auroramysql_useast1a)" \
+    "Other (manual entry)")
+
+  case "$db_choice" in
+    "Centerfield - Production Writer (datalot_prod_writer_r5m2_auroramysql_useast1a)")
+      LOGIN_PATH="datalot_prod_writer_r5m2_auroramysql_useast1a"
+      MYSQL_HOST="encrypted-r5m2.c6uqsvavlrra.us-east-1.rds.amazonaws.com"
+      MYSQL_USER="dlroot"
+      MYSQL_PORT="3306"
+      ;;
+    "Other (manual entry)")
+      echo "🗂️  Enter MySQL login-path name (e.g., 'default'):"
+      read -r LOGIN_PATH
+      echo "👤 Enter MySQL user:"
+      read -r MYSQL_USER
+      echo "🌐 Enter MySQL host:"
+      read -r MYSQL_HOST
+      echo "📍 Enter MySQL port (default 3306):"
+      read -r MYSQL_PORT
+      MYSQL_PORT=${MYSQL_PORT:-3306}
+      ;;
+  esac
+
+  echo "🔑 Setting MySQL credentials for login-path: $LOGIN_PATH"
+
+  mysql_config_editor set \
+    --login-path="$LOGIN_PATH" \
+    --host="$MYSQL_HOST" \
+    --user="$MYSQL_USER" \
+    --port="$MYSQL_PORT" \
+    --password
+
+  chmod 600 "$HOME/.mylogin.cnf"
+  echo "✅ MySQL login path [$LOGIN_PATH] configured and secured."
+else
+  echo "ℹ️ Skipping MySQL login path configuration."
+fi

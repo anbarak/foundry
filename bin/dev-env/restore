@@ -1,11 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Trap CTRL+C to cleanly exit
+trap "echo -e '\n❌ Setup cancelled.'; exit 130" INT
+
+# Warn if not inside tmux
+if [ -z "${TMUX-}" ]; then
+  echo "⚠️  Not inside a tmux session. It's recommended to run setup inside tmux."
+else
+  echo "✅ Inside tmux session."
+fi
+
+# Check if 'gum' is installed
 if ! command -v gum &>/dev/null; then
-  echo "gum is not installed. Please run 'brew install gum'"
+  echo "❌ 'gum' is not installed. Please run: brew install gum"
   exit 1
 fi
 
+# Interactive menu
 choice=$(gum choose \
   "🛠  Run Full Restore" \
   "🔐  Restore Secrets Only" \
@@ -15,12 +27,24 @@ choice=$(gum choose \
   "📦  Lint Dotfiles" \
   "❌  Exit")
 
+# Helper function to run scripts safely
+run_script() {
+  local script_path="$1"
+  if [[ -x "$script_path" ]]; then
+    "$script_path"
+  else
+    echo "❌ Script not found or not executable: $script_path"
+    exit 1
+  fi
+}
+
+# Handle the choice
 case "$choice" in
-  "🛠  Run Full Restore")       ~/bin/dev-env/restore ;;
-  "🔐  Restore Secrets Only")  ~/bin/secrets/restore ;;
-  "📤  Backup Secrets to Bitwarden")  ~/bin/secrets/backup ;;
-  "🎨  Setup Terminal Theme (Font + Theme)") ~/bin/bootstrap/setup-terminal-theme ;;
-  "🔁  Finalize Setup (plugins, completions)") ~/bin/dev-env/finalize ;;
-  "📦  Lint Dotfiles")         ~/bin/dev-env/lint-dotfiles ;;
-  "❌  Exit")                  echo "Bye 👋"; exit 0 ;;
+  "🛠  Run Full Restore")       run_script ~/bin/dev-env/restore ;;
+  "🔐  Restore Secrets Only")   run_script ~/bin/secrets/restore ;;
+  "📤  Backup Secrets to Bitwarden")  run_script ~/bin/secrets/backup ;;
+  "🎨  Setup Terminal Theme (Font + Theme)") run_script ~/bin/bootstrap/setup-terminal-theme ;;
+  "🔁  Finalize Setup (plugins, completions)") run_script ~/bin/dev-env/finalize ;;
+  "📦  Lint Dotfiles")          run_script ~/bin/dev-env/lint-dotfiles ;;
+  "❌  Exit")                   echo "Bye 👋"; exit 0 ;;
 esac

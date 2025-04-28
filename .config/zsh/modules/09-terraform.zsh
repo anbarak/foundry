@@ -30,12 +30,13 @@ alias tfabzaar='"$HOME/bin/runners/terraform-container"'
 
 # Dynamic containerized Terraform command: usage -> tfx 1.6.6 plan
 tfx() {
-  if [[ -z "$1" ]]; then
-    echo "Usage: tfx <terraform-version> [terraform-args...]"
-    return 1
-  fi
-  local version="$1"; shift
-  tfabzaar "$version" "$@"
+	if [[ -z "$1" ]]; then
+		echo "Usage: tfx <terraform-version> [terraform-args...]"
+		return 1
+	fi
+	local version="$1"
+	shift
+	tfabzaar "$version" "$@"
 }
 
 # Dynamic helpers

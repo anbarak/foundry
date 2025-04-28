@@ -4,6 +4,8 @@ set -euo pipefail
 command -v shellcheck >/dev/null || { echo "shellcheck not found"; exit 1; }
 command -v shfmt >/dev/null || { echo "shfmt not found"; exit 1; }
 command -v yamllint >/dev/null || { echo "yamllint not found"; exit 1; }
+command -v codespell >/dev/null || { echo "codespell not found"; exit 1;  }
+command -v vale >/dev/null || { echo "vale not found"; exit 1;  }
 
 echo "🔍 Linting shell scripts with shellcheck..."
 sh_files=("$HOME"/.config/zsh/modules/*.zsh)
@@ -12,19 +14,27 @@ if [[ -e "${sh_files[0]}" ]]; then
     shellcheck -x "$file"
   done
 else
-    echo "No .zsh files found in ~/.config/zsh/modules"
+    echo "ℹ️ No .zsh files found in ~/.config/zsh/modules"
 fi
 
 echo "🔍 Formatting check for shell scripts with shfmt..."
-shfmt -d --shell=bash "$HOME/.config/zsh/modules"
+shfmt -d "$HOME/.config/zsh/modules"
 
 echo "🔍 YAML linting..."
-yamllint "$HOME/.pre-commit-config.yaml"
+if [[ -f "$HOME/.pre-commit-config.yaml" ]]; then
+  yamllint "$HOME/.pre-commit-config.yaml"
+else
+  echo "ℹ️  No .pre-commit-config.yaml found, skipping YAML linting."
+fi
 
 echo "🔍 Spellchecking and style linting with codespell..."
-codespell "$HOME"
+codespell "$HOME/.config" "$HOME/bin"
 
 echo "🔍 Prose linting with vale..."
-vale "$HOME/.pre-commit-config.yaml" || true  # Don't hard-fail on Vale
+if [[ -f "$HOME/.pre-commit-config.yaml" ]]; then
+  vale "$HOME/.pre-commit-config.yaml" || true
+else
+  echo "ℹ️  No .pre-commit-config.yaml found, skipping Vale check."
+fi
 
 echo "✅ All linting checks passed!"
