@@ -31,7 +31,7 @@ print_segment() {
     icon="🔴"
   fi
 
-  echo "󰍛 CPU: ${percent}% ${icon}"
+  echo "CPU: ${percent}%${icon}"
 }
 
 run_segment() {

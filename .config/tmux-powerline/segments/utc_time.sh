@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 # Prints the current time in UTC.
 
-TMUX_POWERLINE_SEG_UTC_TIME_FORMAT="${TMUX_POWERLINE_SEG_UTC_TIME_FORMAT:-%H:%M %Z}"
+TMUX_POWERLINE_SEG_UTC_TIME_FORMAT="${TMUX_POWERLINE_SEG_UTC_TIME_FORMAT:-%H:%M UTC}"
 
 generate_segmentrc() {
 	read -r -d '' rccontents <<EORC
