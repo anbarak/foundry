@@ -52,6 +52,7 @@ autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
 " Colorscheme
 autocmd vimenter * ++nested colorscheme gruvbox
 set background=dark
+let g:gruvbox_contrast_dark='hard'
 
 " Vim window title
 set title

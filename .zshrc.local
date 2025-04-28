@@ -88,6 +88,17 @@ function set_terminal_title() {
   esac
 }
 
+# Helper: Login to AWS SSO and set AWS_PROFILE automatically
+aws_sso_login() {
+  if [[ -z "$1" ]]; then
+    echo "Usage: aws_sso_login <profile-name>"
+    return 1
+  fi
+
+  echo "🔐 Logging in to AWS SSO with profile: $1 ..."
+  aws sso login --profile "$1" && export AWS_PROFILE="$1"
+}
+
 # Call the function before each prompt
 precmd_functions+=set_terminal_title
 
@@ -145,6 +156,12 @@ eval "$(direnv hook zsh)"
 # Default editors for Git, Yadm, and general shell use
 export EDITOR=vim
 export VISUAL=vim
+
+# Prevent history dups and blanks
+setopt HIST_IGNORE_DUPS       # Don’t record duplicates
+setopt HIST_IGNORE_ALL_DUPS   # Remove all previous dupes of a new command
+setopt HIST_FIND_NO_DUPS      # Skip dupes in history search
+setopt HIST_REDUCE_BLANKS     # Remove extra spaces between words
 
 # Sourcing additional configuration files (optional)
 # source ~/.oh-my-zsh/custom/themes/mytheme.zsh  # Example: Source a theme file

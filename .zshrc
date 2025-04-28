@@ -221,3 +221,6 @@ fi
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 # shellcheck source=/dev/null
 [ ! -f "$USER_HOME/.p10k.zsh" ] || . "$USER_HOME/.p10k.zsh"
+
+# Load tiny AWS badge
+[ -f "$USER_HOME/.p10k-tiny-aws.zsh" ] && . "$USER_HOME/.p10k-tiny-aws.zsh"
