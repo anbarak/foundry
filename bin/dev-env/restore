@@ -1,4 +1,3 @@
-# ~/bin/setup
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -11,6 +10,7 @@ choice=$(gum choose \
   "🛠  Run Full Restore" \
   "🔐  Restore Secrets Only" \
   "📤  Backup Secrets to Bitwarden" \
+  "🎨  Setup Terminal Theme (Font + Theme)" \
   "🔁  Finalize Setup (plugins, completions)" \
   "📦  Lint Dotfiles" \
   "❌  Exit")
@@ -19,6 +19,7 @@ case "$choice" in
   "🛠  Run Full Restore")       ~/bin/dev-env/restore ;;
   "🔐  Restore Secrets Only")  ~/bin/secrets/restore ;;
   "📤  Backup Secrets to Bitwarden")  ~/bin/secrets/backup ;;
+  "🎨  Setup Terminal Theme (Font + Theme)") ~/bin/bootstrap/setup-terminal-theme ;;
   "🔁  Finalize Setup (plugins, completions)") ~/bin/dev-env/finalize ;;
   "📦  Lint Dotfiles")         ~/bin/dev-env/lint-dotfiles ;;
   "❌  Exit")                  echo "Bye 👋"; exit 0 ;;
