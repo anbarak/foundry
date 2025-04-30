@@ -6,11 +6,39 @@ if [[ -z "${1:-}" ]]; then
   exit 1
 fi
 
+# Ensure the modules path exists
+if [[ ! -d "../../modules" ]]; then
+  echo "Error: ../../modules directory does not exist"
+  exit 1
+fi
+
 TF_VERSION="$1"
 shift
 
+MODULES_PATH=$(realpath ../../modules)
+
+# Run terraform 0.13 upgrade if running on terraform v0.13, only during init
+if [[ "$TF_VERSION" == "0.13"* && "$1" == "init" && ! -f ".terraform-version-upgraded" ]]; then
+  echo "Upgrading Terraform configuration to be compatible with v0.13..."
+  docker run --rm -it \
+    --platform linux/amd64 \
+    -v "$PWD":/workspace \
+    -v "$MODULES_PATH":/workspace/../../modules \
+    -w /workspace \
+    devopscloudycontainers/terraform:"$TF_VERSION" 0.13upgrade .
+
+  # Mark the upgrade as done
+  touch .terraform-version-upgraded
+fi
+
 docker run --rm -it \
   --platform linux/amd64 \
-  -v "$PWD":/infra \
-  -w /infra \
+  -v "$PWD":/workspace \
+  -v "$MODULES_PATH":/workspace/../../modules \
+  -v "$HOME/.aws:/root/.aws" \
+  -e AWS_PROFILE="insurance-main-admin" \
+  -e MYSQL_PASSWORD="${MYSQL_PASSWORD:-}" \
+  -e MYSQL_USERNAME="${MYSQL_USERNAME:-}" \
+  -e MYSQL_ENDPOINT="${MYSQL_ENDPOINT:-}" \
+  -w /workspace \
   devopscloudycontainers/terraform:"$TF_VERSION" "$@"
