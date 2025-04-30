@@ -216,6 +216,9 @@
   typeset -g POWERLEVEL9K_SHORTEN_DELIMITER=
   # Color of the shortened directory segments.
   typeset -g POWERLEVEL9K_DIR_SHORTENED_FOREGROUND=103
+  # Truncates to 3 directories Truncates to 3 directories 
+  typeset -g PPOWERLEVEL9K_SHORTEN_PATH_MAX=4
+  typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=truncate_middle
   # Color of the anchor directory segments. Anchor segments are never shortened. The first
   # segment is always an anchor.
   typeset -g POWERLEVEL9K_DIR_ANCHOR_FOREGROUND=39
@@ -258,6 +261,8 @@
   # relative to the marker. Plain "first" and "last" are equivalent to "first:0" and "last:0"
   # respectively.
   typeset -g POWERLEVEL9K_DIR_TRUNCATE_BEFORE_MARKER=false
+  # Enable directory truncation
+  POWERLEVEL9K_SHORTEN_DIR=1
   # Don't shorten this many last directory segments. They are anchors.
   typeset -g POWERLEVEL9K_SHORTEN_DIR_LENGTH=1
   # Shorten directory if it's longer than this even if there is space for it. The value can
@@ -265,7 +270,7 @@
   # directory will be shortened only when prompt doesn't fit or when other parameters demand it
   # (see POWERLEVEL9K_DIR_MIN_COMMAND_COLUMNS and POWERLEVEL9K_DIR_MIN_COMMAND_COLUMNS_PCT below).
   # If set to `0`, directory will always be shortened to its minimum length.
-  typeset -g POWERLEVEL9K_DIR_MAX_LENGTH=80
+
   # When `dir` segment is on the last prompt line, try to shorten it enough to leave at least this
   # many columns for typing commands.
   typeset -g POWERLEVEL9K_DIR_MIN_COMMAND_COLUMNS=40
@@ -386,10 +391,13 @@
 
     if [[ -n $VCS_STATUS_LOCAL_BRANCH ]]; then
       local branch=${(V)VCS_STATUS_LOCAL_BRANCH}
-      # If local branch name is at most 32 characters long, show it in full.
-      # Otherwise show the first 12 … the last 12.
-      # Tip: To always show local branch name in full without truncation, delete the next line.
-      (( $#branch > 32 )) && branch[13,-13]="…"  # <-- this line
+  
+      # Truncate the end of the branch name if it's longer than 30 characters.
+      # Keep the first 30 characters, and truncate the rest.
+      if (( ${#branch} > 25 )); then
+        branch="${branch[1,25]}…"
+      fi
+
       res+="${clean}${(g::)POWERLEVEL9K_VCS_BRANCH_ICON}${branch//\%/%%}"
     fi
 
@@ -1709,3 +1717,7 @@ typeset -g POWERLEVEL9K_CONFIG_FILE=${${(%):-%x}:a}
 
 # Tell p10k about our tiny AWS segment
 typeset -g POWERLEVEL9K_AWS_TINY_FOREGROUND=208
+
+# Disable cpu and memory on Powerlevel10k
+POWERLEVEL9K_CPU_LOAD_SHOW=false
+POWERLEVEL9K_MEMORY_USAGE_SHOW=false
