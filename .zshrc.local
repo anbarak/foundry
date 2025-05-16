@@ -8,7 +8,7 @@
 brew() {
     command brew "$@"
     if [[ "$1" == "install" || "$1" == "upgrade" || "$1" == "uninstall" ]]; then
-        echo "Updating Brewfile..."
+        echo "Updating Brewfile and committing changes to your configured yadm github repo..."
         brew bundle dump --file="$HOME/.config/homebrew/Brewfile" --force
         yadm add "$HOME/.config/homebrew/Brewfile"
         if ! yadm diff --quiet --cached "$HOME/.config/homebrew/Brewfile"; then
