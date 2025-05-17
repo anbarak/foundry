@@ -68,8 +68,8 @@ fi
 # ✅ RIGHT SIDE
 if [ -z "$TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS" ]; then
   TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS=(
-    "cpu_load_percent $yellow $white"
-    "memory $green $white"
+    #"cpu_load_percent $yellow $white"
+    #"memory $green $white"
     "time $purple $white"
     "utc_time $gray $white"
   )
