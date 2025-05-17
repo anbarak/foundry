@@ -44,8 +44,10 @@ if [[ -z "$MYSQL_AUTOCOMPLETE_SOURCED" ]]; then
   fi
 fi
 
-# Ensure completion system is initialized
-fpath=(~/.zsh/completions $fpath)
+# Prevent OMZ from modifying completion files and ensure completion system is initialized
+DISABLE_COMPFIX=true
+mkdir -p "$HOME/.zsh/completions"
+fpath+="$HOME/.zsh/completions"
 autoload -Uz compinit
 compinit
 
