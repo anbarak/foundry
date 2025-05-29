@@ -5,6 +5,11 @@
 ![Whisper Enabled](https://img.shields.io/badge/transcription-ready-blueviolet?style=flat-square&logo=whisper)
 ![Automation](https://img.shields.io/badge/restore-fully--automated-success?style=flat-square&logo=githubactions)
 ![Dotfile Managed](https://img.shields.io/badge/dotfiles-managed%20by%20yadm-9cf?style=flat-square&logo=git)
+![Cloud Ready](https://img.shields.io/badge/cloud-aws%20%7C%20gcp-lightblue?style=flat-square&logo=cloud)
+![Kubernetes](https://img.shields.io/badge/kubernetes-ready-blue?style=flat-square&logo=kubernetes)
+![Terraform](https://img.shields.io/badge/terraform-managed-623CE4?style=flat-square&logo=terraform)
+![IDP Oriented](https://img.shields.io/badge/platform-internal--developer--platform-critical?style=flat-square&logo=serverfault)
+![DevOps Automation](https://img.shields.io/badge/devops-automated-orange?style=flat-square&logo=githubactions)
 
 ## 🎯 Purpose & Strategy
 
