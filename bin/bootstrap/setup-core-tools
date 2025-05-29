@@ -1,2 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+# Setup whisper.cpp models
+echo "📦 Setting up Whisper models..."
+
+WHISPER_MODEL_DIR="$HOME/.local/share/whisper/models"
+mkdir -p "$WHISPER_MODEL_DIR"
+
+# Correct model URLs (no /models path)
+WHISPER_MODELS=(
+  "ggml-medium.en.bin"
+  "ggml-large-v3.bin"
+  "ggml-base.en.bin"
+)
+
+for MODEL in "${WHISPER_MODELS[@]}"; do
+  MODEL_PATH="$WHISPER_MODEL_DIR/$MODEL"
+  if [ ! -f "$MODEL_PATH" ]; then
+    echo "⬇️  Downloading $MODEL ..."
+    curl -L -o "$MODEL_PATH" "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$MODEL"
+  else
+    echo "✅ $MODEL already exists."
+  fi
+done
+
+echo "🧠 Whisper models setup complete."

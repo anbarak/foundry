@@ -1,5 +1,10 @@
 # Dev Environment Setup (macOS)
 
+![macOS](https://img.shields.io/badge/os-macOS%20(Apple%20Silicon)-blue?style=flat-square&logo=apple)
+![Whisper Enabled](https://img.shields.io/badge/transcription-ready-blueviolet?style=flat-square&logo=whisper)
+![Automation](https://img.shields.io/badge/restore-fully--automated-success?style=flat-square&logo=githubactions)
+![Dotfile Managed](https://img.shields.io/badge/dotfiles-managed%20by%20yadm-9cf?style=flat-square&logo=git)
+
 ## 🎯 Purpose & Strategy
 
 This project defines a **portable, idempotent, and intuitive** macOS development environment that is:
@@ -137,6 +142,53 @@ This setup includes:
 
 ### 🛠️ Dev & Cloud Tools
 - `kubectl`, `krew`, `k9s`, `terraform`, `awscli`, `session-manager-plugin`, `gcloud`, `tmux`, `vim`, `YouCompleteMe`, `goenv`, `pyenv`, `poetry`, `pipenv`, `bitwarden-cli`, `git-extras`, `gh`, `bb`
+
+---
+
+## 🎙️ Transcription Tools (Whisper + BlackHole)
+
+This setup includes tools for **offline transcription** of audio and video files, and **system audio capture** via BlackHole for things like Zoom calls, YouTube videos, or Google Meet recordings.
+
+### 🧠 Capabilities
+
+- 📁 Transcribe `.m4a`, `.mp3`, `.mp4`, `.webm`, `.mov`, and other formats
+- 🔄 Auto-converts input to `.wav` before transcription
+- 🌍 Supports multilingual input (Farsi, English, etc.) via `ggml-large-v3.bin`
+- 🎧 Record system audio using [BlackHole 2ch](https://github.com/ExistentialAudio/BlackHole)
+- 📋 Auto-copy transcripts to clipboard (for ChatGPT or docs)
+
+### 📦 Installed Tools
+
+- [`whisper.cpp`](https://github.com/ggerganov/whisper.cpp) — high-performance Whisper CLI
+- [`ffmpeg`](https://ffmpeg.org) — audio/video conversion and recording
+- Whisper models:
+  - `ggml-base.en.bin` – fast, low resource
+  - `ggml-medium.en.bin` – balanced accuracy/speed
+  - `ggml-large-v3.bin` – most accurate, multilingual
+- [`BlackHole 2ch`](https://github.com/ExistentialAudio/BlackHole) — virtual audio sink for system recording
+
+> ✅ These tools are included in the `Brewfile` and installed automatically via `setup-core-tools`.
+
+### 📁 Setup Paths
+
+| Purpose         | Path                                         |
+|------------------|----------------------------------------------|
+| Whisper models   | `~/.local/share/whisper/models/`             |
+| Audio recordings | `~/recordings/`                              |
+| CLI functions    | `~/.config/zsh/modules/99-custom.zsh`        |
+
+### 🏃‍♂️ CLI Commands
+
+| Command               | Description                                      |
+|------------------------|--------------------------------------------------|
+| `transcribe FILE`      | Transcribes any audio/video file                |
+| `transcribe-copy FILE` | Transcribes and copies the result to clipboard  |
+| `record-system-audio`  | Records system audio (via BlackHole 2ch)        |
+| `transcribe-live`      | Transcribes the most recent system recording    |
+| `record-and-transcribe`| Records then transcribes system audio           |
+| `record-and-copy`      | Records → transcribes → copies to clipboard     |
+
+> 🎧 For system audio capture, route your Mac’s output through a Multi-Output Device that includes BlackHole 2ch.
 
 ---
 
