@@ -1,6 +1,7 @@
 # Dev Environment Setup (macOS)
 
 ![macOS](https://img.shields.io/badge/os-macOS%20(Apple%20Silicon)-blue?style=flat-square&logo=apple)
+![Terminal First](https://img.shields.io/badge/terminal-first-lightgrey?style=flat-square&logo=gnubash)
 ![Whisper Enabled](https://img.shields.io/badge/transcription-ready-blueviolet?style=flat-square&logo=whisper)
 ![Automation](https://img.shields.io/badge/restore-fully--automated-success?style=flat-square&logo=githubactions)
 ![Dotfile Managed](https://img.shields.io/badge/dotfiles-managed%20by%20yadm-9cf?style=flat-square&logo=git)
