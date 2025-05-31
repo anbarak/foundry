@@ -37,8 +37,8 @@ Public/
 .parallel/
 
 # AWS VPN Client
-.config/AWSVPNClient/
-.config/AWS\ VPN\ Client/
+.config/AWSVPNClient/**
+".config/AWS VPN Client/"
 
 # coc.nvim runtime
 .config/coc/extensions/
@@ -52,7 +52,7 @@ Public/
 .config/yadm/config
 
 # GCP SDK (runtime only)
-.config/gcloud/
+.config/gcloud/**
 
 # Go modules
 go/pkg/
