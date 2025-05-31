@@ -21,10 +21,12 @@ if command -v docker &>/dev/null; then
   docker ps -q | xargs -r docker stop >> "$LOG_FILE" 2>&1 || true
 fi
 
-# ====== Tmux Cleanup ======
+# ====== Tmux Warning Only (Safe) ======
 if command -v tmux &>/dev/null && tmux has-session 2>/dev/null; then
-  echo "[$TIMESTAMP] Killing tmux sessions..." >> "$LOG_FILE"
-  tmux kill-server >> "$LOG_FILE" 2>&1 || true
+  echo "[$TIMESTAMP] Active tmux session(s) detected." >> "$LOG_FILE"
+  osascript -e 'display notification "Active tmux sessions are running. Restart manually after closing them." with title "🔄 Restart Reminder (tmux)"'
+else
+  echo "[$TIMESTAMP] No tmux sessions found." >> "$LOG_FILE"
 fi
 
 # ====== System Snapshot ======
@@ -41,7 +43,12 @@ fi
   sysctl vm.swapusage
   echo ""
   echo "• Memory pressure:"
-  command -v memory_pressure >/dev/null && memory_pressure -l || echo "memory_pressure not available"
+  echo "• Memory pressure:"
+  if command -v memory_pressure >/dev/null; then
+    memory_pressure | head -n 5
+  else
+    echo "memory_pressure not available"
+  fi
   echo ""
   echo "• Disk usage (/):"
   df -h /
