@@ -159,6 +159,7 @@ This reminder helps maintain system health by encouraging regular reboots, which
 All files live under:
 ```bash
 ~/bin/tools/system/
+```
 
 ---
 
