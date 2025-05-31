@@ -8,7 +8,6 @@
 
   <key>ProgramArguments</key>
   <array>
-    <string>/bin/zsh</string>
     <string>${HOME}/bin/tools/system/restart-prep.sh</string>
   </array>
 
