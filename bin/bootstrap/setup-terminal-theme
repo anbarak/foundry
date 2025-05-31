@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# ------------------------------------------------------------------------------
+# Setup Terminal Font and Theme (Gruvbox Dark Hard + JetBrainsMono Nerd Font)
+# ------------------------------------------------------------------------------
+
+set -euo pipefail
+
+FONT_NAME="JetBrainsMono Nerd Font Mono"
+FONT_SIZE=13
+LINE_SPACING="1.05"
+GRUVBOX_THEME_NAME="Gruvbox Dark Hard"
+TERMINAL_PLIST="$HOME/Library/Preferences/com.apple.Terminal.plist"
+THEME_FILE_PATH="$HOME/.config/terminal/gruvbox-dark-hard.terminal"  # Tracked using yadm
+
+echo "▶️ Setting up Terminal font and theme..."
+
+# 1. Verify JetBrainsMono Nerd Font Installed (Regular weight specifically)
+if ! fc-list | grep -i "JetBrainsMonoNerdFontMono-Regular" &>/dev/null; then
+  echo "❌ JetBrainsMono Nerd Font (Regular) not found. Attempting to download and install..."
+
+  TMP_DIR=$(mktemp -d)
+  FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
+
+  echo "⬇️ Downloading JetBrainsMono Nerd Font from official Nerd Fonts repository..."
+  curl -L -o "$TMP_DIR/JetBrainsMono.zip" "$FONT_URL"
+
+  echo "📦 Extracting fonts..."
+  unzip -q "$TMP_DIR/JetBrainsMono.zip" -d "$TMP_DIR"
+
+  if [[ -f "$TMP_DIR/JetBrainsMonoNerdFontMono-Regular.ttf" ]]; then
+    echo "✅ Installing JetBrainsMono Nerd Font Regular..."
+    cp "$TMP_DIR/JetBrainsMonoNerdFontMono-Regular.ttf" ~/Library/Fonts/
+  else
+    echo "❌ Regular font not found inside zip. Aborting."
+    rm -rf "$TMP_DIR"
+    exit 1
+  fi
+
+  # Clean up temp dir
+  rm -rf "$TMP_DIR"
+
+  # Refresh fc-cache to detect new font
+  if command -v fc-cache &>/dev/null; then
+    echo "🔄 Refreshing font cache..."
+    fc-cache -f
+  fi
+
+  echo "✅ JetBrainsMono Nerd Font (Regular) installed successfully."
+else
+  echo "✅ JetBrainsMono Nerd Font (Regular) is already installed."
+fi
+
+# 2. Import Gruvbox Dark Hard Terminal Preset (if missing)
+if ! /usr/libexec/PlistBuddy -c "Print :'Window Settings':'$GRUVBOX_THEME_NAME'" "$TERMINAL_PLIST" &>/dev/null; then
+  echo "⬇️ Importing Gruvbox Dark Hard terminal preset..."
+
+  if [ ! -f "$THEME_FILE_PATH" ]; then
+    echo "❌ Theme file missing at $THEME_FILE_PATH."
+    echo "Please export your Terminal profile as '.terminal' file and track it under .config/terminal/."
+    exit 1
+  fi
+
+  echo "📂 Opening Terminal theme file to register it with Terminal.app..."
+
+  open "$THEME_FILE_PATH"
+
+  echo ""
+  echo "📢 Please click 'Use Settings' if prompted in Terminal to import the Gruvbox Dark Hard theme."
+  echo "⌛ Waiting 5 seconds for user to accept..."
+  sleep 5
+
+  # Now re-check if the profile was registered
+  if /usr/libexec/PlistBuddy -c "Print :'Window Settings':'$GRUVBOX_THEME_NAME'" "$TERMINAL_PLIST" &>/dev/null; then
+    echo "✅ Gruvbox Dark Hard profile successfully imported and registered."
+  else
+    echo "⚠️ Gruvbox profile not fully registered yet."
+    echo "👉 Please manually open $THEME_FILE_PATH, click 'Use Settings', then re-run setup."
+    exit 1 
+  fi
+
+else
+  echo "✅ Gruvbox Dark Hard preset already exists."
+fi
+
+# 3. Set Terminal to use Gruvbox Dark Hard profile by default
+defaults write com.apple.Terminal "Default Window Settings" "$GRUVBOX_THEME_NAME"
+defaults write com.apple.Terminal "Startup Window Settings" "$GRUVBOX_THEME_NAME"
+
+# 4. Additional Terminal settings hardening
+echo "⚙️ Setting additional Terminal preferences..."
+
+defaults write com.apple.Terminal StringEncodings -array \
+4 5 2 29 30 1 33 2102 2103 2109 2112 12 49 51 50 2108 9
+defaults write com.apple.Terminal "FocusFollowsMouse" -bool false
+defaults write com.apple.Terminal "ScrollToBottomOnInput" -bool true
+defaults write com.apple.Terminal "VisualBell" -bool true
+defaults write com.apple.Terminal "AudibleBell" -bool true
+defaults write com.apple.Terminal "OnlyWhenSoundIsMuted" -bool true
+defaults write com.apple.Terminal "BounceDockIconWhenBackgrounded" -bool true
+
+# 5. Reminder for manual font setting (if plist edit is too risky)
+echo ""
+echo -e "\033[31m⚡ IMPORTANT: Final manual steps:\033[0m"
+echo "   - Please verify the encoding settings:"
+echo "     - Open Terminal ➔ Settings ➔ Profiles ➔ Text"
+echo "     - If encodings are unchecked, click 'Revert to Defaults' to reset."
+echo ""
+echo "   - Please set the profile as default:"
+echo "     - Open Terminal ➔ Settings ➔ Profiles ➔ Find the 'Gruvbox Dark Hard' profile"
+echo "     - Select it and then click the 'Default' button."
+echo ""
+echo -e "\033[31m📝 (This is necessary to apply the new default profile and encoding settings.)\033[0m"
+echo ""
+
+echo "✅ Terminal font and theme setup complete."
