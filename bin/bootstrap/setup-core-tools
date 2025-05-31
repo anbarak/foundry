@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# --------------------------------------------------------------------
 # Setup whisper.cpp models
-echo "📦 Setting up Whisper models..."
+# --------------------------------------------------------------------
+echo "🧠 Setting up Whisper.cpp models..."
 
 WHISPER_MODEL_DIR="$HOME/.local/share/whisper/models"
 mkdir -p "$WHISPER_MODEL_DIR"
 
-# Correct model URLs (no /models path)
 WHISPER_MODELS=(
   "ggml-medium.en.bin"
   "ggml-large-v3.bin"
@@ -16,12 +17,45 @@ WHISPER_MODELS=(
 
 for MODEL in "${WHISPER_MODELS[@]}"; do
   MODEL_PATH="$WHISPER_MODEL_DIR/$MODEL"
-  if [ ! -f "$MODEL_PATH" ]; then
+  if [[ ! -f "$MODEL_PATH" ]]; then
     echo "⬇️  Downloading $MODEL ..."
-    curl -L -o "$MODEL_PATH" "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$MODEL"
+    curl -Ls -o "$MODEL_PATH" "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$MODEL"
   else
     echo "✅ $MODEL already exists."
   fi
 done
 
-echo "🧠 Whisper models setup complete."
+echo "✅ Whisper.cpp setup complete."
+
+# --------------------------------------------------------------------
+# Setup Shottr (screenshot tool)
+# --------------------------------------------------------------------
+echo "📸 Setting up Shottr..."
+
+if ! brew list --cask -1 | grep -qx shottr; then
+  echo "📦 Installing Shottr..."
+  brew install --cask shottr
+else
+  echo "✅ Shottr already installed."
+fi
+
+SHOTTR_CONFIG_SRC="$HOME/.config/shottr/cc.ffitch.shottr.plist"
+SHOTTR_CONFIG_DEST="$HOME/Library/Containers/cc.ffitch.shottr/Data/Library/Preferences/cc.ffitch.shottr.plist"
+
+if [[ -f "$SHOTTR_CONFIG_SRC" ]]; then
+  if [[ -d "$(dirname "$SHOTTR_CONFIG_DEST")" ]]; then
+    echo "♻️  Restoring Shottr preferences..."
+    cp "$SHOTTR_CONFIG_SRC" "$SHOTTR_CONFIG_DEST"
+    killall cfprefsd &>/dev/null || echo "ℹ️  Could not kill cfprefsd — it may not be running."
+    echo "✅ Shottr preferences restored."
+  else
+    echo "⚠️  Shottr must be launched at least once before restoring preferences."
+  fi
+else
+  echo "⚠️  Shottr preferences not found at:"
+  echo "   $SHOTTR_CONFIG_SRC"
+  echo "📖 To configure manually, see:"
+  echo "   ~/.config/shottr/shottr-config.md"
+fi
+
+echo "✅ Shottr setup complete."
