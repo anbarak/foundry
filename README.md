@@ -135,6 +135,33 @@ Use:
 
 ---
 
+## 🗓️ Weekly Restart Reminder
+
+- `install-restart-reminder.sh` – Installs a macOS LaunchAgent to display a system restart reminder **every Monday at 8 AM**
+- `restart-prep.sh` – Sends a non-intrusive notification and logs system stats (uptime, memory, disk, swap)
+- `restart-reminder.plist.template` – LaunchAgent template used during installation
+
+This reminder helps maintain system health by encouraging regular reboots, which:
+- Clear swap and memory leaks
+- Restart long-running background services
+- Ensure pending system updates apply cleanly
+
+> 🛠️ The reminder is **automatically installed** when running:
+> ```bash
+> ~/bin/dev-env/restore
+> ```
+>
+> Or, you can install it manually:
+> ```bash
+> ~/bin/tools/system/install-restart-reminder.sh
+> ```
+
+All files live under:
+```bash
+~/bin/tools/system/
+
+---
+
 ## 📦 Installed Tools & Plugin Ecosystem
 
 This setup includes:

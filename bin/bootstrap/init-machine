@@ -16,7 +16,7 @@ fi
 echo "📦 Updating Homebrew..."
 brew update
 
-BREWFILE="$HOME/.config/brew/Brewfile"
+BREWFILE="$HOME/.config/homebrew/Brewfile"
 if [[ -f "$BREWFILE" ]]; then
   echo "📦 Installing packages from Brewfile..."
   brew bundle --file="$BREWFILE"
@@ -61,6 +61,18 @@ for script in "${SCRIPTS[@]}"; do
     echo "⚠️ Skipping missing or non-executable: $script"
   fi
 done
+
+# ------------------------------------------------------------------------
+# Step 4: Install weekly restart reminder (LaunchAgent)
+# ------------------------------------------------------------------------
+echo "⏰ Installing restart reminder LaunchAgent..."
+
+RESTART_INSTALLER="$HOME/bin/tools/system/install-restart-reminder.sh"
+if [[ -x "$RESTART_INSTALLER" ]]; then
+  "$RESTART_INSTALLER"
+else
+  echo "⚠️ Skipping restart reminder install — script not found or not executable: $RESTART_INSTALLER"
+fi
 
 echo "✅ Bootstrap complete."
 echo "💡 Tip: Run 'exec zsh' or restart terminal to apply shell changes."

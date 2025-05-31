@@ -2,15 +2,17 @@
 # =============================================================================
 # Custom Aliases
 # =============================================================================
-alias edit_zshrc='vim ~/.zshrc'
-alias src_zshrc='source ~/.zshrc'
-alias edit_zshrc_local='vim ~/.zshrc.local'
-alias edit_zshrc_plugins='vim ~/.zshrc.plugins'
-alias edit_tmux='vim ~/.tmux.conf'
-alias src_tmux='tmux source ~/.tmux.conf'
-alias abzaarak='cd ~/code/my/abzaarak'
+alias edit_zshrc="vim $HOME/.zshrc"
+alias src_zshrc="source $HOME/.zshrc"
+alias edit_zshrc_local="vim $HOME/.zshrc.local"
+alias edit_zshrc_plugins="vim $HOME/.zshrc.plugins"
+alias edit_tmux="vim $HOME/.tmux.conf"
+alias src_tmux="tmux source $HOME/.tmux.conf"
+alias abzaarak="cd $HOME/code/my/abzaarak"
 alias ccf='cd $CF_CODE'
 alias cmy='cd $MY_CODE'
+alias restartmac='sudo shutdown -r now'
+alias weeklyreboot-reminder="$HOME/bin/tools/system/restart-prep.sh"
 
 # =============================================================================
 # Whisper CLI Configuration & Transcription Tools
