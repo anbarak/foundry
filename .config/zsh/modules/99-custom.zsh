@@ -13,6 +13,8 @@ alias ccf='cd $CF_CODE'
 alias cmy='cd $MY_CODE'
 alias restartmac='sudo shutdown -r now'
 alias weeklyreboot-reminder="$HOME/bin/tools/system/restart-prep.sh"
+alias mem-watch='vm_stat; echo ""; echo "Swap:"; sysctl vm.swapusage'
+alias mem-clean='killall Slack && killall VTDecoderXPCService && colima stop'
 
 # =============================================================================
 # Whisper CLI Configuration & Transcription Tools
