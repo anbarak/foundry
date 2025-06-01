@@ -12,3 +12,4 @@ alias vimtmp='vim -u NONE -N'
 alias vimcd='vim -c "cd %:p:h"'
 alias vimtab='vim --remote-tab'
 alias vimsplit='vim --remote-silent'
+alias vshorts="bat ~/.config/vim/cheatsheet.md"
