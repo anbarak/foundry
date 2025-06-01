@@ -71,6 +71,8 @@ vpnconnect() {
   echo "⏳ Waiting for VPN to connect (press Ctrl+C to cancel)..."
   while true; do
     if vpn_is_connected; then
+      echo "⏳ Waiting a few seconds for routing/DNS to stabilize..."
+      sleep 4  # Grace period to ensure network is ready
       echo "✅ VPN successfully connected."
       return
     fi
