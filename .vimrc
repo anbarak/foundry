@@ -5,6 +5,12 @@ filetype off
 filetype plugin indent on
 set mouse=a
 
+" ─── Training: Disable Arrow Keys to Learn hjkl ────────────────
+nnoremap <Up>    <Nop>
+nnoremap <Down>  <Nop>
+nnoremap <Left>  <Nop>
+nnoremap <Right> <Nop>
+
 " ─── Essential Editor Settings ──────────────────────────────────
 set tabstop=4
 set shiftwidth=4

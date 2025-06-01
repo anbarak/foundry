@@ -54,6 +54,7 @@ Plug 'tpope/vim-dadbod'                     " Interacting with databases directl
 " Vim Configuration and Enhancements
 Plug 'tpope/vim-commentary'                 " Commenting plugin
 Plug 'tpope/vim-eunuch'                     " Unix-like commands for Vim
+Plug 'tpope/vim-repeat'                      " Makes . work with plugin commands
 Plug 'tpope/vim-sensible'                   " Opinionated defaults for Vim
 Plug 'tpope/vim-surround'                   " Surround text objects
 Plug 'morhetz/gruvbox'                      " Colorsheme for vim
