@@ -39,3 +39,9 @@
 - `<leader>w` → save
 - `<leader>q` → quit
 - `<leader>f` → telescope file search (with plugin)
+
+## 🔤 Spellcheck & Suggestions
+- `z=` → show spelling suggestions
+- `<number>` + `Enter` → select suggestion from the list
+- `]s` → move to next misspelled word
+- `[s` → move to previous misspelled word

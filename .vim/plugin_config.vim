@@ -169,6 +169,9 @@ let g:go_info_mode='gopls'
 " Python-specific settings
 autocmd FileType python setlocal tabstop=4 shiftwidth=4 softtabstop=4 expandtab
 
+" Enable basic spellcheck in writing-related filetypes
+autocmd FileType gitcommit,markdown,text setlocal spell spelllang=en_us
+
 " vim-autoformat configuration
 " Bash
 let g:formatdef_shfmt = "'shfmt'"
