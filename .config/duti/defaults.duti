@@ -1,0 +1,14 @@
+# Video file types
+com.org.videolan.vlc  .mp4    all
+com.org.videolan.vlc  .mkv    all
+com.org.videolan.vlc  .avi    all
+com.org.videolan.vlc  .mov    all
+com.org.videolan.vlc  .flv    all
+com.org.videolan.vlc  .wmv    all
+
+# Audio file types
+com.org.videolan.vlc  .mp3    all
+com.org.videolan.vlc  .m4a    all
+com.org.videolan.vlc  .aac    all
+com.org.videolan.vlc  .wav    all
+com.org.videolan.vlc  .flac   all
