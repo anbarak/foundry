@@ -60,3 +60,7 @@ go/pkg/
 
 # my local code repository
 code/
+
+# Vim plugins and plugin managers
+.vim/autoload/plug.vim
+.vim/plugged/**
