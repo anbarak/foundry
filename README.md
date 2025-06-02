@@ -126,12 +126,88 @@ These paths are excluded from version control and backed up:
 Use:
 
 ```bash
-~/bin/secrets/backup.sh  # to push updated secrets
-~/bin/secrets/restore.sh  # to pull them from Bitwarden
+~/bin/tools/secrets/backup  # Encrypt & upload secrets to Bitwarden
+~/bin/tools/secrets/restore  # Download and decrypt secrets from Bitwarden
+```
+> ✅ A launchd job is installed to run `backup` every **Monday at 9 AM**, keeping secrets up to date.  
+> Install or refresh the job:
+```bash
+~/bin/tools/secrets/install-secrets-backup.sh
 ```
 
-> ✅ A cron job is configured to run `backup.sh` every weekday at 9 AM via `ensure-cron.sh`.  
-> Confirm it’s installed: `crontab -l`
+---
+
+## ⏱️ Scheduled Maintenance Jobs (via `launchd`)
+
+Three background jobs are automated using macOS `launchd` and run every Monday to ensure your system and secrets stay healthy:
+
+| Task                    | Time       | Script Path                                  | Logs To                                |
+|-------------------------|------------|----------------------------------------------|----------------------------------------|
+| 🔐 Secrets Backup       | 09:00 AM   | `~/bin/tools/secrets/backup`                 | `~/logs/secrets-backup.log`            |
+| 🛠 Homebrew Maintenance | 09:00 AM   | `~/bin/tools/system/maintain-homebrew.sh`    | `~/logs/homebrew_maintenance.log`      |
+| ♻️  Restart Reminder     | 08:00 AM   | `~/bin/tools/system/restart-prep.sh`         | `~/logs/restart-prep.log`              |
+
+> ✅ These jobs are automatically installed when running:
+>
+> ```bash
+> ~/bin/dev-env/restore
+> ```
+
+Or you can install/refresh them manually:
+
+```bash
+~/bin/tools/secrets/install-secrets-backup.sh
+~/bin/tools/system/maintain-homebrew.sh
+~/bin/tools/system/install-restart-reminder.sh
+```
+
+---
+
+### 🧪 Debugging launchd Jobs
+
+To confirm jobs are installed:
+
+```bash
+launchctl list | grep com.user
+```
+
+To check a specific job like Homebrew maintenance:
+
+```bash
+launchctl list | grep brew
+```
+
+To view logs:
+
+```bash
+tail -f ~/logs/homebrew_maintenance.log
+tail -f ~/logs/secrets-backup.log
+```
+
+To reload a job manually:
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.user.brew-maintenance.plist
+launchctl load ~/Library/LaunchAgents/com.user.brew-maintenance.plist
+```
+
+---
+
+### 🗂️ LaunchAgent Templates
+
+All `.plist.template` files are stored in:
+
+```bash
+~/bin/tools/system/
+```
+
+They are dynamically populated at runtime using:
+
+```bash
+envsubst < ...template > ...plist
+```
+
+> 📦 Tip: To add a new job, copy one of the templates, update the `Label`, `ProgramArguments`, and schedule, then register it using `launchctl`.
 
 ---
 

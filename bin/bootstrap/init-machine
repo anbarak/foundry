@@ -4,7 +4,8 @@ set -euo pipefail
 echo "⚙️ Initializing dev machine..."
 
 # -----------------------------------------------------------------------------
-# Install Homebrew and core CLI tools via Brewfile
+# Install Homebrew and core CLI tools via Brewfile.
+# Setup weekly homebrew maintenance (LaunchAgent)
 # -----------------------------------------------------------------------------
 if ! command -v brew &>/dev/null; then
   echo "🛠️ Homebrew not found — installing..."
@@ -55,7 +56,7 @@ for script in "${SCRIPTS[@]}"; do
 done
 
 # -----------------------------------------------------------------------------
-# Setup secrets backup LaunchAgent
+# Setup secrets backup (LaunchAgent)
 # -----------------------------------------------------------------------------
 SECRETS_BACKUP_INSTALLER="$HOME/bin/tools/system/install-secrets-backup.sh"
 if [[ -x "$SECRETS_BACKUP_INSTALLER" ]]; then
@@ -82,6 +83,19 @@ if [[ -x "$RESTART_INSTALLER" ]]; then
   "$RESTART_INSTALLER"
 else
   echo "⚠️ Skipping restart reminder install — script not found or not executable: $RESTART_INSTALLER"
+fi
+
+# ------------------------------------------------------------------------------
+# Secure credentials setup (interactive, one-time per machine)
+# ------------------------------------------------------------------------------
+echo "🔐 Checking for Bitwarden master password in Keychain..."
+
+if ! security find-generic-password -s bitwarden -a master-password -w &>/dev/null; then
+  echo "⚠️ Bitwarden master password not found in Keychain."
+  echo "👉 Running setup to save it now..."
+  "$HOME/bin/tools/setup/save-bitwarden-master-password-to-keychain.sh"
+else
+  echo "✅ Bitwarden master password is already in Keychain."
 fi
 
 echo "✅ Bootstrap complete."
