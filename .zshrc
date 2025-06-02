@@ -36,10 +36,9 @@ add_to_path "/opt/homebrew/bin"
 HOMEBREW_PREFIX=$(brew --prefix)
 export HOMEBREW_PREFIX
 
-# GNU coreutils paths - added at the beginning to take precedence
+# Add GNU coreutils to PATH for standard behavior (ls, cat, etc.)
+# ⚠️ May cause issues with GMP/Python builds — review with `brew doctor`
 add_to_path "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
-
-# GNU findutils paths - added at the beginning to take precedence
 add_to_path "$HOMEBREW_PREFIX/opt/findutils/libexec/gnubin"
 
 # Homebrew paths

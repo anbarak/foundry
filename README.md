@@ -172,7 +172,7 @@ This setup includes:
 - Plugins: `autojump`, `git`, `zsh-autosuggestions`, `zsh-syntax-highlighting`, `fzf`, `colorize`, `docker`, `aws`, `gcloud`, `krew`
 
 ### 📦 Package Management
-- `Homebrew`, `brew bundle`, `coreutils`, `findutils`, `jq`, `thefuck`, `tldr`, `lsd`, `htop`, `asdf`, `direnv`
+- `Homebrew`, `brew bundle`, `coreutils`, `findutils`, `jq`, `thefuck`, `tealdeer`, `lsd`, `htop`, `asdf`, `direnv`
 
 ### 🛠️ Dev & Cloud Tools
 - `kubectl`, `krew`, `k9s`, `terraform`, `awscli`, `session-manager-plugin`, `gcloud`, `tmux`, `vim`, `YouCompleteMe`, `goenv`, `pyenv`, `poetry`, `pipenv`, `bitwarden-cli`, `git-extras`, `gh`, `bb`
