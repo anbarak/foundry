@@ -80,7 +80,6 @@ brew "stylelint"
 brew "telnet"
 brew "tflint"
 brew "thefuck"
-brew "tldr"
 brew "tmux"
 brew "trash", link: true
 brew "tre-command"
