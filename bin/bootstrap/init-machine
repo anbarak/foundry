@@ -30,6 +30,11 @@ if [[ ! -L "$HOME/bin/ycommit" ]]; then
   ln -sf "$HOME/bin/git/yadm-commit" "$HOME/bin/ycommit"
 fi
 
+if [[ ! -L "$HOME/bin/open-kdbx" ]]; then
+  echo "🔗 Linking open-kdbx command..."
+  ln -sf "$HOME/bin/tools/kdbx/open-kdbx.sh" "$HOME/bin/open-kdbx"
+fi
+
 # -----------------------------------------------------------------------------
 # Create code directory structure
 # -----------------------------------------------------------------------------
