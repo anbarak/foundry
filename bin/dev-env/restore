@@ -17,6 +17,11 @@ if ! command -v gum &>/dev/null; then
   exit 1
 fi
 
+# ✅ Recommend full bootstrap if user hasn't run it yet
+if [[ -f ~/bin/bootstrap/init-machine ]]; then
+  echo "ℹ️  If this is a new machine, consider running '~/bin/bootstrap/init-machine' first."
+fi
+
 # Interactive menu
 choice=$(gum choose \
   "🛠  Run Full Restore" \
@@ -40,9 +45,9 @@ run_script() {
 
 # Handle the choice
 case "$choice" in
-  "🛠  Run Full Restore")       run_script ~/bin/dev-env/restore ;;
-  "🔐  Restore Secrets Only")   run_script ~/bin/secrets/restore ;;
-  "📤  Backup Secrets to Bitwarden")  run_script ~/bin/secrets/backup ;;
+  "🛠  Run Full Restore")       run_script ~/bin/dev-env/full-restore ;;
+  "🔐  Restore Secrets Only")   run_script ~/bin/tools/secrets/restore ;;
+  "📤  Backup Secrets to Bitwarden")  run_script ~/bin/tools/secrets/backup ;;
   "🎨  Setup Terminal Theme (Font + Theme)") run_script ~/bin/bootstrap/setup-terminal-theme ;;
   "🔁  Finalize Setup (plugins, completions)") run_script ~/bin/dev-env/finalize ;;
   "📦  Lint Dotfiles")          run_script ~/bin/dev-env/lint-dotfiles ;;

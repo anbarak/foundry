@@ -4,7 +4,7 @@ set -euo pipefail
 echo "⚙️ Initializing dev machine..."
 
 # -----------------------------------------------------------------------------
-# Step 1: Install Homebrew and core CLI tools via Brewfile
+# Install Homebrew and core CLI tools via Brewfile
 # -----------------------------------------------------------------------------
 if ! command -v brew &>/dev/null; then
   echo "🛠️ Homebrew not found — installing..."
@@ -13,19 +13,11 @@ else
   echo "🍺 Homebrew already installed."
 fi
 
-echo "📦 Updating Homebrew..."
-brew update
-
-BREWFILE="$HOME/.config/homebrew/Brewfile"
-if [[ -f "$BREWFILE" ]]; then
-  echo "📦 Installing packages from Brewfile..."
-  brew bundle --file="$BREWFILE"
-else
-  echo "⚠️ Brewfile not found at $BREWFILE"
-fi
+echo "📦 Updating Homebrew packages via maintain-homebrew.sh..."
+"$HOME/bin/tools/system/maintain-homebrew.sh"
 
 # -----------------------------------------------------------------------------
-# Step 2: Create dotfiles structure
+# Create dotfiles structure
 # -----------------------------------------------------------------------------
 echo "📁 Setting up dotfiles structure..."
 [ -f "$HOME/.zshrc.local" ] || touch "$HOME/.zshrc.local"
@@ -38,13 +30,13 @@ if [[ ! -L "$HOME/bin/ycommit" ]]; then
 fi
 
 # -----------------------------------------------------------------------------
-# Step 2b: Create code directory structure
+# Create code directory structure
 # -----------------------------------------------------------------------------
 echo "📁 Creating code folders (cf, my, tmp)..."
 mkdir -p "$HOME/code/cf" "$HOME/code/my" "$HOME/code/tmp"
 
 # -----------------------------------------------------------------------------
-# Step 3: Modular setup scripts (cloud/dev tools)
+# Modular setup scripts (cloud/dev tools)
 # -----------------------------------------------------------------------------
 SCRIPTS=(
   "$HOME/bin/bootstrap/setup-core-tools"
@@ -62,8 +54,26 @@ for script in "${SCRIPTS[@]}"; do
   fi
 done
 
+# -----------------------------------------------------------------------------
+# Setup secrets backup LaunchAgent
+# -----------------------------------------------------------------------------
+SECRETS_BACKUP_INSTALLER="$HOME/bin/tools/system/install-secrets-backup.sh"
+if [[ -x "$SECRETS_BACKUP_INSTALLER" ]]; then
+  "$SECRETS_BACKUP_INSTALLER"
+else
+  echo "⚠️  Skipping secrets backup LaunchAgent — script not found or not executable"
+fi
+
+# -----------------------------------------------------------------------------
+# Step X: Install librespeed-cli (speed test utility)
+# -----------------------------------------------------------------------------
+echo "📡 Installing librespeed-cli..."
+if [[ ! -x "$HOME/.local/bin/tools/librespeed-cli" ]]; then
+  "$HOME/bin/tools/system/setup-librespeed.sh"
+fi
+
 # ------------------------------------------------------------------------
-# Step 4: Install weekly restart reminder (LaunchAgent)
+# Install weekly restart reminder (LaunchAgent)
 # ------------------------------------------------------------------------
 echo "⏰ Installing restart reminder LaunchAgent..."
 
