@@ -10,9 +10,11 @@ WHISPER_MODEL_DIR="$HOME/.local/share/whisper/models"
 mkdir -p "$WHISPER_MODEL_DIR"
 
 WHISPER_MODELS=(
-  "ggml-medium.en.bin"
-  "ggml-large-v3.bin"
-  "ggml-base.en.bin"
+  "ggml-base.en.bin"         # English-only (small)
+  "ggml-medium.en.bin"       # English-only (medium)
+  "ggml-large-v3.bin"        # Multilingual (best accuracy)
+  "ggml-base.bin"            # Multilingual (small)
+  "ggml-medium.bin"          # Multilingual (medium)
 )
 
 for MODEL in "${WHISPER_MODELS[@]}"; do

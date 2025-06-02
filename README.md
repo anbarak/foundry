@@ -126,7 +126,7 @@ These paths are excluded from version control and backed up:
 Use:
 
 ```bash
-~/bin/secrets/backup.sh   # to push updated secrets
+~/bin/secrets/backup.sh  # to push updated secrets
 ~/bin/secrets/restore.sh  # to pull them from Bitwarden
 ```
 
@@ -181,48 +181,104 @@ This setup includes:
 
 ## 🎙️ Transcription Tools (Whisper + BlackHole)
 
-This setup includes tools for **offline transcription** of audio and video files, and **system audio capture** via BlackHole for things like Zoom calls, YouTube videos, or Google Meet recordings.
+This setup supports **offline transcription** of personal voice notes, language learning materials, tutorials, and public media using open-source tools. It also enables **system audio capture** for self-study or productivity use cases.
 
 ### 🧠 Capabilities
 
-- 📁 Transcribe `.m4a`, `.mp3`, `.mp4`, `.webm`, `.mov`, and other formats
-- 🔄 Auto-converts input to `.wav` before transcription
-- 🌍 Supports multilingual input (Farsi, English, etc.) via `ggml-large-v3.bin`
-- 🎧 Record system audio using [BlackHole 2ch](https://github.com/ExistentialAudio/BlackHole)
-- 📋 Auto-copy transcripts to clipboard (for ChatGPT or docs)
+- 🎧 Transcribe `.m4a`, `.mp3`, `.mp4`, `.webm`, `.mov`, and more
+- 🔄 Auto-converts input to `.wav` before processing
+- 🌍 Supports **multilingual input** (e.g. Persian, English) using `ggml-large-v3.bin`
+- 📋 Optionally copies transcript output directly to your clipboard
+- 🖥️ Capture audio from system output (e.g. online lectures, podcasts) via [BlackHole 2ch](https://github.com/ExistentialAudio/BlackHole)
 
 ### 📦 Installed Tools
 
-- [`whisper.cpp`](https://github.com/ggerganov/whisper.cpp) — high-performance Whisper CLI
-- [`ffmpeg`](https://ffmpeg.org) — audio/video conversion and recording
+- [`whisper.cpp`](https://github.com/ggerganov/whisper.cpp) – optimized CLI-based transcription
+- [`ffmpeg`](https://ffmpeg.org) – for audio/video decoding and conversion
 - Whisper models:
-  - `ggml-base.en.bin` – fast, low resource
-  - `ggml-medium.en.bin` – balanced accuracy/speed
-  - `ggml-large-v3.bin` – most accurate, multilingual
-- [`BlackHole 2ch`](https://github.com/ExistentialAudio/BlackHole) — virtual audio sink for system recording
+  - `ggml-base.en.bin` – fast, English-only
+  - `ggml-medium.en.bin` – more accurate English
+  - `ggml-large-v3.bin` – best quality, multilingual
+- [`BlackHole 2ch`](https://github.com/ExistentialAudio/BlackHole) – virtual audio driver to route system sound
 
-> ✅ These tools are included in the `Brewfile` and installed automatically via `setup-core-tools`.
+> ✅ All tools and models are set up via `setup-core-tools` and the `Brewfile`.
 
 ### 📁 Setup Paths
 
-| Purpose         | Path                                         |
-|------------------|----------------------------------------------|
-| Whisper models   | `~/.local/share/whisper/models/`             |
-| Audio recordings | `~/recordings/`                              |
-| CLI functions    | `~/.config/zsh/modules/99-custom.zsh`        |
+| Purpose            | Path                                         |
+|--------------------|----------------------------------------------|
+| Whisper models     | `~/.local/share/whisper/models/`             |
+| Audio recordings   | `~/recordings/`                              |
+| Custom CLI aliases | `~/.config/zsh/modules/19-transcription.zsh`        |
 
 ### 🏃‍♂️ CLI Commands
 
-| Command               | Description                                      |
-|------------------------|--------------------------------------------------|
-| `transcribe FILE`      | Transcribes any audio/video file                |
-| `transcribe-copy FILE` | Transcribes and copies the result to clipboard  |
-| `record-system-audio`  | Records system audio (via BlackHole 2ch)        |
-| `transcribe-live`      | Transcribes the most recent system recording    |
-| `record-and-transcribe`| Records then transcribes system audio           |
-| `record-and-copy`      | Records → transcribes → copies to clipboard     |
+| Command                | Description                                              |
+|------------------------|----------------------------------------------------------|
+| `transcribe FILE`      | Transcribes any supported audio/video file               |
+| `transcribe-copy FILE` | Same as above + copies the result to your clipboard      |
+| `record-system-audio`  | Records output audio using BlackHole                     |
+| `transcribe-live`      | Transcribes the most recent recorded file                |
+| `record-and-transcribe`| Records → transcribes system output                      |
+| `record-and-copy`      | Records → transcribes → copies to clipboard              |
 
-> 🎧 For system audio capture, route your Mac’s output through a Multi-Output Device that includes BlackHole 2ch.
+> 🎧 For recording system audio, use a **Multi-Output Device** that includes both BlackHole and your usual speaker or headset.
+
+### 🔊 Optional: Terminal Playback (Quick Preview)
+
+For simple audio previews (e.g. transcription outputs), you can play `.wav` files from the CLI:
+
+```bash
+afplay /path/to/audio.wav
+```
+
+### 🔊 Playback Helpers
+
+- **Play the most recent recording:**
+
+```sh
+alias playlast='afplay "$(ls -t ~/recordings/*.wav | head -n1)"'
+```
+
+Quickly plays back the latest .wav recording in your ~/recordings directory using macOS’s afplay. Useful for verifying audio before or after transcription.
+
+> 🛡️ **Reminder**: These tools are intended for **personal and ethical use** (e.g. transcription of language-learning content, tutorials, voice memos, and other non-sensitive material).  
+> Please respect all applicable laws and organizational policies when using audio capture or transcription tools.
+
+---
+
+## 🎞️ Media Playback & File Associations
+
+This setup includes support for high-quality media playback and ensures audio/video files open consistently in VLC via scripting.
+
+### 📦 Installed Tools
+
+- [`VLC`](https://www.videolan.org/vlc/) — free, open-source media player supporting nearly all formats
+- [`duti`](https://github.com/moretension/duti) — CLI tool to manage macOS default app associations
+
+### 🔁 Default App Setup
+
+Default apps are automatically configured during restore (via `setup-core-tools`) by executing:
+
+```bash
+~/bin/tools/system/set-defaults.sh
+```
+
+This script uses `duti` to associate:
+
+| File Type      | Opens With |
+|----------------|------------|
+| `.mp4`, `.mov` | VLC        |
+| `.mp3`, `.m4a` | VLC        |
+| `.wav`, `.webm`| VLC        |
+
+You can modify or extend these associations in:
+
+```bash
+~/.config/duti/defaults.duti
+```
+
+> ✅ These defaults are re-applied at every shell launch (via `.zshrc.local`), but only if `duti` is available.
 
 ---
 
@@ -295,21 +351,21 @@ colima status
 
 If migrating from Docker Desktop:
 
-- **Images**  
-  Save from Docker Desktop:  
+- **Images**
+  Save from Docker Desktop:
   ```bash
   docker save my-image:tag -o my-image.tar
-  ```  
-  Load into Colima:  
+  ```
+  Load into Colima:
   ```bash
   docker load -i my-image.tar
   ```
 
-- **Volumes**  
+- **Volumes**
   Migration is manual; recreate or restore via backup.
 
-- **Uninstall Docker Desktop**  
-  Optional cleanup:  
+- **Uninstall Docker Desktop**
+  Optional cleanup:
   ```bash
   sudo rm -rf /Applications/Docker.app
   rm -rf ~/.docker ~/Library/Containers/com.docker.docker

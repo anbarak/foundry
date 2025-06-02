@@ -90,6 +90,12 @@ function set_terminal_title() {
   esac
 }
 
+# Apply default apps via duti on first login or setup only
+if [[ ! -f "$HOME/.config/.defaults-set" && -x "$HOME/bin/tools/system/set-defaults.sh" ]]; then
+  "$HOME/bin/tools/system/set-defaults.sh"
+  touch "$HOME/.config/.defaults-set"
+fi
+
 # Call the function before each prompt
 precmd_functions+=set_terminal_title
 

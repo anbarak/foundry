@@ -1,4 +1,7 @@
 # shellcheck shell=bash
+# ⚠️ These environment variables are used across modules.
+# Do not remove unless you’ve verified downstream dependencies.
+#
 # =============================================================================
 # Global Variables
 # =============================================================================
