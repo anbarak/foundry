@@ -1,11 +1,4 @@
-## 🧠 Vim-style Terminal Navigation & Clipboard Support
-
-- 🖱️ Terminal uses **Vim keybindings** (`bindkey -v`) across Zsh, Tmux, and fzf
-- 🟥 Powerlevel10k shows `NORMAL`, 🟩 `INSERT`, 🟪 `VISUAL`, 🟨 `OVR` mode indicators with smart styling
-- ⌨️ Fast keybinding: `jj` or `jk` in insert mode → switches to normal mode
-- 📋 Vim is clipboard-integrated via `set clipboard=unnamedplus`
-- 📦 Tmux supports **visual selection** (`v`) and **yanking** (`y`) with system clipboard via `pbcopy`
-- 🔍 Selection feedback, highlighting, and pbcopy piping is preconfigured# 🏗️ foundry
+# 🏗️ foundry
 
 > Personal Cloud/DevOps macOS Bootstrap Environment
 > 🧰 Built for engineers who live in the terminal — minimal, secure, and fast to rebuild.
