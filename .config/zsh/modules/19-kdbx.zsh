@@ -1,0 +1,5 @@
+alias open-kdbx-aws='open-kdbx AWSDB'
+alias open-kdbx-gcp='open-kdbx GCPDB'
+alias open-kdbx-neteng='open-kdbx NetEngDatabase'
+alias open-kdbx-itops='open-kdbx ITOperationsDB'
+alias open-kdbx-qdpass='open-kdbx QDPassDatabase'
