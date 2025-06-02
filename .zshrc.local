@@ -30,6 +30,9 @@ if [[ -d "$ZSH_MODULES" ]]; then
   done
 fi
 
+# Enable vi keybindings only if not already set
+[[ ${KEYMAP} != vicmd ]] && bindkey -v
+
 # Enable bash completion for zsh
 autoload bashcompinit
 bashcompinit
@@ -50,9 +53,6 @@ mkdir -p "$HOME/.zsh/completions"
 fpath+="$HOME/.zsh/completions"
 autoload -Uz compinit
 compinit
-
-# Enable clipboard support for Vim
-set clipboard=unnamedplus
 
 # Environment variables (optional)
 # Add environment variables specific to your zsh environment here

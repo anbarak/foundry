@@ -31,10 +31,26 @@
   # The list of segments shown on the left. Fill it with the most important segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
     #os_icon                 # os identifier
+    vi_mode
     dir                     # current directory
     vcs                     # git status
     prompt_char             # prompt symbol
   )
+
+  # vi mode segment colors and labels
+  typeset -g POWERLEVEL9K_VI_MODE_INSERT_FOREGROUND=0
+  typeset -g POWERLEVEL9K_VI_MODE_INSERT_BACKGROUND=2
+  typeset -g POWERLEVEL9K_VI_MODE_NORMAL_FOREGROUND=15
+  typeset -g POWERLEVEL9K_VI_MODE_NORMAL_BACKGROUND=1
+  typeset -g POWERLEVEL9K_VI_MODE_VISUAL_FOREGROUND=0
+  typeset -g POWERLEVEL9K_VI_MODE_VISUAL_BACKGROUND=5
+  typeset -g POWERLEVEL9K_VI_MODE_OVERWRITE_FOREGROUND=0
+  typeset -g POWERLEVEL9K_VI_MODE_OVERWRITE_BACKGROUND=3
+  typeset -g POWERLEVEL9K_VI_MODE_PADDING=1
+  typeset -g POWERLEVEL9K_VI_MODE_TEXT_INSERT='INSERT'
+  typeset -g POWERLEVEL9K_VI_MODE_TEXT_NORMAL='NORMAL'
+  typeset -g POWERLEVEL9K_VI_MODE_TEXT_VISUAL='VISUAL'
+  typeset -g POWERLEVEL9K_VI_MODE_TEXT_OVERWRITE='OVR' 
 
   # The list of segments shown on the right. Fill it with less important segments.
   # Right prompt on the last prompt line (where you are typing your commands) gets

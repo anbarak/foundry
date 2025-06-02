@@ -1,4 +1,11 @@
-# 🏗️ foundry
+## 🧠 Vim-style Terminal Navigation & Clipboard Support
+
+- 🖱️ Terminal uses **Vim keybindings** (`bindkey -v`) across Zsh, Tmux, and fzf
+- 🟥 Powerlevel10k shows `NORMAL`, 🟩 `INSERT`, 🟪 `VISUAL`, 🟨 `OVR` mode indicators with smart styling
+- ⌨️ Fast keybinding: `jj` or `jk` in insert mode → switches to normal mode
+- 📋 Vim is clipboard-integrated via `set clipboard=unnamedplus`
+- 📦 Tmux supports **visual selection** (`v`) and **yanking** (`y`) with system clipboard via `pbcopy`
+- 🔍 Selection feedback, highlighting, and pbcopy piping is preconfigured# 🏗️ foundry
 
 > Personal Cloud/DevOps macOS Bootstrap Environment
 > 🧰 Built for engineers who live in the terminal — minimal, secure, and fast to rebuild.
@@ -256,6 +263,28 @@ This setup includes:
 
 ### 📦 Package Management
 - `Homebrew`, `brew bundle`, `coreutils`, `findutils`, `jq`, `thefuck`, `tealdeer`, `lsd`, `htop`, `asdf`, `direnv`
+
+### 🧠 Vim-style Terminal Navigation & Clipboard Support
+- ⌨️ Terminal uses **Vim keybindings** (`bindkey -v`) across Zsh, Tmux, and fzf
+- 🧭 Powerlevel10k shows `NORMAL`, 🟩 `INSERT`, 🟪 `VISUAL`, 🟨 `OVR` mode indicators with smart styling
+- 🚀 Fast keybinding: `jj` or `jk` in insert mode → switches to normal mode
+- 📋 Vim is clipboard-integrated via `set clipboard=unnamedplus`
+- ✂️ Tmux supports **visual selection** (`v`) and **yanking** (`y`) with system clipboard via `pbcopy`
+- 🔍 Selection feedback, highlighting, and pbcopy piping is preconfigured
+
+#### ⌨️ Quick Reference: Terminal Keybindings (Vi Mode)
+
+| Mode       | Shortcut           | Description                               |
+|------------|--------------------|-------------------------------------------|
+| Insert     | `jj`, `jk`         | Switch to Normal mode (like `<Esc>`)      |
+| Normal     | `0`, `^`, `$`      | Start of line / First char / End of line  |
+| Normal     | `v`, `V`, `Ctrl-v` | Start visual, linewise, or block mode     |
+| Visual     | `y`                | Yank (copy) selection to clipboard        |
+| Normal     | `u`, `Ctrl-r`      | Undo / Redo                               |
+| Tmux       | `prefix` + `[`     | Enter copy-mode (use vi keys inside)      |
+| Copy Mode  | `v`, `y`           | Begin selection / Copy selection          |
+
+> 🧠 Works consistently across Zsh, Tmux, and fzf when vi-mode is enabled.
 
 ### 🛠️ Dev & Cloud Tools
 - `kubectl`, `krew`, `k9s`, `terraform`, `awscli`, `session-manager-plugin`, `gcloud`, `tmux`, `vim`, `YouCompleteMe`, `goenv`, `pyenv`, `poetry`, `pipenv`, `bitwarden-cli`, `git-extras`, `gh`, `bb`

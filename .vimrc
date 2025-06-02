@@ -25,7 +25,7 @@ set ignorecase
 set smartcase
 set hlsearch
 set incsearch
-set clipboard=unnamedplus
+set clipboard=unnamedplus                   " Enable clipboard support for system-wide copy/paste"
 set backspace=indent,eol,start
 set encoding=utf-8
 set fileformat=unix
