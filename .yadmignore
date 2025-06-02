@@ -29,6 +29,7 @@ Public/
 .gitconfig
 .gitconfig-centerfield
 .saml2aws
+.config/hosts/
 
 # App-specific and auto-generated runtime folders
 .kube/

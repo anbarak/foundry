@@ -98,6 +98,12 @@ else
   echo "✅ Bitwarden master password is already in Keychain."
 fi
 
+# --------------------------------------------------------------------
+# Restore internal /etc/hosts mappings (e.g., Jenkins agents)
+# --------------------------------------------------------------------
+echo "📎 Applying custom hosts block to /etc/hosts..."
+~/bin/tools/system/apply-hosts-block.sh || echo "⚠️ Failed to apply /etc/hosts block"
+
 echo "✅ Bootstrap complete."
 echo "💡 Tip: Run 'exec zsh' or restart terminal to apply shell changes."
 echo "🧪 Tip: Run '~/bin/lint-dotfiles.sh' to validate dotfiles."
