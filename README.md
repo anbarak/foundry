@@ -1,4 +1,7 @@
-# Dev Environment Setup (macOS)
+# 🏗️ foundry
+
+> Personal Cloud/DevOps macOS Bootstrap Environment
+> 🧰 Built for engineers who live in the terminal — minimal, secure, and fast to rebuild.
 
 ![macOS](https://img.shields.io/badge/os-macOS%20(Apple%20Silicon)-blue?style=flat-square&logo=apple)
 ![Terminal First](https://img.shields.io/badge/terminal-first-lightgrey?style=flat-square&logo=gnubash)
@@ -10,6 +13,10 @@
 ![Terraform](https://img.shields.io/badge/terraform-managed-623CE4?style=flat-square&logo=terraform)
 ![IDP Oriented](https://img.shields.io/badge/platform-internal--developer--platform-critical?style=flat-square&logo=serverfault)
 ![DevOps Automation](https://img.shields.io/badge/devops-automated-orange?style=flat-square&logo=githubactions)
+
+> **`foundry`** is my modular, portable, and opinionated development environment. It’s optimized for automation-first workflows, CLI-centric toolchains, and fast machine restore.  
+>  
+> 🔁 Version-controlled with [`yadm`](https://yadm.io), powered by encrypted secrets, containerized CLI tools, and ergonomic shell customizations.
 
 ## 🎯 Purpose & Strategy
 
@@ -46,7 +53,7 @@ The environment is broken into modular parts under `~/bin/`, making it easy to a
 - `init-machine` – Installs Homebrew, sets up base folders
 - `setup-core-tools`, `setup-kubernetes-tools`, `setup-terraform-tools` – Installs key CLI tools and symlinks runners
 
-### `~/bin/dev-env/`
+### `~/bin/foundry/`
 - `restore` – Core logic for restoring the dev environment (used by the TUI)
 - `finalize` – Handles plugin setups (Oh My Zsh, Powerlevel10k, Tmux, Vim, kubectl Krew, etc.)
 - `lint-dotfiles` – Validates shell scripts and formatting (can be run manually or via TUI)
@@ -99,7 +106,7 @@ brew install gum
 If you prefer running scripts directly (e.g., in CI or custom automation), use:
 
 ```bash
-~/bin/dev-env/restore
+~/bin/foundry/restore
 ```
 
 This will:
@@ -150,7 +157,7 @@ Three background jobs are automated using macOS `launchd` and run every Monday t
 > ✅ These jobs are automatically installed when running:
 >
 > ```bash
-> ~/bin/dev-env/restore
+> ~/bin/foundry/restore
 > ```
 
 Or you can install/refresh them manually:
@@ -224,7 +231,7 @@ This reminder helps maintain system health by encouraging regular reboots, which
 
 > 🛠️ The reminder is **automatically installed** when running:
 > ```bash
-> ~/bin/dev-env/restore
+> ~/bin/foundry/restore
 > ```
 >
 > Or, you can install it manually:
@@ -467,7 +474,7 @@ All relevant files (non-sensitive) are version-controlled, including:
 
 ```bash
 yadm status
-yadm commit -am "Updated dotfiles"
+yadm commit -am "Refine foundry environment config"
 yadm push
 ```
 
@@ -477,6 +484,8 @@ yadm push
 
 > Your dev environment should never be a mystery.  
 > It should be **deterministic**, **modular**, **secure**, and **fast to restore**.
+
+**foundry** represents this philosophy. It’s where every tool, alias, and secret is forged with care.
 
 ---
 
