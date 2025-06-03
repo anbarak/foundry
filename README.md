@@ -31,6 +31,35 @@ This project defines a **portable, idempotent, and intuitive** macOS development
 
 ---
 
+## 📐 Design Principles
+
+> `foundry` is built with a modern engineering philosophy: **terminal-first**, **automation-first**, modular, minimalist, secure, deterministic, and designed to support the coming shift toward AI agents — software that reasons, acts, and collaborates.
+
+| Principle                   | Description                                                                        |
+|-----------------------------|------------------------------------------------------------------------------------|
+| 🖥️ **Terminal-First**       | CLI-native workflows — no GUI dependencies required                                |
+| 🤖 **Automation-First**     | Everything is scriptable, repeatable, and self-healing                             |
+| 🧩 **Modular**              | Structured into composable, purpose-specific components                            |
+| ⚡ **Ephemeral**            | Easily wiped and rebuilt without manual rework                                     |
+| 🛡️ **Idempotent**           | Safe to re-run; produces consistent and predictable state                          |
+| 🧮 **Deterministic**        | Given the same input, always produces the same output                              |
+| 🤖 **Agent-Oriented**       | Built to complement AI agents — context-aware, augmentable, autonomous             |
+| 🧠 **AI-Augmented**         | Whisper, transcription tools, and LLMs enhance developer workflows                 |
+| 🧘 **Minimalist**           | No bloat — only intentional tools and configs                                      |
+| 🔐 **Secure**               | Secrets encrypted in Bitwarden; zero plain text exposure                           |
+| 🧾 **Compliance-Aware**     | Aligns with HIPAA, PII, and audit requirements through encryption and traceability |
+| 🔄 **Auto-Maintained**      | Weekly `launchd` jobs keep system and tools fresh                                  |
+| 📜 **Declarative**          | Environment defined in scripts, dotfiles, and `Brewfile`                           |
+| ☁️ **Cloud-Native**          | Optimized for AWS, GCP, Terraform, Kubernetes, VPN, and SSO tooling                |
+| 👀 **Observable**           | Logs and feedback available for background jobs and automations                    |
+| 📈 **Trackable**            | Fully version-controlled via `yadm`; reproducible and auditable                    |
+
+> 🧭 While some of these principles are aspirational or evolving, they serve as a compass for continuous improvement — guiding how `foundry` grows, simplifies, and adapts to the future of developer environments.
+
+> 🧠 `foundry` isn't just dotfiles — it's a future-proof foundation for building, restoring, and collaborating with intelligent agents in secure, cloud-native, and compliant environments.
+
+---
+
 ## 🚀 Bootstrap Strategy
 
 The environment is broken into modular parts under `~/bin/`, making it easy to automate, debug, and customize:
@@ -173,7 +202,7 @@ Or you can install/refresh them manually:
 ```
 
 ---
-:w
+
 ### 🧪 Debugging launchd Jobs
 
 To confirm jobs are installed:
