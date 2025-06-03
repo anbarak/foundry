@@ -1,4 +1,4 @@
-# 🏗️ foundry
+# 🏗️ Foundry
 
 > Personal Cloud/DevOps macOS Bootstrap Environment
 > 🧰 Built for engineers who live in the terminal — minimal, secure, and fast to rebuild.
