@@ -1,11 +1,11 @@
 #!/bin/zsh
-# restart-prep.sh – Safe weekly reboot prep script (non-destructive)
+# Safe weekly reboot prep script (non-destructive)
 
 set -euo pipefail
 
 # ====== Config ======
 LOG_DIR="$HOME/logs"
-LOG_FILE="$LOG_DIR/restart-prep.log"
+LOG_FILE="$LOG_DIR/restart-reminder.log"
 SCRIPT_NAME="$(basename "$0")"
 TIMESTAMP="$(date "+%Y-%m-%d %H:%M:%S")"
 NOTIFY_TITLE="🔄 Weekly Restart Reminder"

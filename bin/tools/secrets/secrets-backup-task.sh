@@ -8,9 +8,15 @@ if [[ -t 1 ]]; then
 fi
 
 # Log setup (cron-friendly + interactive)
-LOG_FILE="$HOME/backup/secret_backup_logs/backup.log"
+LOG_FILE="$HOME/logs/secrets-backup.log"
 mkdir -p "$(dirname "$LOG_FILE")"
-exec > >(tee -a "$LOG_FILE") 2>&1
+
+if [[ "$IS_INTERACTIVE" == true ]]; then
+  exec > >(tee -a "$LOG_FILE") 2>&1
+else
+  exec >> "$LOG_FILE" 2>&1
+fi
+
 echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') Starting secrets backup..."
 
 # Wrap the backup process to track success/failure

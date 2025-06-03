@@ -15,7 +15,7 @@ else
 fi
 
 echo "📦 Updating Homebrew packages via maintain-homebrew.sh..."
-"$HOME/bin/tools/system/maintain-homebrew.sh"
+"$HOME/bin/tools/system/install-brew-maintenance.sh"
 
 # -----------------------------------------------------------------------------
 # Create dotfiles structure

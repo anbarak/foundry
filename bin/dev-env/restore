@@ -46,8 +46,8 @@ run_script() {
 # Handle the choice
 case "$choice" in
   "🛠  Run Full Restore")       run_script ~/bin/dev-env/full-restore ;;
-  "🔐  Restore Secrets Only")   run_script ~/bin/tools/secrets/restore ;;
-  "📤  Backup Secrets to Bitwarden")  run_script ~/bin/tools/secrets/backup ;;
+  "🔐  Restore Secrets Only")   run_script ~/bin/tools/secrets/secrets-backup-task.sh ;;
+  "📤  Backup Secrets to Bitwarden")  run_script ~/bin/tools/secrets/secrets-restore-task.sh ;;
   "🎨  Setup Terminal Theme (Font + Theme)") run_script ~/bin/bootstrap/setup-terminal-theme ;;
   "🔁  Finalize Setup (plugins, completions)") run_script ~/bin/dev-env/finalize ;;
   "📦  Lint Dotfiles")          run_script ~/bin/dev-env/lint-dotfiles ;;

@@ -129,17 +129,20 @@ These paths are excluded from version control and backed up:
 - `~/.gitconfig-centerfield`
 - `~/.saml2aws`
 - `~/.mylogin.cnf`
+- and more...
+
+> for the full list view the scripts below
 
 Use:
 
 ```bash
-~/bin/tools/secrets/backup  # Encrypt & upload secrets to Bitwarden
-~/bin/tools/secrets/restore  # Download and decrypt secrets from Bitwarden
+~/bin/tools/secrets/secrets-backup-task.sh  # Encrypt & upload secrets to Bitwarden
+~/bin/tools/secrets/secrets-restore-task.sh  # Download and decrypt secrets from Bitwarden
 ```
 > ✅ A launchd job is installed to run `backup` every **Monday at 9 AM**, keeping secrets up to date.  
 > Install or refresh the job:
 ```bash
-~/bin/tools/secrets/install-secrets-backup.sh
+~/bin/tools/system/install-secrets-backup.sh
 ```
 
 ---
@@ -148,11 +151,12 @@ Use:
 
 Three background jobs are automated using macOS `launchd` and run every Monday to ensure your system and secrets stay healthy:
 
-| Task                    | Time       | Script Path                                  | Logs To                                |
-|-------------------------|------------|----------------------------------------------|----------------------------------------|
-| 🔐 Secrets Backup       | 09:00 AM   | `~/bin/tools/secrets/backup`                 | `~/logs/secrets-backup.log`            |
-| 🛠 Homebrew Maintenance | 09:00 AM   | `~/bin/tools/system/maintain-homebrew.sh`    | `~/logs/homebrew_maintenance.log`      |
-| ♻️  Restart Reminder     | 08:00 AM   | `~/bin/tools/system/restart-prep.sh`         | `~/logs/restart-prep.log`              |
+| Task                    | Time       | Script Path                                         | Logs To                          |
+|-------------------------|------------|-----------------------------------------------------|----------------------------------|
+| ♻️  Restart Reminder     | 08:00 AM   | `~/bin/tools/system/restart-prep.sh`                | `~/logs/restart-prep.log`        |
+| 🛠 Homebrew Maintenance | 09:00 AM   | `~/bin/tools/system/brew-maintenance-task.sh`       | `~/logs/brew-maintenance.log`    |
+| 🔐 Secrets Backup       | 10:00 AM   | `~/bin/tools/secrets/backup-secrets.sh`             | `~/logs/secrets-backup.log`      |
+
 
 > ✅ These jobs are automatically installed when running:
 >
@@ -164,12 +168,12 @@ Or you can install/refresh them manually:
 
 ```bash
 ~/bin/tools/secrets/install-secrets-backup.sh
-~/bin/tools/system/maintain-homebrew.sh
+~/bin/tools/system/install-brew-maintenance.sh
 ~/bin/tools/system/install-restart-reminder.sh
 ```
 
 ---
-
+:w
 ### 🧪 Debugging launchd Jobs
 
 To confirm jobs are installed:
@@ -178,7 +182,7 @@ To confirm jobs are installed:
 launchctl list | grep com.user
 ```
 
-To check a specific job like Homebrew maintenance:
+To check a specific job like Homebrew maintenance
 
 ```bash
 launchctl list | grep brew
