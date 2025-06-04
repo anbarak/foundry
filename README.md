@@ -150,9 +150,13 @@ This will:
 
 ## 🔐 Secrets & Bitwarden Strategy
 
-These paths are excluded from version control and backed up:
+Sensitive files are excluded from version control and backed up securely using Bitwarden.
 
-- `~/.ssh/`
+### 🔐 What Gets Backed Up
+
+The backup archive includes:
+
+- `~/.ssh/keys/` – SSH private keys only (not `.pub`, `known_hosts`, or `config`)
 - `~/.aws/`
 - `~/.gnupg/`
 - `~/.kube/`
@@ -160,18 +164,42 @@ These paths are excluded from version control and backed up:
 - `~/.gitconfig-centerfield`
 - `~/.saml2aws`
 - `~/.mylogin.cnf`
-- and more...
+- `~/.bitwarden-ssh-agent.sock` is ignored
+- `~/.ssh/config`, `*.pub`, and `known_hosts` are excluded for security/audit clarity (they are tracked or manually managed)
 
-> for the full list view the scripts below
+> 🎯 All exclusions are handled in `secrets-backup-task.sh` using `tar --exclude=...` flags
 
-Use:
+### 🔐 SSH Key Strategy
+
+- SSH keys are modularly organized under `~/.ssh/keys/`
+- A single `~/.ssh/config` file uses `Include ~/.ssh/includes/*.conf` for service-specific configurations (e.g., GitHub, Bitbucket)
+- Public keys (`*.pub`), `config`, and `known_hosts` are excluded from Bitwarden backups and handled in Git or setup scripts
+- Only sensitive private keys are encrypted and uploaded
+
+### 🛡️ Linting & Audit Tools
+
+The following scripts help you validate SSH and Bitwarden setup:
 
 ```bash
-~/bin/tools/secrets/secrets-backup-task.sh  # Encrypt & upload secrets to Bitwarden
-~/bin/tools/secrets/secrets-restore-task.sh  # Download and decrypt secrets from Bitwarden
+~/bin/tools/ssh/lint-config.sh         # Validates SSH config and included files
+~/bin/tools/ssh/audit-keys.sh          # Audits private key permissions and ownership
+~/bin/tools/backup/check-bitwarden.sh  # Verifies Bitwarden CLI is logged in and responsive
 ```
-> ✅ A launchd job is installed to run `backup` every **Monday at 9 AM**, keeping secrets up to date.  
-> Install or refresh the job:
+
+
+Run them individually or bundle them into your restore process.
+
+### 💾 Bitwarden Backup/Restore Scripts
+
+```bash
+~/bin/tools/secrets/secrets-backup-task.sh   # Encrypt & upload secrets to Bitwarden
+~/bin/tools/secrets/secrets-restore-task.sh  # Download and extract secrets from Bitwarden
+```
+
+A macOS `launchd` job runs the backup script every **Monday at 9 AM**, ensuring your environment stays in sync and secure.
+
+To install or refresh the job:
+
 ```bash
 ~/bin/tools/system/install-secrets-backup.sh
 ```

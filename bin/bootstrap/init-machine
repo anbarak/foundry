@@ -107,7 +107,24 @@ fi
 # Restore internal /etc/hosts mappings (e.g., Jenkins agents)
 # --------------------------------------------------------------------
 echo "📎 Applying custom hosts block to /etc/hosts..."
-~/bin/tools/system/apply-hosts-block.sh || echo "⚠️ Failed to apply /etc/hosts block"
+"$HOME/bin/tools/system/apply-hosts-block.sh" || echo "⚠️ Failed to apply /etc/hosts block"
+
+# ------------------------------------------------------------------------------
+# Set up permissions and test secrets-related tools
+# ------------------------------------------------------------------------------
+echo "🔐 Validating secrets and ssh audit tooling..."
+
+mkdir -p "$HOME/bin/tools/ssh"
+mkdir -p "$HOME/bin/tools/backup"
+
+chmod +x "$HOME/bin/tools/ssh/lint-config.sh" \
+         "$HOME/bin/tools/ssh/audit-keys.sh" \
+         "$HOME/bin/tools/backup/check-bitwarden.sh" 2>/dev/null || true
+
+# Run validation scripts
+"$HOME/bin/tools/ssh/lint-config.sh" || echo "⚠️ SSH config lint failed"
+"$HOME/bin/tools/ssh/audit-keys.sh" || echo "⚠️ SSH key audit failed"
+"$HOME/bin/tools/backup/check-bitwarden.sh" || echo "⚠️ Bitwarden CLI session check failed"
 
 echo "✅ Bootstrap complete."
 echo "💡 Tip: Run 'exec zsh' or restart terminal to apply shell changes."

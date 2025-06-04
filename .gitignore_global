@@ -78,6 +78,16 @@ terraform.tfstate.backup
 *.pem
 *.ppk
 *~
+id_*
+
+# SSH known hosts
+known_hosts*
+
+# VPNs
+.vpn-configs/
+
+# MySQL login
+.mylogin.cnf
 
 # Editor-specific directories
 .idea/

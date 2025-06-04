@@ -20,6 +20,7 @@ Public/
 
 # Secrets and sensitive credentials
 .ssh/
+.ssh/includes/*.conf
 .gnupg/
 .mylogin.cnf
 .aws/config
@@ -30,6 +31,10 @@ Public/
 .gitconfig-centerfield
 .saml2aws
 .config/hosts/
+*.pem
+*.ppk
+id_*
+known_hosts*
 
 # App-specific and auto-generated runtime folders
 .kube/

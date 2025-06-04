@@ -75,11 +75,13 @@ run_backup() {
       --exclude='.gnupg/private-keys-v1.d' \
       --exclude='.DS_Store' \
       --exclude='.ssh/known_hosts' \
-      --exclude='*.lock' --exclude='*.tmp' --exclude='*.bak' \
+      --exclude='*.lock' \
+      --exclude='*.tmp' \
+      --exclude='*.bak' \
       --exclude='*.[oO][lL][dD]*' \
       -czf "$backup_file" \
       .ssh .aws .saml2aws .kube .gnupg .vpn-configs \
-      .gitconfig .gitconfig-centerfield
+      .gitconfig .gitconfig-centerfield .mysql
 
   echo "📤 Uploading to Bitwarden..." 
 
