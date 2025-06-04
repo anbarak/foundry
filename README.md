@@ -55,6 +55,8 @@ This project defines a **portable, idempotent, and intuitive** macOS development
 | ☁️ **Cloud-Native**          | Optimized for AWS, GCP, Terraform, Kubernetes, VPN, and SSO tooling                |
 | 👀 **Observable**           | Logs and feedback available for background jobs and automations                    |
 | 📈 **Trackable**            | Fully version-controlled via `yadm`; reproducible and auditable                    |
+| ⚙️  **Efficient**            | Optimized for system resource utilization and fast workflows                       |
+| 🚀 **Productive**           | Designed to maximize developer productivity and minimize friction                  |
 
 > 🧭 While some of these principles are aspirational or evolving, they serve as a compass for continuous improvement — guiding how `foundry` grows, simplifies, and adapts to the future of developer environments.
 
@@ -66,13 +68,13 @@ This project defines a **portable, idempotent, and intuitive** macOS development
 
 The environment is broken into modular parts under `~/bin/`, making it easy to automate, debug, and customize:
 
-### [`setup`](bin/setup)
+### [`setup`](https://github.com/haarabi/foundry/blob/main/bin/setup)
 - **TUI launcher** built with [gum](https://github.com/charmbracelet/gum)
 - Provides an interactive menu to run:
-  - [`restore`](bin/foundry/restore) (initial setup)
-  - [`finalize`](bin/foundry/finalize) (plugin setup)
-  - [`secrets-backup-task.sh`](bin/tools/secrets/secrets-backup-task.sh) / [`secrets-restore-task.sh`](bin/tools/secrets/secrets-restore-task.sh) (Bitwarden secrets)
-  - [`lint-dotfiles`](bin/foundry/lint-dotfiles)
+  - [`restore`](https://github.com/haarabi/foundry/blob/main/bin/foundry/restore) (initial setup)
+  - [`finalize`](https://github.com/haarabi/foundry/blob/main/bin/foundry/finalize) (plugin setup)
+  - [`secrets-backup-task.sh`](https://github.com/haarabi/foundry/blob/main/bin/tools/secrets/secrets-backup-task.sh) / [`secrets-restore-task.sh`](https://github.com/haarabi/foundry/blob/main/bin/tools/secrets/secrets-restore-task.sh) (Bitwarden secrets)
+  - [`lint-dotfiles`](https://github.com/haarabi/foundry/blob/main/bin/foundry/lint-dotfiles)
   - Exit
 
 > 💡 This is the recommended entrypoint for a smooth restore experience:
@@ -80,22 +82,22 @@ The environment is broken into modular parts under `~/bin/`, making it easy to a
 > ~/bin/setup
 > ```
 
-### [`bin/bootstrap/`](bin/bootstrap/)
-- [`init-machine`](bin/bootstrap/init-machine) – Installs Homebrew, sets up base folders
-- [`setup-core-tools`](bin/bootstrap/setup-core-tools), [`setup-kubernetes-tools`](bin/bootstrap/setup-kubernetes-tools)[`setup-terraform-tools`](bin/bootstrap/setup-terraform-tools) – Installs key CLI tools and symlinks runners
+### [`bin/bootstrap/`](https://github.com/haarabi/foundry/blob/main/bin/bootstrap/)
+- [`init-machine`](https://github.com/haarabi/foundry/blob/main/bin/bootstrap/init-machine) – Installs Homebrew, sets up base folders
+- [`setup-core-tools`](https://github.com/haarabi/foundry/blob/main/bin/bootstrap/setup-core-tools), [`setup-kubernetes-tools`](https://github.com/haarabi/foundry/blob/main/bin/bootstrap/setup-kubernetes-tools)[`setup-terraform-tools`](https://github.com/haarabi/foundry/blob/main/bin/bootstrap/setup-terraform-tools) – Installs key CLI tools and symlinks runners
 
-### [`bin/foundry/`](bin/foundry/)
-- [`restore`](bin/foundry/restore) – Core logic for restoring the dev environment (used by the TUI)
-- [`finalize`](bin/foundry/finalize) – Handles plugin setups (Oh My Zsh, Powerlevel10k, Tmux, Vim, kubectl Krew, etc.)
-- [`lint-dotfiles`](bin/foundry/lint-dotfiles) – Validates shell scripts and formatting (can be run manually or via TUI)
+### [`bin/foundry/`](https://github.com/haarabi/foundry/blob/main/bin/foundry/)
+- [`restore`](https://github.com/haarabi/foundry/blob/main/bin/foundry/restore) – Core logic for restoring the dev environment (used by the TUI)
+- [`finalize`](https://github.com/haarabi/foundry/blob/main/bin/foundry/finalize) – Handles plugin setups (Oh My Zsh, Powerlevel10k, Tmux, Vim, kubectl Krew, etc.)
+- [`lint-dotfiles`](https://github.com/haarabi/foundry/blob/main/bin/foundry/lint-dotfiles) – Validates shell scripts and formatting (can be run manually or via TUI)
 
-### [`bin/tools/secrets/`](bin/tools/secrets/)
-- [`secrets-backup-task.sh`](bin/tools/secrets/secrets-backup-task.sh) – Encrypts and uploads secrets to Bitwarden
-- [`secrets-restore-task.sh`](bin/tools/secrets/secrets-restore-task.sh) – Downloads secrets and git identity
+### [`bin/tools/secrets/`](https://github.com/haarabi/foundry/blob/main/bin/tools/secrets/)
+- [`secrets-backup-task.sh`](https://github.com/haarabi/foundry/blob/main/bin/tools/secrets/secrets-backup-task.sh) – Encrypts and uploads secrets to Bitwarden
+- [`secrets-restore-task.sh`](https://github.com/haarabi/foundry/blob/main/bin/tools/secrets/secrets-restore-task.sh) – Downloads secrets and git identity
 
 ### `~/bin/runners/`
-- Dockerized CLI wrappers (e.g., `kubectl-1.29`, `terraform-1.6`) under [`bin/runners/`](bin/runners/)
-- Helpers under [`bin/runners/helpers/`](bin/runners/helpers/) for launching version-specific tools
+- Dockerized CLI wrappers (e.g., `kubectl-1.29`, `terraform-1.6`) under [`bin/runners/`](https://github.com/haarabi/foundry/blob/main/bin/runners/)
+- Helpers under [`bin/runners/helpers/`](https://github.com/haarabi/foundry/blob/main/bin/runners/helpers/) for launching version-specific tools
 
 ---
 
@@ -178,22 +180,22 @@ The backup archive includes:
 ### 🛡️ Linting & Audit Tools
 
 The following scripts help you validate SSH and Bitwarden setup:
-[`lint-config.sh`](bin/tools/ssh/lint-config.sh) – Validates SSH config and included files
-[`audit-keys.sh`](bin/tools/ssh/audit-keys.sh) – Audits private key permissions and ownership
-[`check-bitwarden.sh`](bin/tools/backup/check-bitwarden.sh) – Verifies Bitwarden CLI is logged in and responsive
+[`lint-config.sh`](https://github.com/haarabi/foundry/blob/main/bin/tools/ssh/lint-config.sh) – Validates SSH config and included files
+[`audit-keys.sh`](https://github.com/haarabi/foundry/blob/main/bin/tools/ssh/audit-keys.sh) – Audits private key permissions and ownership
+[`check-bitwarden.sh`](https://github.com/haarabi/foundry/blob/main/bin/tools/backup/check-bitwarden.sh) – Verifies Bitwarden CLI is logged in and responsive
 
 Run them individually or bundle them into your restore process.
 
 ### 💾 Bitwarden Backup/Restore Scripts
 
-[`secrets-backup-task.sh`](bin/tools/secrets/secrets-backup-task.sh) – Encrypt & upload secrets to Bitwarden
-[`secrets-restore-task.sh`](bin/tools/secrets/secrets-restore-task.sh) – Download and extract secrets from Bitwarden
+[`secrets-backup-task.sh`](https://github.com/haarabi/foundry/blob/main/bin/tools/secrets/secrets-backup-task.sh) – Encrypt & upload secrets to Bitwarden
+[`secrets-restore-task.sh`](https://github.com/haarabi/foundry/blob/main/bin/tools/secrets/secrets-restore-task.sh) – Download and extract secrets from Bitwarden
 
 A macOS `launchd` job runs the backup script every **Monday at 9 AM**, ensuring your environment stays in sync and secure.
 
 To install or refresh the job:
 
-[install-secrets-backup.sh](bin/tools/system/install-secrets-backup.sh)
+[install-secrets-backup.sh](https://github.com/haarabi/foundry/blob/main/bin/tools/system/install-secrets-backup.sh)
 
 ---
 
@@ -216,9 +218,9 @@ Three background jobs are automated using macOS `launchd` and run every Monday t
 
 Or you can install/refresh them manually:
 
-[install-secrets-backup.sh](bin/tools/system/install-secrets-backup.sh)
-[install-brew-maintenance.sh](bin/tools/system/install-brew-maintenance.sh)
-[install-restart-reminder.sh](bin/tools/system/install-restart-reminder.sh)
+[install-secrets-backup.sh](https://github.com/haarabi/foundry/blob/main/bin/tools/system/install-secrets-backup.sh)
+[install-brew-maintenance.sh](https://github.com/haarabi/foundry/blob/main/bin/tools/system/install-brew-maintenance.sh)
+[install-restart-reminder.sh](https://github.com/haarabi/foundry/blob/main/bin/tools/system/install-restart-reminder.sh)
 
 ---
 
@@ -255,7 +257,7 @@ launchctl load ~/Library/LaunchAgents/com.user.brew-maintenance.plist
 ### 🗂️ LaunchAgent Templates
 
 All `.plist.template` files are stored in:
-[`bin/tools/system/`](bin/tools/system/)
+[`bin/tools/system/`](https://github.com/haarabi/foundry/blob/main/bin/tools/system/)
 
 They are dynamically populated at runtime using:
 
@@ -269,9 +271,9 @@ envsubst < ...template > ...plist
 
 ## 🗓️ Weekly Restart Reminder
 
-- [`install-restart-reminder.sh`](bin/tools/system/install-restart-reminder.sh) – Installs a macOS LaunchAgent to display a system restart reminder **every Monday at 8 AM**
-- [`restart-prep.sh`](bin/tools/system/restart-prep.sh) – Sends a non-intrusive notification and logs system stats (uptime, memory, disk, swap)
-- [`restart-reminder.plist.template`](bin/tools/system/restart-reminder.plist.template) – LaunchAgent template used during installation
+- [`install-restart-reminder.sh`](https://github.com/haarabi/foundry/blob/main/bin/tools/system/install-restart-reminder.sh) – Installs a macOS LaunchAgent to display a system restart reminder **every Monday at 8 AM**
+- [`restart-prep.sh`](https://github.com/haarabi/foundry/blob/main/bin/tools/system/restart-prep.sh) – Sends a non-intrusive notification and logs system stats (uptime, memory, disk, swap)
+- [`restart-reminder.plist.template`](https://github.com/haarabi/foundry/blob/main/bin/tools/system/restart-reminder.plist.template) – LaunchAgent template used during installation
 
 This reminder helps maintain system health by encouraging regular reboots, which:
 - Clear swap and memory leaks
@@ -413,7 +415,7 @@ This setup includes support for high-quality media playback and ensures audio/vi
 ### 🔁 Default App Setup
 
 Default apps are automatically configured during restore (via `setup-core-tools`) by executing:
-[set-defaults.sh](bin/tools/system/set-defaults.sh)
+[set-defaults.sh](https://github.com/haarabi/foundry/blob/main/bin/tools/system/set-defaults.sh)
 
 This script uses `duti` to associate:
 
