@@ -115,6 +115,13 @@ awslogin() {
 
   export AWS_PROFILE="$profile"
   echo "✅ AWS_PROFILE set to $profile"
+
+  # Optional context switch if EKS_CLUSTER is set
+  if [[ -n "$EKS_CLUSTER" ]]; then
+    echo "🔄 Setting kubectl context to EKS cluster: $EKS_CLUSTER"
+    aws eks update-kubeconfig --name "$EKS_CLUSTER" --region us-east-1 >/dev/null && \
+      echo "✅ kubectl context set to $EKS_CLUSTER"
+  fi
 }
 
 # ----------------------------------------
