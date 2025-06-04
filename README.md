@@ -17,7 +17,7 @@
 ![AI Agents](https://img.shields.io/badge/AI-agent--ready-ff69b4?style=flat-square&logo=openai)
 
 > **`foundry`** is my modular, portable, and opinionated development environment. It’s optimized for automation-first workflows, CLI-centric toolchains, and fast machine restore.  
->  
+>
 > 🔁 Version-controlled with [`yadm`](https://yadm.io), powered by encrypted secrets, containerized CLI tools, and ergonomic shell customizations.
 
 ## 🎯 Purpose & Strategy
@@ -66,13 +66,13 @@ This project defines a **portable, idempotent, and intuitive** macOS development
 
 The environment is broken into modular parts under `~/bin/`, making it easy to automate, debug, and customize:
 
-### `~/bin/setup`
+### [`setup`](bin/setup)
 - **TUI launcher** built with [gum](https://github.com/charmbracelet/gum)
 - Provides an interactive menu to run:
-  - `restore` (initial setup)
-  - `finalize` (plugin setup)
-  - `backup.sh` / `restore.sh` (Bitwarden secrets)
-  - `lint-dotfiles`
+  - [`restore`](bin/foundry/restore) (initial setup)
+  - [`finalize`](bin/foundry/finalize) (plugin setup)
+  - [`secrets-backup-task.sh`](bin/tools/secrets/secrets-backup-task.sh) / [`secrets-restore-task.sh`](bin/tools/secrets/secrets-restore-task.sh) (Bitwarden secrets)
+  - [`lint-dotfiles`](bin/foundry/lint-dotfiles)
   - Exit
 
 > 💡 This is the recommended entrypoint for a smooth restore experience:
@@ -80,23 +80,22 @@ The environment is broken into modular parts under `~/bin/`, making it easy to a
 > ~/bin/setup
 > ```
 
-### `~/bin/bootstrap/`
-- `init-machine` – Installs Homebrew, sets up base folders
-- `setup-core-tools`, `setup-kubernetes-tools`, `setup-terraform-tools` – Installs key CLI tools and symlinks runners
+### [`bin/bootstrap/`](bin/bootstrap/)
+- [`init-machine`](bin/bootstrap/init-machine) – Installs Homebrew, sets up base folders
+- [`setup-core-tools`](bin/bootstrap/setup-core-tools), [`setup-kubernetes-tools`](bin/bootstrap/setup-kubernetes-tools)[`setup-terraform-tools`](bin/bootstrap/setup-terraform-tools) – Installs key CLI tools and symlinks runners
 
-### `~/bin/foundry/`
-- `restore` – Core logic for restoring the dev environment (used by the TUI)
-- `finalize` – Handles plugin setups (Oh My Zsh, Powerlevel10k, Tmux, Vim, kubectl Krew, etc.)
-- `lint-dotfiles` – Validates shell scripts and formatting (can be run manually or via TUI)
+### [`bin/foundry/`](bin/foundry/)
+- [`restore`](bin/foundry/restore) – Core logic for restoring the dev environment (used by the TUI)
+- [`finalize`](bin/foundry/finalize) – Handles plugin setups (Oh My Zsh, Powerlevel10k, Tmux, Vim, kubectl Krew, etc.)
+- [`lint-dotfiles`](bin/foundry/lint-dotfiles) – Validates shell scripts and formatting (can be run manually or via TUI)
 
-### `~/bin/secrets/`
-- `backup.sh` – Encrypts and uploads secrets to Bitwarden
-- `restore.sh` – Downloads secrets and git identity
-- `ensure-cron.sh` – Sets up a weekday cron job to auto-backup secrets at 9 AM
+### [`bin/tools/secrets/`](bin/tools/secrets/)
+- [`secrets-backup-task.sh`](bin/tools/secrets/secrets-backup-task.sh) – Encrypts and uploads secrets to Bitwarden
+- [`secrets-restore-task.sh`](bin/tools/secrets/secrets-restore-task.sh) – Downloads secrets and git identity
 
 ### `~/bin/runners/`
-- Dockerized CLI wrappers (e.g., `kubectl-1.29`, `terraform-1.6`)
-- Helpers under `~/bin/runners/helpers/` for launching version-specific tools
+- Dockerized CLI wrappers (e.g., `kubectl-1.29`, `terraform-1.6`) under [`bin/runners/`](bin/runners/)
+- Helpers under [`bin/runners/helpers/`](bin/runners/helpers/) for launching version-specific tools
 
 ---
 
@@ -179,30 +178,22 @@ The backup archive includes:
 ### 🛡️ Linting & Audit Tools
 
 The following scripts help you validate SSH and Bitwarden setup:
-
-```bash
-~/bin/tools/ssh/lint-config.sh         # Validates SSH config and included files
-~/bin/tools/ssh/audit-keys.sh          # Audits private key permissions and ownership
-~/bin/tools/backup/check-bitwarden.sh  # Verifies Bitwarden CLI is logged in and responsive
-```
-
+[`lint-config.sh`](bin/tools/ssh/lint-config.sh) – Validates SSH config and included files
+[`audit-keys.sh`](bin/tools/ssh/audit-keys.sh) – Audits private key permissions and ownership
+[`check-bitwarden.sh`](bin/tools/backup/check-bitwarden.sh) – Verifies Bitwarden CLI is logged in and responsive
 
 Run them individually or bundle them into your restore process.
 
 ### 💾 Bitwarden Backup/Restore Scripts
 
-```bash
-~/bin/tools/secrets/secrets-backup-task.sh   # Encrypt & upload secrets to Bitwarden
-~/bin/tools/secrets/secrets-restore-task.sh  # Download and extract secrets from Bitwarden
-```
+[`secrets-backup-task.sh`](bin/tools/secrets/secrets-backup-task.sh) – Encrypt & upload secrets to Bitwarden
+[`secrets-restore-task.sh`](bin/tools/secrets/secrets-restore-task.sh) – Download and extract secrets from Bitwarden
 
 A macOS `launchd` job runs the backup script every **Monday at 9 AM**, ensuring your environment stays in sync and secure.
 
 To install or refresh the job:
 
-```bash
-~/bin/tools/system/install-secrets-backup.sh
-```
+[install-secrets-backup.sh](bin/tools/system/install-secrets-backup.sh)
 
 ---
 
@@ -225,11 +216,9 @@ Three background jobs are automated using macOS `launchd` and run every Monday t
 
 Or you can install/refresh them manually:
 
-```bash
-~/bin/tools/secrets/install-secrets-backup.sh
-~/bin/tools/system/install-brew-maintenance.sh
-~/bin/tools/system/install-restart-reminder.sh
-```
+[install-secrets-backup.sh](bin/tools/system/install-secrets-backup.sh)
+[install-brew-maintenance.sh](bin/tools/system/install-brew-maintenance.sh)
+[install-restart-reminder.sh](bin/tools/system/install-restart-reminder.sh)
 
 ---
 
@@ -266,10 +255,7 @@ launchctl load ~/Library/LaunchAgents/com.user.brew-maintenance.plist
 ### 🗂️ LaunchAgent Templates
 
 All `.plist.template` files are stored in:
-
-```bash
-~/bin/tools/system/
-```
+[`bin/tools/system/`](bin/tools/system/)
 
 They are dynamically populated at runtime using:
 
@@ -283,9 +269,9 @@ envsubst < ...template > ...plist
 
 ## 🗓️ Weekly Restart Reminder
 
-- `install-restart-reminder.sh` – Installs a macOS LaunchAgent to display a system restart reminder **every Monday at 8 AM**
-- `restart-prep.sh` – Sends a non-intrusive notification and logs system stats (uptime, memory, disk, swap)
-- `restart-reminder.plist.template` – LaunchAgent template used during installation
+- [`install-restart-reminder.sh`](bin/tools/system/install-restart-reminder.sh) – Installs a macOS LaunchAgent to display a system restart reminder **every Monday at 8 AM**
+- [`restart-prep.sh`](bin/tools/system/restart-prep.sh) – Sends a non-intrusive notification and logs system stats (uptime, memory, disk, swap)
+- [`restart-reminder.plist.template`](bin/tools/system/restart-reminder.plist.template) – LaunchAgent template used during installation
 
 This reminder helps maintain system health by encouraging regular reboots, which:
 - Clear swap and memory leaks
@@ -427,10 +413,7 @@ This setup includes support for high-quality media playback and ensures audio/vi
 ### 🔁 Default App Setup
 
 Default apps are automatically configured during restore (via `setup-core-tools`) by executing:
-
-```bash
-~/bin/tools/system/set-defaults.sh
-```
+[set-defaults.sh](bin/tools/system/set-defaults.sh)
 
 This script uses `duti` to associate:
 
@@ -441,10 +424,7 @@ This script uses `duti` to associate:
 | `.wav`, `.webm`| VLC        |
 
 You can modify or extend these associations in:
-
-```bash
-~/.config/duti/defaults.duti
-```
+[defaults.duti](.config/duti/defaults.duti)
 
 > ✅ These defaults are re-applied at every shell launch (via `.zshrc.local`), but only if `duti` is available.
 
@@ -454,13 +434,12 @@ You can modify or extend these associations in:
 
 - Install Nerd Font:
 
-  ```bash
-  brew tap homebrew/cask-fonts
-  brew install --cask font-hack-nerd-font
-  ```
+```bash
+brew tap homebrew/cask-fonts
+brew install --cask font-hack-nerd-font
+```
 
 - In Terminal > Settings > Profiles:
-
   1. Import `gruvbox-dark.terminal`
   2. Set font: `Hack Nerd Font Mono`, style: `Regular`, size: `12`
   3. Spacing: `1`
