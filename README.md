@@ -4,12 +4,6 @@
 > Built for engineers who live in the terminal — minimal, secure, and fast to rebuild.
 > This project is continuously refined to reflect the principles below — staying aligned with modern DevOps and internal developer platform (IDP) practices.
 
-# 🏗️ Foundry
-
-> Personal Cloud/DevOps macOS Bootstrap Environment
-> 🧰 Built for engineers who live in the terminal — minimal, secure, and fast to rebuild.
-> This project is continuously refined to reflect the principles below — staying aligned with modern DevOps and internal developer platform (IDP) practices.
-
 ![macOS](https://img.shields.io/badge/os-macOS%20(Apple%20Silicon)-blue?style=flat-square&logo=apple)
 ![Terminal First](https://img.shields.io/badge/terminal-first-lightgrey?style=flat-square&logo=gnubash)
 ![Automation](https://img.shields.io/badge/restore-fully--automated-success?style=flat-square&logo=githubactions)
