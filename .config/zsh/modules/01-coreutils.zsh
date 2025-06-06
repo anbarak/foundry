@@ -80,3 +80,9 @@ alias rg='rg --hidden --no-ignore' # safe to use alongside ggrep
 alias lintdot='"$HOME/bin/dev-env/lint-dotfiles"'
 alias ycommit='"$HOME/bin/git/yadm-commit"'
 alias devsetup='"$HOME/bin/setup"'
+
+# Edit file, creating directories as needed
+vif() {
+  [[ -z "$1" ]] && echo "Usage: vif <file-path>" && return 1
+  mkdir -p "$(dirname "$1")" && vi "$1"
+}
