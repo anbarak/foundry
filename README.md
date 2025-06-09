@@ -159,6 +159,22 @@ This will:
 
 ---
 
+### 🌐 Optional: Set Fast Public DNS (Cloudflare + Google)
+
+Foundry optionally configures your system to use fast, privacy-respecting public DNS resolvers by running `~/bin/tools/networking/set-dns-public.sh`. You’ll be prompted before any changes are applied.
+
+#### ✅ Why use public DNS?
+
+- 🚀 **Speed** – Cloudflare (`1.1.1.1`) and Google (`8.8.8.8`) are often faster than ISP defaults  
+- 🛡️ **Security** – Less susceptible to DNS hijacking or ISP-level tampering  
+- 🔒 **Privacy** – Avoids DNS-based tracking or monetization by ISPs  
+- 🌍 **Stability** – High availability and global performance  
+- ⚙️ **Developer-Friendly** – Reduces local DNS cache issues and speeds up CLI workflows  
+
+💡 Ideal for developers, remote workers, or privacy-conscious users. You can re-run the script any time to restore these settings.
+
+---
+
 ## 🔐 Secrets & Bitwarden Strategy
 
 Sensitive files are excluded from version control and backed up securely using Bitwarden.

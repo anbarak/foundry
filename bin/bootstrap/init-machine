@@ -121,6 +121,16 @@ chmod +x "$HOME/bin/tools/ssh/lint-config.sh" \
          "$HOME/bin/tools/ssh/audit-keys.sh" \
          "$HOME/bin/tools/backup/check-bitwarden.sh" 2>/dev/null || true
 
+# ------------------------------------------------------------------------------
+# Optional: Set system DNS to public resolvers (Cloudflare + Google)
+# ------------------------------------------------------------------------------
+read -rp "🌐 Set DNS to Cloudflare (1.1.1.1) + Google (8.8.8.8)? [y/N] " dns_choice
+if [[ "$dns_choice" =~ ^[Yy]$ ]]; then
+  "$FOUNDROOT/tools/networking/set-dns-public.sh"
+else
+  echo "❎ Skipping DNS configuration."
+fi
+
 # Run validation scripts
 "$HOME/bin/tools/ssh/lint-config.sh" || echo "⚠️ SSH config lint failed"
 "$HOME/bin/tools/ssh/audit-keys.sh" || echo "⚠️ SSH key audit failed"
