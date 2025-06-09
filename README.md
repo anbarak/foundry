@@ -336,6 +336,72 @@ This setup includes:
 
 ---
 
+### 🕵️‍♂️ recent – Recent File Search Tool
+
+Quickly view and interact with the most recently modified files in your development environment.
+
+---
+
+#### 📄 Plain listing of the top 10 recently modified files
+
+```bash
+recent ~/bin 10
+```
+
+---
+
+#### 📜 Long-format, sorted output with human-readable metadata
+
+```bash
+recent-details ~/bin 10
+```
+
+Outputs file size, timestamp, and path — sorted by last modified time (descending).
+
+---
+
+#### 🔍 Interactive search with `fzf` + right-pane preview
+
+```bash
+recent-fzf ~/bin 20
+```
+
+- Displays most recently modified files in `fzf`
+- Right pane shows up to 100 lines of preview using [`bat`](https://github.com/sharkdp/bat)
+- Handles missing or deleted files gracefully
+
+---
+
+💡 `recent` is fast, ergonomic, and terminal-native — perfect for jumping back to something you just edited.
+
+---
+
+### 🧪 Internals
+
+- Built with portable `bash`, no dependencies outside CLI tools
+- Uses modern CLI utilities:
+  - `gfind`, `gdate`, `gxargs`, `gsort`, `eza`, `bat`, `fzf`
+- Supports:
+  - Exclusion of noisy files (`.DS_Store`, kube cache, history files, etc.)
+  - `$HOME/.config/devtools/modfiles/include-locations.txt` for default search paths
+  - JSON-free, grep/fzf-friendly formatting
+  - Three commands: `recent`, `recent-details`, `recent-fzf`
+
+---
+
+### 📦 File Paths
+
+- Script: [`bin/tools/dev/find-recent-files.sh`](https://github.com/anbarak/foundry/blob/main/bin/tools/dev/find-recent-files.sh)
+- Aliases and functions: defined in `~/.config/zsh/modules/01-coreutils.zsh`
+
+```zsh
+recent         # basic list
+recent-details # long format
+recent-fzf     # fzf with preview
+```
+
+---
+
 ## 🎙️ Transcription Tools (Whisper + BlackHole)
 
 This setup supports **offline transcription** of personal voice notes, language learning materials, tutorials, and public media using open-source tools. It also enables **system audio capture** for self-study or productivity use cases.
@@ -430,6 +496,69 @@ You can modify or extend these associations in:
 [defaults.duti](.config/duti/defaults.duti)
 
 > ✅ These defaults are re-applied at every shell launch (via `.zshrc.local`), but only if `duti` is available.
+
+---
+
+## 🧠 Local AI Integration (Ollama + Aider)
+
+Foundry supports **fully local, free AI tooling** to enhance commit workflows, code refactoring, and terminal productivity — aligned with principles like *terminal-first*, *agent-oriented*, *minimalist*, and *secure*.
+
+### ✅ Recommended Stack
+
+| Purpose               | Tool/Model                  | Notes                                                                 |
+|-----------------------|------------------------------|-----------------------------------------------------------------------|
+| LLM runtime           | [Ollama](https://ollama.com)             | Lightweight local LLM runtime with one-line model setup               |
+| Chat-style assistant  | `llama3`, `mistral`          | Great for CLI reasoning, docs, small code tasks, & personal assistants|
+| Git commit messages   | [`aider`](https://github.com/paul-gauthier/aider) | Generates commits & code suggestions from diffs                       |
+| Code reasoning (GUI)  | [`continue`](https://continue.dev)        | Optional VSCode plugin using local models via Ollama                  |
+| CLI integration       | [`aider`] or [`cody`](https://sourcegraph.com/cody) | Cody supports Ollama backend for LLM usage                           |
+| Prompting API         | `foundry-llm.sh`             | CLI wrapper for `ollama run` (e.g. `llm "summarize this diff"`)      |
+
+### ⚙️ Example Usage
+
+- 💬 Ask a question from the CLI:
+  ```bash
+  llm "Explain what this bash function does"
+  ```
+
+- 🧠 Use `aider` to generate or refine commit messages:
+  ```bash
+  aider --llm ollama:llama3
+  ```
+
+- 📝 Generate commit message from git diff:
+  ```bash
+  git diff | llm "Write a conventional commit message:"
+  ```
+
+- 🤖 Integrate into Git workflow:
+  Add a wrapper like `~/bin/git-llm-commit` to automate AI-based messages.
+
+### 🆚 Why This Over Cloud APIs?
+
+| Area                      | Local Stack (Ollama + Aider)                                  | Cloud-Based (OpenAI API, ChatGPT Pro)                                |
+|---------------------------|---------------------------------------------------------------|-----------------------------------------------------------------------|
+| **Cost**                  | 💸 Free forever                                                | 💵 Pay-per-token or $20+/mo                                           |
+| **Privacy**               | 🛡️ Fully offline, no data leaves machine                      | 🔁 Data sent to 3rd-party APIs                                        |
+| **Performance**           | ⚡ Near-instant with small models                             | ⏱️ Latency depends on network and service load                        |
+| **Reproducibility**       | 🧮 Same input → same result (deterministic)                   | ❓ Results vary depending on model/version updates                     |
+| **Customization**         | 🧠 Easy to swap models (llama3, mistral, etc.)                | ⚙️ API selection limited by pricing tiers                             |
+| **Security**              | 🔐 Local-only means no accidental data leaks                  | 📡 Exposes sensitive code/prompt context to vendor                    |
+| **DevOps Alignment**      | ✅ Scriptable, agent-ready, composable                        | 🚫 Often locked behind rate limits or usage caps                      |
+
+### 🧠 How This Aligns with Foundry
+
+| Foundry Principle    | AI Tool Alignment                                                    |
+|----------------------|----------------------------------------------------------------------|
+| Terminal-First       | All tools are CLI-native                                             |
+| Automation-First     | Can be scripted and wrapped easily                                   |
+| Agent-Oriented       | Builds a foundation for prompt-based agents                          |
+| Minimalist           | Small footprint, local-only, no telemetry                            |
+| Deterministic        | Same model → same result; reproducible                               |
+| Secure               | Zero data leaves device                                              |
+| Ephemeral            | Models can be wiped/re-pulled in `setup-core-tools`                  |
+
+> 💡 This architecture supports **secure, reproducible, free**, and **offline AI augmentation** — fully aligned with your Foundry vision.
 
 ---
 

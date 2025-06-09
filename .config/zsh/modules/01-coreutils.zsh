@@ -64,25 +64,61 @@ alias realpath='grealpath'
 # =============================================================================
 # Modern CLI Replacements
 # =============================================================================
-# Better 'cat'
-alias bat='bat'
 
-# Modern 'ls' replacement
+# 'cat', 'ls', 'grep' replacements
+alias bat='bat'
 alias eza='eza'
 alias ls='eza'
 alias ll='eza -lh'
 alias la='eza -lah'
-
-# Modern 'grep' replacement (use carefully — don't override grep globally unless you're confident)
 alias rg='rg --hidden --no-ignore' # safe to use alongside ggrep
 
-# Use to lint dotfile before yadm commit
+# Dev workflow helpers
 alias lintdot='"$HOME/bin/dev-env/lint-dotfiles"'
 alias ycommit='"$HOME/bin/git/yadm-commit"'
 alias devsetup='"$HOME/bin/setup"'
 
-# Edit file, creating directories as needed
+# Open file and auto-create directories
 vif() {
   [[ -z "$1" ]] && echo "Usage: vif <file-path>" && return 1
   mkdir -p "$(dirname "$1")" && vi "$1"
 }
+
+# =============================================================================
+# File Search Helpers
+# =============================================================================
+
+export RECENT_EXCLUDE=true                      # Enable exclusion logic
+export RECENT_EXCLUDE_PATHS_ONLY=true           # Exclude by path (e.g. Library/Caches)
+export RECENT_EXCLUDE_NAMES_ONLY=true           # Exclude by file patterns (e.g. *.log)
+
+# Only define recent helpers if script exists
+if [[ -x "$HOME/bin/tools/dev/find-recent-files.sh" ]]; then
+  # Show top N recently modified files (fast, plain)
+  recent() {
+    local target="${1:-$HOME}"
+    local count="${2:-20}"
+    "$HOME/bin/tools/dev/find-recent-files.sh" "$target" "$count"
+  }
+
+  # Show top N recently modified files with details via eza
+  recent-details() {
+    local target="${1:-$HOME}"
+    local count="${2:-20}"
+    RECENT_DETAILS=true "$HOME/bin/tools/dev/find-recent-files.sh" "$target" "$count"
+  }
+
+  # Interactive FZF variant for top N recently modified files
+  recent-fzf() {
+    local target="${1:-$HOME}"
+    local count="${2:-20}"
+    local script="$HOME/bin/tools/dev/find-recent-files.sh"
+
+    # Use plain output (not RECENT_DETAILS) which starts with the full path
+    RECENT_DETAILS=false RECENT_MACHINE=false "$script" "$target" "$count" \
+      | grep -E '^(/|~)' \
+      | fzf --preview='[[ -f $(awk "{print \$1}" <<< {}) ]] && bat --style=numbers --color=always --line-range :100 $(awk "{print \$1}" <<< {}) || echo "⚠️ File not found."' \
+            --with-nth=1.. \
+            --preview-window=right:30%
+  }
+fi

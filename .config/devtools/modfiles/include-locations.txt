@@ -1,0 +1,95 @@
+# ════════════════════════
+# Core dotfiles & history
+# ════════════════════════
+$HOME/.zshrc
+$HOME/.zshrc.local
+$HOME/.zshrc.plugins
+$HOME/.zshrc.pre-oh-my-zsh
+$HOME/.vimrc
+$HOME/.tmux.conf
+$HOME/.gitconfig
+$HOME/.gitignore_global
+$HOME/.editrc
+$HOME/.inputrc
+$HOME/.p10k.zsh
+$HOME/.p10k-tiny-aws.zsh
+$HOME/.vale.ini
+$HOME/.yadmignore
+
+# ══════════════════════════════
+# Foundry/devtools/bootstrap bin
+# ══════════════════════════════
+$HOME/bin/
+$HOME/.config/zsh/
+$HOME/.config/devtools/
+$HOME/.config/clouds/
+
+# ════════════════════
+# Terminal & Themes
+# ════════════════════
+$HOME/.config/terminal/
+$HOME/.config/tmux/
+$HOME/.config/tmux-powerline/
+$HOME/.config/xbar/
+$HOME/.config/shottr/
+
+# ══════════════════════
+# CLI Completions & COC
+# ══════════════════════
+$HOME/.zsh/completions/
+$HOME/.config/coc/
+
+# ══════════════════════════════
+# Editors, Linters, Package Info
+# ══════════════════════════════
+$HOME/.config/vim/
+$HOME/.config/npm/
+$HOME/.config/pipx/
+$HOME/.config/homebrew/
+
+# ════════════════════════════════
+# Infrastructure & Cloud Configs
+# ════════════════════════════════
+$HOME/.aws/
+$HOME/.kube/config
+$HOME/.terraform.d/
+$HOME/.sops/
+$HOME/.age/
+$HOME/.gnupg/
+$HOME/.ssh/
+
+# ═══════════════════════
+# Projects & Source Code
+# ═══════════════════════
+$HOME/code/
+$HOME/dev/
+$HOME/projects/
+$HOME/repos/
+$HOME/git/
+$HOME/work/
+
+# ══════════════════════
+# Notes & Knowledge Base
+# ══════════════════════
+$HOME/notes/
+$HOME/docs/
+$HOME/wiki/
+$HOME/knowledge/
+
+# ══════════════════════
+# RDP and GUI configs
+# ══════════════════════
+$HOME/.config/rdp/
+$HOME/.config/git/
+
+# ══════════════════════
+# Whisper & Transcription
+# ══════════════════════
+$HOME/.config/whisper/
+
+# ══════════════════════════════════════════
+# App support (Visual Studio Code, Maccy)
+# ══════════════════════════════════════════
+$HOME/Library/Application Support/Code/User/settings.json
+$HOME/Library/Application Support/Code/User/keybindings.json
+$HOME/Library/Application Support/Maccy/
