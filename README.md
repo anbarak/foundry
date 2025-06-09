@@ -102,17 +102,28 @@ The environment is broken into modular parts under `~/bin/`, making it easy to a
 
 ---
 
-## 🔁 Restore Flow
+## 🚀 Get Started
 
-### 🧭 One-Liner TUI Launcher (Recommended)
+To restore your Foundry environment on a new macOS machine:
 
-To launch the interactive setup menu:
+### 🧰 1. Clone Your Dotfiles with `yadm`
+
+```bash
+yadm clone git@github.com:anbarak/foundry.git
+yadm bootstrap
+```
+
+This sets up the base folder structure and applies tracked configs.
+
+---
+
+### 🧭 2. Launch the Interactive Setup (Recommended)
 
 ```bash
 ~/bin/setup
 ```
 
-You’ll get a clean menu UI powered by [`gum`](https://github.com/charmbracelet/gum) with options to:
+You’ll get a clean menu UI powered by [`gum`](https://github.com/charmbracelet/gum):
 
 ```bash
 Choose:
@@ -134,9 +145,7 @@ brew install gum
 
 ---
 
-### 🛠 Manual Restore (Advanced)
-
-If you prefer running scripts directly (e.g., in CI or custom automation), use:
+### 🛠 3. Manual Restore (Optional / Advanced)
 
 ```bash
 ~/bin/foundry/restore
@@ -146,7 +155,7 @@ This will:
 
 1. Run `init-machine` to install Homebrew and core setup
 2. Restore secrets (SSH, AWS, kube configs, git identity)
-3. Finalize plugins: zsh, Oh My Zsh, Powerlevel10k, Vim, Tmux, kubectl krew, etc.
+3. Finalize all plugins: Zsh, Powerlevel10k, Tmux, Vim, kubectl Krew, etc.
 
 ---
 
@@ -662,17 +671,44 @@ If migrating from Docker Desktop:
 
 ## 📄 Tracked Dotfiles via `yadm`
 
-All relevant files (non-sensitive) are version-controlled, including:
+All relevant non-sensitive configuration files are version-controlled using [`yadm`](https://yadm.io), enabling reproducible, portable, and minimal dev environments.
 
-- `~/.bash_profile`, `~/.zshrc`, `.zshrc.local`, `.zshrc.plugins`
-- `~/.vimrc`, `~/.tmux.conf`, `~/.p10k.zsh`
-- `~/README.md`, `~/.gitignore_global`, `~/.editrc`, `~/.inputrc`
+### 🔧 Examples of Tracked Files
+
+- Shell: `~/.bash_profile`, `~/.zshrc`, `.zshrc.local`, `.zshrc.plugins`
+- Terminal: `~/.vimrc`, `~/.tmux.conf`, `~/.p10k.zsh`
+- Meta: `~/README.md`, `~/.gitignore_global`, `~/.editrc`, `~/.inputrc`
+
+### 🧠 Key Aliases (from `~/.config/zsh/modules/21-yadm.zsh`)
+
+```zsh
+alias yst='yadm status'                         # Git status
+alias yadd='yadm add'                           # Stage files
+alias ylog='yadm log --oneline --graph --decorate'  # Pretty Git log
+alias ycm='yadm commit -m'                      # Commit with message
+alias ycam='yadm commit -am'                    # Add + commit message
+alias ypush='yadm push'                         # Push to origin
+alias ypull='yadm pull --rebase'                # Pull remote changes
+alias yrestage='yadm restore --staged'          # Unstage from index
+```
+
+### 📦 Common Workflow
 
 ```bash
-yadm status
-yadm commit -am "Refine foundry environment config"
-yadm push
+yst                      # View modified/staged files
+yrestage <file>          # Unstage a file if needed
+yadd <file>              # Stage file(s)
+ycam "message"           # Commit staged files
+ypush                    # Push to origin
 ```
+
+### 💡 Best Practices
+
+- Use `yrestage` to safely unstage files before committing.
+- Keep secrets out of version control — use `yadm encrypt` or Bitwarden (see `secrets-backup-task.sh`).
+- Avoid machine-specific or large binary files to keep your setup portable.
+
+> 🧠 Your dotfiles are modular, secure, fast to restore, and deeply integrated into your `foundry` bootstrap workflow.
 
 ---
 
