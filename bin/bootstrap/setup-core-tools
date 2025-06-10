@@ -1,63 +1,121 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SKIP_WHISPER=false
+SKIP_SHOTTR=false
+GENERATE_CHECKSUMS=false
+
+# --------------------------------------------------------------------
+# Parse CLI flags
+# --------------------------------------------------------------------
+for arg in "$@"; do
+  case "$arg" in
+    --skip-whisper)        SKIP_WHISPER=true ;;
+    --skip-shottr)         SKIP_SHOTTR=true ;;
+    --generate-checksums)  GENERATE_CHECKSUMS=true ;;
+    *) echo "❌ Unknown flag: $arg" && exit 1 ;;
+  esac
+done
+
 # --------------------------------------------------------------------
 # Setup whisper.cpp models
 # --------------------------------------------------------------------
-echo "🧠 Setting up Whisper.cpp models..."
+if [ "$SKIP_WHISPER" = false ]; then
+  echo "🧠 Setting up Whisper.cpp models..."
 
-WHISPER_MODEL_DIR="$HOME/.local/share/whisper/models"
-mkdir -p "$WHISPER_MODEL_DIR"
+  WHISPER_MODEL_MANIFEST="$HOME/.config/whisper/models.txt"
+  WHISPER_MODEL_CHECKSUMS="$HOME/.config/whisper/models.sha256"
+  WHISPER_MODEL_DIR="$HOME/.local/share/whisper/models"
+  mkdir -p "$WHISPER_MODEL_DIR"
 
-WHISPER_MODELS=(
-  "ggml-base.en.bin"         # English-only (small)
-  "ggml-medium.en.bin"       # English-only (medium)
-  "ggml-large-v3.bin"        # Multilingual (best accuracy)
-  "ggml-base.bin"            # Multilingual (small)
-  "ggml-medium.bin"          # Multilingual (medium)
-)
-
-for MODEL in "${WHISPER_MODELS[@]}"; do
-  MODEL_PATH="$WHISPER_MODEL_DIR/$MODEL"
-  if [[ ! -f "$MODEL_PATH" ]]; then
-    echo "⬇️  Downloading $MODEL ..."
-    curl -Ls -o "$MODEL_PATH" "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$MODEL"
-  else
-    echo "✅ $MODEL already exists."
+  if [[ ! -f "$WHISPER_MODEL_MANIFEST" ]]; then
+    echo "❌ Whisper model manifest not found at $WHISPER_MODEL_MANIFEST"
+    echo "📖 Please create one with model filenames (one per line)"
+    exit 1
   fi
-done
 
-echo "✅ Whisper.cpp setup complete."
+  mapfile -t WHISPER_MODELS < <(grep -v '^\s*#' "$WHISPER_MODEL_MANIFEST")
+
+  for MODEL in "${WHISPER_MODELS[@]}"; do
+    MODEL_PATH="$WHISPER_MODEL_DIR/$MODEL"
+
+    if [[ ! -f "$MODEL_PATH" ]]; then
+      echo "⬇️  Downloading $MODEL..."
+      curl -Ls -o "$MODEL_PATH" "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$MODEL"
+    else
+      echo "✅ $MODEL already exists."
+    fi
+
+    if [[ -f "$WHISPER_MODEL_CHECKSUMS" ]]; then
+      EXPECTED_HASH=$(grep "  $MODEL\$" "$WHISPER_MODEL_CHECKSUMS" | cut -d ' ' -f1 || true)
+      if [[ -n "$EXPECTED_HASH" ]]; then
+        ACTUAL_HASH=$(shasum -a 256 "$MODEL_PATH" | cut -d ' ' -f1)
+        if [[ "$EXPECTED_HASH" != "$ACTUAL_HASH" ]]; then
+          echo "❌ Checksum mismatch for $MODEL"
+          echo "Expected: $EXPECTED_HASH"
+          echo "Actual:   $ACTUAL_HASH"
+          exit 1
+        else
+          echo "🔒 SHA256 verified for $MODEL"
+        fi
+      fi
+    fi
+  done
+
+  if [[ "$GENERATE_CHECKSUMS" = true ]]; then
+    echo "🧾 Generating checksums..."
+    > "$WHISPER_MODEL_CHECKSUMS"
+    for MODEL in "${WHISPER_MODELS[@]}"; do
+      MODEL_PATH="$WHISPER_MODEL_DIR/$MODEL"
+      if [[ -f "$MODEL_PATH" ]]; then
+        shasum -a 256 "$MODEL_PATH" >> "$WHISPER_MODEL_CHECKSUMS"
+      fi
+    done
+    echo "✅ Checksums written to $WHISPER_MODEL_CHECKSUMS"
+  fi
+
+  echo "✅ Whisper.cpp setup complete."
+else
+  echo "⏭️  Skipping Whisper.cpp setup (--skip-whisper)"
+fi
 
 # --------------------------------------------------------------------
 # Setup Shottr (screenshot tool)
 # --------------------------------------------------------------------
-echo "📸 Setting up Shottr..."
+if [ "$SKIP_SHOTTR" = false ]; then
+  echo "📸 Setting up Shottr..."
 
-if ! brew list --cask -1 | grep -qx shottr; then
-  echo "📦 Installing Shottr..."
-  brew install --cask shottr
-else
-  echo "✅ Shottr already installed."
-fi
-
-SHOTTR_CONFIG_SRC="$HOME/.config/shottr/cc.ffitch.shottr.plist"
-SHOTTR_CONFIG_DEST="$HOME/Library/Containers/cc.ffitch.shottr/Data/Library/Preferences/cc.ffitch.shottr.plist"
-
-if [[ -f "$SHOTTR_CONFIG_SRC" ]]; then
-  if [[ -d "$(dirname "$SHOTTR_CONFIG_DEST")" ]]; then
-    echo "♻️  Restoring Shottr preferences..."
-    cp "$SHOTTR_CONFIG_SRC" "$SHOTTR_CONFIG_DEST"
-    killall cfprefsd &>/dev/null || echo "ℹ️  Could not kill cfprefsd — it may not be running."
-    echo "✅ Shottr preferences restored."
+  if ! brew list --cask -1 | grep -qx shottr; then
+    echo "📦 Installing Shottr..."
+    brew install --cask shottr
   else
-    echo "⚠️  Shottr must be launched at least once before restoring preferences."
+    echo "✅ Shottr already installed."
   fi
+
+  SHOTTR_CONFIG_SRC="$HOME/.config/shottr/cc.ffitch.shottr.plist"
+  SHOTTR_CONFIG_DEST="$HOME/Library/Containers/cc.ffitch.shottr/Data/Library/Preferences/cc.ffitch.shottr.plist"
+
+  if [[ -f "$SHOTTR_CONFIG_SRC" ]]; then
+    if [[ -d "$(dirname "$SHOTTR_CONFIG_DEST")" ]]; then
+      echo "♻️  Restoring Shottr preferences..."
+      cp "$SHOTTR_CONFIG_SRC" "$SHOTTR_CONFIG_DEST"
+      killall cfprefsd &>/dev/null || echo "ℹ️  Could not kill cfprefsd — it may not be running."
+      echo "✅ Shottr preferences restored."
+    else
+      echo "⚠️  Shottr must be launched at least once before restoring preferences."
+    fi
+  else
+    printf "⚠️  Shottr preferences not found at:\n  %s\n📖 To configure manually, see:\n  %s\n" \
+      "$SHOTTR_CONFIG_SRC" "$HOME/.config/shottr/shottr-config.md"
+  fi
+
+  echo "✅ Shottr setup complete."
 else
-  echo "⚠️  Shottr preferences not found at:"
-  echo "   $SHOTTR_CONFIG_SRC"
-  echo "📖 To configure manually, see:"
-  echo "   ~/.config/shottr/shottr-config.md"
+  echo "⏭️  Skipping Shottr setup (--skip-shottr)"
 fi
 
-echo "✅ Shottr setup complete."
+# --------------------------------------------------------------------
+# Setup CLI tools via pipx/npm
+# --------------------------------------------------------------------
+echo "🧰 Running CLI tool installer script..."
+"$HOME/bin/tools/setup/setup-cli-tools.sh"
