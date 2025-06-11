@@ -1,4 +1,6 @@
-# User data and history
+# ================================
+# User Data & Shell History
+# ================================
 .bash_history
 .zsh_history
 .lesshst
@@ -6,10 +8,12 @@
 .zcompdump*
 .zsh_sessions/
 
-# OS and desktop clutter
+# ================================
+# Desktop & OS Clutter
+# ================================
 .DS_Store
 .Trash/
-Library/
+Library/**
 Downloads/
 Documents/
 Desktop/
@@ -18,7 +22,9 @@ Music/
 Pictures/
 Public/
 
-# Secrets and sensitive credentials
+# ================================
+# Sensitive Configs & Secrets
+# ================================
 .ssh/
 .ssh/includes/*.conf
 .gnupg/
@@ -36,36 +42,35 @@ Public/
 id_*
 known_hosts*
 
-# App-specific and auto-generated runtime folders
+# ================================
+# App-Generated Runtime
+# ================================
 .kube/
-.krew/
+.krew/**
 .docker/
 .parallel/
-
-# AWS VPN Client
+.tmux-powerline/**
+.tmux/plugins/**
+.cache/pre-commit/**
+Library/Caches/**
+Library/Group Containers/**
 .config/AWSVPNClient/**
 ".config/AWS VPN Client/"
+Library/CloudStorage/**
 
-# coc.nvim runtime
+# ================================
+# Local Dev Only
+# ================================
 .config/coc/extensions/
 .config/coc/memos.json
-
-# Local-only Git and MySQL
 .config/git/config_local
 .config/mysql/
-
-# yadm internals
-.config/yadm/config
-
-# GCP SDK (runtime only)
 .config/gcloud/**
-
-# Go modules
 go/pkg/
-
-# my local code repository
 code/
 
-# Vim plugins and plugin managers
+# ================================
+# Vim Plugin Managers
+# ================================
 .vim/autoload/plug.vim
 .vim/plugged/**

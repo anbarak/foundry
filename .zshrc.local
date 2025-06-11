@@ -6,18 +6,36 @@
 
 # Ensure ~/.config/homebrew/Brewfile is updated every time you install/uninstall something
 brew() {
-    command brew "$@"
-    if [[ "$1" == "install" || "$1" == "upgrade" || "$1" == "uninstall" ]]; then
-        echo "Updating Brewfile and committing changes to your configured yadm github repo..."
-        brew bundle dump --file="$HOME/.config/homebrew/Brewfile" --force
-        yadm add "$HOME/.config/homebrew/Brewfile"
-        if ! yadm diff --quiet --cached "$HOME/.config/homebrew/Brewfile"; then
-            yadm commit -m "Updated Brewfile" --no-gpg-sign 2>/dev/null || echo "Skipping signed commit"
-            yadm push 2>/dev/null || echo "Push skipped"
-        else
-            echo "No changes in Brewfile to commit."
-        fi
+  command brew "$@"
+  if [[ "$1" == "install" || "$1" == "upgrade" || "$1" == "uninstall" ]]; then
+    echo "📦 Updating Brewfile..."
+    brew bundle dump --file="$HOME/.config/homebrew/Brewfile" --force
+
+    echo "🔍 Checking for Brewfile diff..."
+    if ! yadm diff --quiet "$HOME/.config/homebrew/Brewfile"; then
+      echo "🚫 Saving staged changes (if any)..."
+      STAGED=$(yadm diff --cached --name-only | grep -v 'Brewfile' || true)
+      for file in $STAGED; do
+        yadm reset HEAD "$file"
+      done
+
+      echo "➕ Adding Brewfile..."
+      yadm add "$HOME/.config/homebrew/Brewfile"
+
+      echo "✅ Committing Brewfile..."
+      yadm commit -m "📦 Updated Brewfile" --no-gpg-sign || echo "⚠️ Commit skipped"
+
+      echo "🚀 Pushing..."
+      yadm push || echo "⚠️ Push skipped"
+
+      echo "🔁 Re-staging previous files..."
+      for file in $STAGED; do
+        yadm add "$file"
+      done
+    else
+      echo "✅ No changes in Brewfile."
     fi
+  fi
 }
 
 export GPG_TTY=$(tty)
@@ -29,6 +47,9 @@ if [[ -d "$ZSH_MODULES" ]]; then
     source "$module"
   done
 fi
+
+# Load persisted default model if available
+[[ -f ~/.config/ollama/default-model ]] && export OLLAMA_DEFAULT_MODEL="$(< ~/.config/ollama/default-model)"
 
 # Enable vi keybindings only if not already set
 [[ ${KEYMAP} != vicmd ]] && bindkey -v
