@@ -327,6 +327,22 @@ All files live under:
 
 This setup includes:
 
+### 🧭 Recommended Tmux Workflow
+
+> Minimal, efficient session management — integrated with `tmux-continuum` and `tmux-resurrect` for automatic restore and snapshotting.
+
+| ✅ Action                      | 💻 Command                               |
+|-------------------------------|------------------------------------------|
+| ✅ Start/restore/attach tmux  | `ts` (smart wrapper — auto-restore logic)|
+| 🆕 Create new named session   | `tn session_name`                        |
+| 🔗 Attach to named session    | `ta session_name`                        |
+| 📨 Manually restore session   | `<prefix> + Ctrl-r`                      |
+| 💾 Manually save session      | `<prefix> + Ctrl-s`                      |
+| 🔁 Reload tmux config         | `<prefix> + r`                           |
+| ❌ Kill a session             | `tks session_name`                       |
+| 💣 Kill all tmux sessions     | `tka`                                    |
+| 📋 List all sessions          | `tl`                                     |
+
 ### 🐚 Shell
 - `zsh` + `Oh My Zsh` + `Powerlevel10k`
 - Plugins: `autojump`, `git`, `zsh-autosuggestions`, `zsh-syntax-highlighting`, `fzf`, `colorize`, `docker`, `aws`, `gcloud`, `krew`
