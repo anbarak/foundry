@@ -5,7 +5,7 @@ filetype off
 filetype plugin indent on
 set mouse=a
 
-" ─── Training: Disable Arrow Keys to Learn hjkl ────────────────
+" ─── Disable Arrow Keys to Learn hjkl ────────────────
 nnoremap <Up>    <Nop>
 nnoremap <Down>  <Nop>
 nnoremap <Left>  <Nop>
@@ -39,6 +39,19 @@ set showmatch
 set foldmethod=syntax
 set foldlevel=99
 set foldlevelstart=20
+
+" ─── Clean Pasting Behavior ───────────────────────────────────────
+" F3 toggles paste mode to avoid corrupted pastes
+set pastetoggle=<F3>
+
+" Treat .plist.template files as XML
+autocmd BufRead,BufNewFile *.plist.template set filetype=xml
+
+" Use 2-space indentation for XML/plist
+autocmd FileType xml setlocal tabstop=2 shiftwidth=2 softtabstop=2 expandtab
+
+" Show hidden control characters (for cleanup if needed)
+nnoremap <leader>l :set list!<CR>
 
 " ─── UI & Visuals ───────────────────────────────────────────────
 set colorcolumn=88
@@ -90,3 +103,28 @@ augroup END
 highlight clear SpellBad
 highlight SpellBad cterm=underline ctermfg=Red
 highlight def link CommentSpell SpellBad
+
+" ─── Clean Pasting Behavior ───────────────────────────────────────
+" F3 toggles paste mode to avoid corrupted pastes
+set pastetoggle=<F3>
+
+" Treat .plist.template files as XML
+autocmd BufRead,BufNewFile *.plist.template set filetype=xml
+
+" Use 2-space indentation for XML/plist
+autocmd FileType xml setlocal tabstop=2 shiftwidth=2 softtabstop=2 expandtab
+
+" Show hidden control characters (useful after pasting)
+nnoremap <leader>l :set list!<CR>
+
+" Optional: Toggle paste mode with ,p (with visual feedback)
+function! TogglePaste()
+  if &paste
+    set nopaste
+    echo "📤 Paste mode OFF"
+  else
+    set paste
+    echo "📥 Paste mode ON"
+  endif
+endfunction
+nnoremap <leader>p :call TogglePaste()<CR>
