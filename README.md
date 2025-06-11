@@ -531,23 +531,24 @@ ollamarun "How does EKS differ from ECS?"
 
 All AI-related wrappers and utilities are defined in `~/.config/zsh/modules/22-ai.zsh`.
 
-| Alias              | Description                                                     |
-|---------------- ---|-----------------------------------------------------------------|
-| `ollamarun`        | Smart runner for `ollama run`; auto-pulls & logs usage          |
-| `switch-model`     | FZF selector for `~/.config/ollama/model-list.txt`              |
-| `ollama-health`    | Health check to ensure local Ollama server is working           |
-| `ollama-models`    | List all installed Ollama models                                |
-| `ollama-models-fzf`| FZF interface to run a selected model                           |
-| `aiwrap`           | Umbrella CLI dispatcher for all AI tools                        |
-| `commit-ai`        | Generate AI commit message from current `git diff`              |
-| `ycommit-ai`       | Same as above, for YADM-managed files                           |
-| `git-llm-commit`   | Alias to trigger local commit AI flow                           |
-| `yadm-llm-commit`  | YADM-specific commit wrapper                                    |
-| `aider-ai`         | Wrapper for running Aider with the current default model        |
-| `aider-commit`     | Use Aider to generate commit messages from diffs                |
-| `ai-benchmark`     | Measure LLM latency and subjective quality                      |
-| `ai-benchmark-fzf` | FZF-enabled model selector and benchmark runner                 |
-| `ai-selftest`      | Quick health check: runs "Say hello" against default model      |
+| Alias              | Description                                                                 |
+|--------------------|-----------------------------------------------------------------------------|
+| `ollamarun`        | Smart runner for `ollama run`; auto-pulls and logs usage                    |
+| `switch-model`     | FZF selector for `~/.config/ollama/model-list.txt`                          |
+| `ollama-health`    | Health check to ensure local Ollama server is working                       |
+| `ollama-models`    | List all installed Ollama models                                             |
+| `ollama-models-fzf`| FZF interface to run a selected model                                        |
+| `aiwrap`           | Umbrella CLI dispatcher for all AI tools                                     |
+| `commit-ai`        | Generate AI commit message from current `git diff`                           |
+| `ycm-ai`           | Same as `commit-ai`, but for YADM-managed dotfiles                           |
+| `ycommit-ai`       | Alternate wrapper for YADM-based commits                                     |
+| `git-llm-commit`   | Local Git commit AI flow wrapper                                              |
+| `yadm-llm-commit`  | YADM-specific commit wrapper                                                  |
+| `aider-ai`         | Wrapper for running Aider with the current default model                     |
+| `aider-commit`     | Use Aider to generate commit messages from diffs                             |
+| `ai-benchmark`     | Measure LLM latency and subjective quality                                   |
+| `ai-benchmark-fzf` | FZF-enabled model selector and benchmark runner                              |
+| `ai-selftest`      | Quick health check: runs “Say hello” against default model                   |
 
 ---
 
@@ -566,7 +567,7 @@ ollamarun codellama "Summarize this diff"
 Generate commit messages:
 ```
 commit-ai
-ycommit-ai
+ycm-ai
 ```
 
 Run Aider:

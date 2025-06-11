@@ -39,10 +39,7 @@ alias git-llm-commit="$AI_TOOLS/git-llm-commit"
 alias aiwrap="$AI_TOOLS/foundry-ai-wrapper"
 
 # Generate AI-assisted commit message for YADM-managed files
-alias ycommit-ai="$AI_TOOLS/ycommit-ai.sh"
-
-# Wrapper alias to mirror git-llm-commit but for YADM
-alias yadm-llm-commit="$AI_TOOLS/yadm-llm-commit"
+alias ycm-ai="$AI_TOOLS/yadm-llm-commit"
 
 # Run Aider with default local model and options
 alias aider-ai="$AI_TOOLS/aider-wrapper.sh"
