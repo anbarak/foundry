@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Generate a commit message for YADM-tracked changes using local LLM
+set -euo pipefail
+
+yadm diff | "$HOME/bin/tools/ai/foundry-llm.sh" codellama "Write a conventional commit message for dotfile changes:"

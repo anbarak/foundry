@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Foundry AI Umbrella CLI
+set -euo pipefail
+
+case "${1:-}" in
+  health)
+    curl -s http://localhost:11434/version || echo "Ollama server not running"
+    ;;
+  commit)
+    git diff | "$HOME/bin/tools/ai/foundry-llm.sh" codellama "Write a conventional commit message:"
+    ;;
+  run)
+    shift
+    "$HOME/bin/tools/ai/foundry-llm.sh" "$@"
+    ;;
+  *)
+    echo "Usage: $(basename "$0") {health|commit|run <model> [prompt]}"
+    ;;
+esac

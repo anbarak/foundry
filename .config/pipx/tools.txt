@@ -1,0 +1,8 @@
+aider-chat       # AI-assisted commit messages and edits
+black            # Code formatter
+glances          # System monitor
+httpie           # Terminal HTTP client
+rich-cli         # Pretty-printing CLI output
+uvicorn          # ASGI server (FastAPI)
+py-spy           # Python profiler
+zx               # Optional: JavaScript/TypeScript scripting

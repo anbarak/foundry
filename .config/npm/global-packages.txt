@@ -1,1 +1,6 @@
-aicommits
+eslint
+prettier
+typescript
+yo
+serve
+markdownlint-cli

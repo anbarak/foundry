@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Wrapper for AI-generated git commit message
+set -euo pipefail
+
+git diff | "$HOME/bin/tools/ai/foundry-llm.sh" codellama "Write a conventional commit message:"

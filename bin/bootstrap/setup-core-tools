@@ -64,7 +64,7 @@ if [ "$SKIP_WHISPER" = false ]; then
 
   if [[ "$GENERATE_CHECKSUMS" = true ]]; then
     echo "🧾 Generating checksums..."
-    > "$WHISPER_MODEL_CHECKSUMS"
+    : > "$WHISPER_MODEL_CHECKSUMS"
     for MODEL in "${WHISPER_MODELS[@]}"; do
       MODEL_PATH="$WHISPER_MODEL_DIR/$MODEL"
       if [[ -f "$MODEL_PATH" ]]; then
@@ -119,3 +119,13 @@ fi
 # --------------------------------------------------------------------
 echo "🧰 Running CLI tool installer script..."
 "$HOME/bin/tools/setup/setup-cli-tools.sh"
+
+# -----------------------------------------------------------------------------
+# Restore Ollama models (via non-interactive AI setup script)
+# -----------------------------------------------------------------------------
+if [[ -x "$HOME/bin/tools/ai/setup-ai-tools.sh" ]]; then
+  echo "🧠 Restoring Ollama models non-interactively..."
+  "$HOME/bin/tools/ai/setup-ai-tools.sh" non-interactive
+else
+  echo "⚠️ Skipping Ollama model restore — setup-ai-tools.sh not found or not executable"
+fi

@@ -61,6 +61,16 @@ for script in "${SCRIPTS[@]}"; do
 done
 
 # -----------------------------------------------------------------------------
+# Setup AI tools
+# -----------------------------------------------------------------------------
+echo "🧠 Installing AI tools..."
+if [[ -x "$HOME/bin/tools/ai/setup-ai-tools.sh" ]]; then
+  "$HOME/bin/tools/ai/setup-ai-tools.sh"
+else
+  echo "⚠️  Skipping AI tools intallation — script not found or not executable"
+fi
+
+# -----------------------------------------------------------------------------
 # Setup secrets backup (LaunchAgent)
 # -----------------------------------------------------------------------------
 SECRETS_BACKUP_INSTALLER="$HOME/bin/tools/system/install-secrets-backup.sh"

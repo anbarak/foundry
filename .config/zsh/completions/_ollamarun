@@ -1,0 +1,7 @@
+#compdef ollamarun
+
+_ollamarun() {
+  local models
+  models=(${(f)"$(ollama list | awk 'NR>1 {print $1}')"})
+  _describe 'ollama models' models
+}

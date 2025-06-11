@@ -495,6 +495,135 @@ Quickly plays back the latest .wav recording in your ~/recordings directory usin
 
 ---
 
+## 🧠 Local AI Integration (Ollama + Aider)
+
+Foundry includes a fully offline, privacy-focused, and terminal-native AI stack powered by [Ollama](https://ollama.com) and [Aider](https://github.com/paul-gauthier/aider). This lets you interact with LLMs for commit messages, code editing, benchmarking, and shell interaction — with no internet, no telemetry, and zero API cost.
+
+---
+
+### 🧠 Recommended Models by Use Case
+
+| Use Case                  | Model             | Notes                                                           |
+|---------------------------|-------------------|-----------------------------------------------------------------|
+| General Q&A, CLI Chat     | `llama3.2`        | Default model: solid performance with reasonable RAM usage      |
+| Small fast responses      | `phi3` / `mistral`| Useful for agents, shell wrappers, and low-latency tasks        |
+| Code diffs, commit msgs   | `codellama`       | Optimized for structured text like code                         |
+| Diff understanding        | `deepseek-coder`  | Great for complex, multi-file diffs                             |
+
+All supported models are managed from `~/.config/ollama/model-list.txt` and dynamically selected with:
+
+```
+switch-model
+```
+
+The `ollama_run` function gives flexible model invocation. It accepts an explicit model name (from the list) or falls back to your default.
+
+Examples:
+
+```bash
+ollamarun deepseek-coder "Summarize this git diff"
+ollamarun "How does EKS differ from ECS?"
+```
+
+---
+
+### 🧰 Available AI Aliases & Tools
+
+All AI-related wrappers and utilities are defined in `~/.config/zsh/modules/22-ai.zsh`.
+
+| Alias              | Description                                                     |
+|---------------- ---|-----------------------------------------------------------------|
+| `ollamarun`        | Smart runner for `ollama run`; auto-pulls & logs usage          |
+| `switch-model`     | FZF selector for `~/.config/ollama/model-list.txt`              |
+| `ollama-health`    | Health check to ensure local Ollama server is working           |
+| `ollama-models`    | List all installed Ollama models                                |
+| `ollama-models-fzf`| FZF interface to run a selected model                           |
+| `aiwrap`           | Umbrella CLI dispatcher for all AI tools                        |
+| `commit-ai`        | Generate AI commit message from current `git diff`              |
+| `ycommit-ai`       | Same as above, for YADM-managed files                           |
+| `git-llm-commit`   | Alias to trigger local commit AI flow                           |
+| `yadm-llm-commit`  | YADM-specific commit wrapper                                    |
+| `aider-ai`         | Wrapper for running Aider with the current default model        |
+| `aider-commit`     | Use Aider to generate commit messages from diffs                |
+| `ai-benchmark`     | Measure LLM latency and subjective quality                      |
+| `ai-benchmark-fzf` | FZF-enabled model selector and benchmark runner                 |
+| `ai-selftest`      | Quick health check: runs "Say hello" against default model      |
+
+---
+
+### 💬 Example Usage
+
+Ask a question:
+```
+ollamarun "Explain what this bash function does"
+```
+
+Run a specific model:
+```
+ollamarun codellama "Summarize this diff"
+```
+
+Generate commit messages:
+```
+commit-ai
+ycommit-ai
+```
+
+Run Aider:
+```
+aider-ai
+aider-commit
+```
+
+Run model health check:
+```
+ai-selftest
+```
+
+---
+
+### 📊 Benchmarking & Model Comparison
+
+Foundry supports structured benchmarking across local models.
+
+```bash
+ai-benchmark             # Full benchmark with scoring
+ai-benchmark --quick     # Speed-only benchmarking
+```
+
+Logged to:
+
+- `~/logs/ollama-benchmark.csv`
+- `~/logs/ollama-benchmark-subjective.log`
+
+After the benchmark, you'll be prompted to:
+- Pin your favorite model
+- Auto-select the best model based on scores
+- Persist that model to `~/.local/state/foundry/ollama-default-model`
+
+---
+
+### 🔐 Why Local AI?
+
+| Feature            | Local Ollama Setup          | Cloud LLMs (e.g. OpenAI)            |
+|--------------------|-----------------------------|-------------------------------------|
+| 💵 Cost            | Free forever                | Pay-per-token or $20+/month         |
+| 🔒 Privacy         | 100% local, no API calls    | Sends prompts to remote servers     |
+| ⚡ Speed           | Instant local responses     | Slower due to network/API latency   |
+| 🛠️ Integrations    | Shell + Git native          | Limited or requires SDKs            |
+| 🧮 Reproducibility | Deterministic responses     | Subject to backend model drift      |
+
+This stack is ideal for:
+
+- Git workflows
+- CLI agents
+- Offline dev environments
+- Security-sensitive orgs
+
+> 🧠 Designed for infra and platform engineers who want fast, scriptable, secure AI tools — without cloud dependency.
+
+---
+
 ## 🎞️ Media Playback & File Associations
 
 This setup includes support for high-quality media playback and ensures audio/video files open consistently in VLC via scripting.
