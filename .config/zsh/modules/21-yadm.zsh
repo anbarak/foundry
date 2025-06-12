@@ -4,9 +4,9 @@
 # =============================================================================
 alias ycm='yadm commit -m'                 # Commit staged changes with message
 alias ypush='yadm push'                    # Push commits to remote
-alias ydiff='yadm diff'                    # Show unstaged changes
-alias ydiffc='yadm diff --cached'          # Show staged changes
-alias ydiffa='yadm diff HEAD'              # Show all changes (staged + unstaged)
+alias ydiff-unstaged='yadm diff'           # Show unstaged changes
+alias ydiff-staged='yadm diff --cached'    # Show staged changes
+alias ydiff-all='yadm diff HEAD'           # Show all changes (staged + unstaged)
 alias ypull='yadm pull --rebase'           # Pull with rebase for cleaner history
 alias yfetch='yadm fetch'                  # Fetch only, no merge
 alias ylog='yadm log --oneline --graph --decorate'                                 # Inspect commit history
@@ -38,22 +38,60 @@ ys() {
 alias ysc='GIT_PAGER=cat yadm status --branch --untracked-files=no'
 
 # Concise yadm status (only modified/added files — no .DS_Store, etc.)
-ysmod() {
-  yadm status --short 2>/dev/null | grep "^[ MARC][ MD]" | while IFS= read -r line; do
+ysmod () {
+  local staged=() unstaged=() untracked=() deleted=()
+
+  while IFS= read -r line; do
     code="${line:0:2}"
     file="${line:3}"
+
     case "$code" in
-      '??') desc="UNTRACKED"         color=90 ;;
-      'A ') desc="ADDED"             color=32 ;;
-      ' M') desc="MODIFIED"          color=33 ;;
-      'M ') desc="STAGED"            color=36 ;;
-      'MM') desc="MODIFIED+STAGED"   color=36 ;;
-      ' D') desc="DELETED"           color=31 ;;
-      'D ') desc="DELETED+STAGED"    color=35 ;;
-      *)    desc="$code"             color=37 ;;
+      '??') untracked+=("$file") ;;
+      'A ') staged+=("new file:     $file") ;;
+      'M ') staged+=("modified:     $file") ;;
+      'D ') staged+=("deleted:      $file") ;;
+      'AM') staged+=("added+mod:    $file") ;;
+      ' M') unstaged+=("$file") ;;
+      ' D') deleted+=("$file") ;;
+      *)    unstaged+=("$file") ;;
     esac
-    printf "\e[1;${color}m%-17s\e[0m %s\n" "$desc" "$file"
-  done
+  done < <(yadm status --short 2>/dev/null)
+
+  # Print staged changes
+  if [[ ${#staged[@]} -gt 0 ]]; then
+    echo -e "\e[1;32m✅ Changes to be committed:\e[0m"
+    for entry in "${staged[@]}"; do
+      echo -e "  \e[32m$entry\e[0m"
+    done
+    echo
+  fi
+
+  # Print unstaged changes
+  if [[ ${#unstaged[@]} -gt 0 ]]; then
+    echo -e "\e[1;33m🟡 Changes not staged for commit:\e[0m"
+    for entry in "${unstaged[@]}"; do
+      echo -e "  \e[33m$entry\e[0m"
+    done
+    echo
+  fi
+
+  # Print deleted files (unstaged)
+  if [[ ${#deleted[@]} -gt 0 ]]; then
+    echo -e "\e[1;31m❌ Deleted (not staged):\e[0m"
+    for entry in "${deleted[@]}"; do
+      echo -e "  \e[31m$entry\e[0m"
+    done
+    echo
+  fi
+
+  # Print untracked files
+  if [[ ${#untracked[@]} -gt 0 ]]; then
+    echo -e "\e[1;90m🆕 Untracked files:\e[0m"
+    for entry in "${untracked[@]}"; do
+      echo -e "  \e[90m$entry\e[0m"
+    done
+    echo
+  fi
 }
 
 # the default quick check
