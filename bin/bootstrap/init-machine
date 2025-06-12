@@ -18,6 +18,20 @@ echo "📦 Updating Homebrew packages via maintain-homebrew.sh..."
 "$HOME/bin/tools/system/install-brew-maintenance.sh"
 
 # -----------------------------------------------------------------------------
+# Install Python Environment Toolchain
+# -----------------------------------------------------------------------------
+if [[ ! -f "$HOME/.config/python/versions.txt" ]]; then
+  echo "🚫 Missing python versions.txt — skipping Python setup"
+else
+  if ! command -v pyenv >/dev/null; then
+    echo "🔧 Installing Python toolchain (pyenv, versions, poetry, pip-tools)..."
+    ~/bin/tools/setup/setup-python-env.sh
+  else
+    echo "✅ Python toolchain already initialized"
+  fi
+fi
+
+# -----------------------------------------------------------------------------
 # Create dotfiles structure
 # -----------------------------------------------------------------------------
 echo "📁 Setting up dotfiles structure..."
