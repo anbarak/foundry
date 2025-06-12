@@ -1,0 +1,10 @@
+deepseek-coder:6.7b
+codellama:13b
+wizardcoder:13b-python
+starcoder2:15b
+codellama:7b
+deepseek-coder:1.3b
+starcoder2:7b
+llama3.2
+phi3
+gemma:7b

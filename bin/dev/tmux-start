@@ -1,0 +1,19 @@
+#!/bin/bash
+# Smart tmux launcher: attaches if exists, restores if needed, or starts fresh
+
+# Optional: export this to make it explicit
+export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins"
+
+# If tmux is not running, start it (auto-restores if continuum enabled)
+if ! pgrep -x "tmux" >/dev/null; then
+  exec tmux
+fi
+
+# If already inside tmux, do nothing
+if [ -n "$TMUX" ]; then
+  echo "Already inside tmux."
+  exit 0
+fi
+
+# Try to attach to last session, else create new default
+tmux attach || tmux new -s default
