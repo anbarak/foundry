@@ -43,6 +43,9 @@ $HOME/.config/coc/
 # Editors, Linters, Package Info
 # ══════════════════════════════
 $HOME/.config/vim/
+$HOME/.config/duti/
+$HOME/.config/ollama/
+$HOME/.config/python/
 $HOME/.config/npm/
 $HOME/.config/pipx/
 $HOME/.config/homebrew/

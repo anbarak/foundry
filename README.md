@@ -377,7 +377,72 @@ This setup includes:
 
 ---
 
-### 🕵️‍♂️ recent – Recent File Search Tool
+## 🐍 Python Environment & CLI Tools (Foundry Setup)
+
+Foundry provides a modular, reproducible Python toolchain using `pyenv`, `pipx`, and curated Python-based CLI tools. This setup is declarative, fast to bootstrap, and integrates with weekly LaunchAgents for maintenance.
+
+---
+
+### 📌 Python Version Management (via `pyenv`)
+
+- **Declared in**: `~/.config/python/versions.txt`
+- **Installed by**: [`setup-python-env.sh`](bin/tools/setup/setup-python-env.sh)
+- **Why `pyenv`?**
+  - Cleanly manages multiple Python versions
+  - Avoids polluting system Python
+  - Compatible with tools like `pipx`, `poetry`, and CI scripts
+- **Pinned Versions**: Ensures reproducibility across machines
+
+---
+
+### 📦 CLI Tooling (via `pipx` + `tools.txt`)
+
+Installed from `~/.config/pipx/tools.txt` using a weekly LaunchAgent (`pipx-maintenance-task.sh`). Each tool is sandboxed and updated in isolation.
+
+| Tool         | Purpose                                        | Why it's included                             |
+|--------------|------------------------------------------------|-----------------------------------------------|
+| `aider-chat` | LLM-based commit messaging & edits             | Automates commit messages and refactors       |
+| `black`      | Python code formatter                          | Standardized, PEP8-compliant code formatting  |
+| `glances`    | Cross-platform system monitor                  | Useful for live diagnostics                   |
+| `httpie`     | Human-friendly HTTP CLI                        | Alternative to `curl`, great for APIs         |
+| `rich-cli`   | Pretty-prints JSON, tracebacks, markdown       | Makes CLI output readable and informative     |
+| `uvicorn`    | ASGI server for FastAPI and Starlette          | Great for microservices & local testing       |
+| `py-spy`     | Python profiler                                | Non-intrusive performance insights            |
+| `zx`         | JavaScript-powered scripting CLI               | Optional scripting tool (shell + JS hybrid)   |
+
+> 🛠️ All tools are automatically installed/upgraded by `pipx-maintenance-task`, launched weekly.
+
+---
+
+### 🧰 Dependency Management Tools
+
+These are not in `tools.txt`, but are installed directly in the `setup-python-env.sh` script for full control:
+
+| Tool        | Installer         | Why not in tools.txt?                  |
+|-------------|-------------------|----------------------------------------|
+| `poetry`    | `curl | python3`  | Installed globally for Python projects |
+| `pip-tools` | `pipx install`    | Requires early use in bootstrap flows  |
+
+Environment variables can skip their installation:
+- `SKIP_POETRY=true`
+- `SKIP_PIP_TOOLS=true`
+
+---
+
+### 🧩 Integration & Best Practices
+
+- All components tracked via `yadm`
+- Tools declared in:
+  - `~/.config/pipx/tools.txt`
+  - `~/.config/python/versions.txt`
+- Logs stored in `~/logs/`
+- Run weekly via LaunchAgents (auto-installed by bootstrap)
+
+> 📌 This design supports fast restores, offline use, and modern dev workflows across projects.
+
+---
+
+## 🕵️‍♂️ recent – Recent File Search Tool
 
 Quickly view and interact with the most recently modified files in your development environment.
 

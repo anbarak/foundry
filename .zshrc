@@ -57,6 +57,18 @@ add_to_path "/Applications/Docker.app/Contents/Resources/bin"
 # Python paths
 export PYTHON_USER_BASE="$USER_HOME/Library/Python/3.x/bin"
 add_to_path "$PYTHON_USER_BASE"  # Replace 3.x with your Python version
+add_to_path "$USER_HOME/.local/bin"  # For pipx and Poetry-installed tools
+
+# Pyenv config
+export PYENV_ROOT="$USER_HOME/.pyenv"
+
+if [ -d "$PYENV_ROOT" ]; then
+  add_to_path "$PYENV_ROOT/bin"
+  add_to_path "$PYENV_ROOT/plugins/pyenv-virtualenv/shims" "$PYENV_ROOT/shims"
+  eval "$(pyenv init --path)"
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+fi
 
 # Apple security paths
 add_to_path "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin" \
@@ -68,9 +80,6 @@ add_to_path "$USER_HOME/go/bin" "$HOMEBREW_PREFIX/opt/go/libexec/bin"
 
 # Add custom tools to PATH
 add_to_path "$USER_HOME/bin/tools"
-
-# Pyenv paths
-add_to_path "$USER_HOME/.pyenv/plugins/pyenv-virtualenv/shims" "$USER_HOME/.pyenv/shims"
 
 # Java paths
 export JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk"
@@ -197,15 +206,9 @@ plugins=() # Refer to ~/.zshrc.plugins
 # For a full list of active aliases, run `alias`.
 # alias are located in ~/.zshrc.local file
 
-# Add SSH key to macOS keychain
-ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
-
-# Load pyenv automatically
-if [ -d "$USER_HOME/.pyenv" ]; then
-  add_to_path "$USER_HOME/.pyenv/bin"
-  eval "$(pyenv init --path)"
-  eval "$(pyenv init -)"
-  eval "$(pyenv virtualenv-init -)"
+# Add SSH key to macOS keychain if it exists (Personal-specific)
+if [[ -f "$USER_HOME/.ssh/id_ed25519_centerfield" ]]; then
+  ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
 fi
 
 # Source local configuration file

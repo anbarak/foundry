@@ -9,6 +9,8 @@ weekly_jobs=(
   restart-reminder-task
   brew-maintenance-task
   secrets-backup-task
+  pipx-maintenance-task
+  npm-maintenance-task
 )
 # 💻 Reboot Tasks
 reboot_jobs=(
@@ -69,6 +71,8 @@ pretty_label() {
     restart-reminder-task) echo "🔄 Restart Reminder (weekly)" ;;
     brew-maintenance-task) echo "🍺 Brew Maintenance (weekly)" ;;
     secrets-backup-task)   echo "🔐 Secrets Backup (weekly)" ;;
+    pipx-maintenance-task) echo "🐍 pipx Maintenance (weekly)" ;;
+    npm-maintenance-task)  echo "📦 npm Maintenance (weekly)" ;;
     install-ai-tools)      echo "🤖 Ollama Auto-Start (boot)" ;;
     *) echo "$1" ;;
   esac

@@ -10,28 +10,6 @@ log() { local lvl="$1"; shift; printf "[%s] %s %s\n" "$lvl" "$(timestamp)" "$*";
 
 log INFO "🐍 Starting Python environment setup..."
 
-# ── Install pyenv and prerequisites ──────────────────────
-brew install pyenv openssl readline sqlite3 xz zlib
-
-# ── Ensure pyenv is in ZSH config ────────────────────────
-ZSH_PROFILE="$HOME/.config/zsh/modules/06-cloud.zsh"
-if ! grep -q 'pyenv init' "$ZSH_PROFILE"; then
-  log INFO "➕ Adding pyenv config to ZSH..."
-  {
-    echo ''
-    echo '# pyenv setup'
-    echo 'export PYENV_ROOT="$HOME/.pyenv"'
-    echo 'export PATH="$PYENV_ROOT/bin:$PATH"'
-    echo 'eval "$(pyenv init --path)"'
-    echo 'eval "$(pyenv init -)"'
-  } >> "$ZSH_PROFILE"
-fi
-
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
-
 # ── Read versions from file ──────────────────────────────
 VERSIONS_FILE="$HOME/.config/python/versions.txt"
 PY_VERSIONS=()
@@ -50,6 +28,7 @@ for ver in "${PY_VERSIONS[@]}"; do
   fi
 done
 
+# ── Set global version to match list ─────────────────────
 log INFO "🌍 Setting global Python version: ${PY_VERSIONS[*]}"
 pyenv global "${PY_VERSIONS[@]}" system
 
@@ -58,7 +37,6 @@ if [[ "${SKIP_POETRY:-false}" != "true" ]]; then
   if ! command -v poetry >/dev/null; then
     log INFO "🎼 Installing Poetry..."
     curl -sSL https://install.python-poetry.org | python3 -
-    export PATH="$HOME/.local/bin:$PATH"
   else
     log INFO "✅ Poetry already installed"
   fi
