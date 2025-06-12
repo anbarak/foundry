@@ -187,6 +187,3 @@ setopt HIST_FIND_NO_DUPS      # Skip dupes in history search
 setopt HIST_REDUCE_BLANKS     # Remove extra spaces between words
 
 precmd_functions+=(refresh_aws_sso)
-
-# Sourcing additional configuration files (optional)
-# source ~/.oh-my-zsh/custom/themes/mytheme.zsh # Example: Source a theme file

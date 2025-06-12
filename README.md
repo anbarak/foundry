@@ -641,6 +641,35 @@ This stack is ideal for:
 
 ---
 
+### 🖥️ macOS Menu Bar Status (Xbar Integration)
+
+Foundry integrates with [xbar](https://xbarapp.com/) to show real-time system and task status in the macOS menu bar.
+
+```text
+📍 Plugin directory: ~/.config/xbar/plugins/
+```
+
+#### Included Plugins
+
+| Script                           | Interval | Description                                        |
+|----------------------------------|----------|----------------------------------------------------|
+| `network-status.30s.sh`         | 30 sec   | Shows VPN, DNS, and local IP status               |
+| `launchagent-status.10m.sh`     | 10 min   | Checks LaunchAgent health (e.g. Ollama, backups)  |
+
+These plugins read lightweight `.txt` status files written by Foundry LaunchAgents (e.g. `~/.cache/foundry/last-success-*.txt`).
+
+#### Setup Notes
+
+- Xbar is installed automatically via the Brewfile
+- Plugins are tracked via YADM and live in `~/.config/xbar/plugins/`
+- You can open Xbar with:
+
+```bash
+open -a xbar
+```
+
+---
+
 ## 🎞️ Media Playback & File Associations
 
 This setup includes support for high-quality media playback and ensures audio/video files open consistently in VLC via scripting.

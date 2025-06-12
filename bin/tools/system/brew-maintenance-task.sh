@@ -42,6 +42,12 @@ run_maintenance() {
 
 if run_maintenance; then
   osascript -e 'display notification "✅ Homebrew maintenance complete." with title "brew update & cleanup"'
+
+  # 📝 Record last successful run
+  LABEL="$(basename "$0" .sh)"
+  mkdir -p "$HOME/.cache/foundry"
+  date +'%Y-%m-%d %H:%M:%S' > "$HOME/.cache/foundry/last-success-${LABEL}.txt"
+
   exit 0
 else
   osascript -e 'display notification "❌ Homebrew maintenance failed!" with title "brew update & cleanup" sound name "Funk"'

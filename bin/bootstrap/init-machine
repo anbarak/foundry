@@ -71,6 +71,15 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# Check if xbar is running and display a helpful message
+# -----------------------------------------------------------------------------
+if ! pgrep -f "xbar.app" >/dev/null; then
+  echo "⚠️  xbar is not currently running. You can launch it via Spotlight or Applications folder."
+else
+  echo "✅ xbar is already running."
+fi
+
+# -----------------------------------------------------------------------------
 # Setup secrets backup (LaunchAgent)
 # -----------------------------------------------------------------------------
 SECRETS_BACKUP_INSTALLER="$HOME/bin/tools/system/install-secrets-backup.sh"
@@ -81,7 +90,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# Step X: Install librespeed-cli (speed test utility)
+# Install librespeed-cli (speed test utility)
 # -----------------------------------------------------------------------------
 echo "📡 Installing librespeed-cli..."
 if [[ ! -x "$HOME/.local/bin/tools/librespeed-cli" ]]; then

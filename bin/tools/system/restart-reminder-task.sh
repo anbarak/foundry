@@ -93,5 +93,10 @@ fi
 # ====== Notification ======
 osascript -e "display notification \"$NOTIFY_MESSAGE\" with title \"$NOTIFY_TITLE\""
 
+# ====== Record Last Success ======
+LABEL="$(basename "$0" .sh)"
+mkdir -p "$HOME/.cache/foundry"
+date +'%Y-%m-%d %H:%M:%S' > "$HOME/.cache/foundry/last-success-${LABEL}.txt"
+
 # Optional stdout echo
 echo "[$TIMESTAMP] ✅ Restart reminder sent. Check $LOG_FILE for details."

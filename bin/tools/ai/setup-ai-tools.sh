@@ -9,6 +9,10 @@ ZSHRC_LOCAL=~/.zshrc.local
 
 MODE="${1:-interactive}"
 
+# Determine if interactive session (user terminal) or not (LaunchAgent, cron, etc)
+IS_INTERACTIVE=false
+[[ -t 0 && "$MODE" != "non-interactive" ]] && IS_INTERACTIVE=true
+
 # Prompt user before proceeding
 if [[ "$MODE" == "non-interactive" ]]; then
   enable_ai="y"
@@ -35,12 +39,17 @@ if [[ "$enable_ai" =~ ^[Yy]$ ]]; then
     echo "✅ Ollama server already running"
   fi
 
-  # Pull Ollama models if missing
+  # Determine which models to pull
+  DEFAULT_MODEL_FILE="$HOME/.local/state/foundry/ollama-default-model"
+  DEFAULT_MODEL=$(cat "$DEFAULT_MODEL_FILE" 2>/dev/null || echo llama3.2)
+
   MODEL_LIST_FILE="$HOME/.config/ollama/model-list.txt"
-  if [[ -f "$MODEL_LIST_FILE" ]]; then
+  if [[ "$IS_INTERACTIVE" == true && -f "$MODEL_LIST_FILE" ]]; then
+    echo "📄 Interactive session — using full model list"
     mapfile -t models < "$MODEL_LIST_FILE"
   else
-    models=(llama3.2)
+    echo "📦 Non-interactive — using default model only: $DEFAULT_MODEL"
+    models=("$DEFAULT_MODEL")
   fi
 
   for model in "${models[@]}"; do
@@ -81,13 +90,17 @@ EOF
 
   echo "✅ Aliases updated in $ZSHRC_LOCAL"
 
-  # Ensure pipx and aider are installed
-  if ! command -v aider &>/dev/null; then
-    echo "📦 Installing aider-chat via pipx..."
-    brew list pipx &>/dev/null || brew install pipx
-    pipx install aider-chat
+  if [[ "$IS_INTERACTIVE" == true ]]; then
+    # Ensure pipx and aider are installed
+    if ! command -v aider &>/dev/null; then
+      echo "📦 Installing aider-chat via pipx..."
+      brew list pipx &>/dev/null || brew install pipx
+      pipx install aider-chat
+    else
+      echo "✅ Aider already installed"
+    fi
   else
-    echo "✅ Aider already installed"
+    echo "⏭️ Skipping aider install in non-interactive mode"
   fi
 
 else

@@ -73,4 +73,9 @@ if ! "$OLLAMA_CMD" run "$DEFAULT_MODEL" >/dev/null 2>&1; then
   log WARN "Could not preload $DEFAULT_MODEL — may still be warming up."
 else
   log INFO "✅ $DEFAULT_MODEL warmed up successfully."
+
+  # ====== Record Last Success ======
+  LABEL="$(basename "$0" .sh)"
+  mkdir -p "$HOME/.cache/foundry"
+  date +'%Y-%m-%d %H:%M:%S' > "$HOME/.cache/foundry/last-success-${LABEL}.txt"
 fi

@@ -142,6 +142,12 @@ if run_backup; then
   if [[ "$IS_INTERACTIVE" == false ]]; then
     echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') Script exited with code: 0"
   fi
+
+  # 📝 Record last successful run
+  LABEL="$(basename "$0" .sh)"
+  mkdir -p "$HOME/.cache/foundry"
+  date +'%Y-%m-%d %H:%M:%S' > "$HOME/.cache/foundry/last-success-${LABEL}.txt"
+
   exit 0
 else
   $IS_INTERACTIVE && osascript -e 'display notification "❌ Secrets backup failed!" with title "Bitwarden Backup" sound name "Funk"'

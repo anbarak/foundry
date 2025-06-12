@@ -20,7 +20,7 @@ fi
 echo "---"
 
 # ⚡️ Speedtest Trigger (manual)
-echo "⚡️ Run Speed Test | bash='$HOME/bin/tools/xbar-scripts/xbar-speedtest.sh' terminal=true refresh=true"
+echo "⚡️ Run Speed Test | bash='$HOME/bin/tools/xbar/xbar-speedtest.sh' terminal=true refresh=true"
 
 echo "---"
 
