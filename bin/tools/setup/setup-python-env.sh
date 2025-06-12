@@ -22,7 +22,7 @@ done < "$VERSIONS_FILE"
 for ver in "${PY_VERSIONS[@]}"; do
   if ! pyenv versions --bare | grep -qx "$ver"; then
     log INFO "⬇️  Installing Python $ver..."
-    pyenv install "$ver"
+    pyenv install --skip-existing "$ver"
   else
     log INFO "✅ Python $ver already installed"
   fi
@@ -54,6 +54,13 @@ if [[ "${SKIP_PIP_TOOLS:-false}" != "true" ]]; then
   fi
 else
   log INFO "⏭️  Skipping pip-tools install (SKIP_PIP_TOOLS=true)"
+fi
+
+# ── Ensure ~/.local/bin is in PATH immediately ───────────
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+  export PATH="$HOME/.local/bin:$PATH"
+  log INFO "📌 Temporarily added ~/.local/bin to PATH"
+  hash -r
 fi
 
 log INFO "✅ Python environment setup complete."
