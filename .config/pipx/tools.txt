@@ -1,4 +1,3 @@
-aider-chat       # AI-assisted commit messages and edits
 black            # Code formatter
 glances          # System monitor
 httpie           # Terminal HTTP client

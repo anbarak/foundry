@@ -17,6 +17,28 @@
 ![Minimalist](https://img.shields.io/badge/philosophy-minimalist-lightgrey?style=flat-square&logo=leaflet)
 ![AI Agents](https://img.shields.io/badge/AI-agent--ready-ff69b4?style=flat-square&logo=openai)
 
+### 🧭 Motto: What Foundry Stands For
+
+> “Foundry is a frictionless, privacy-first, and terminal-native development environment —  
+> designed to be minimal, easily undoable, and fast to restore.  
+> It's continuously refined to help engineers focus, automate, and ship faster —  
+> all while leaving a minimal footprint and integrating cleanly into a larger internal platform strategy.”
+
+---
+
+## 💡 Guiding Philosophy
+
+Foundry is designed to be:
+
+- ✅ **Frictionless** — minimal typing, fewer clicks, fast feedback
+- 🧽 **Minimalist** — compact, intentional, and lean; no bloat
+- 🛠️ **Lightweight** — lowest possible system footprint; nothing global unless necessary
+- 🔄 **Reversible** — easy to undo, uninstall, or wipe clean
+- 👁️‍🗨️ **Intuitive** — clear structure, predictable behaviors, and smart defaults
+- 🧪 **Continuously refined** — progressively enhanced to reduce friction, improve reliability, and speed up workflows
+- 🔐 **Privacy-first** — offline by default; no PII or telemetry leaks
+- ⚙️ **Optionally integrable** — can be used standalone or plugged into a larger Internal Developer Platform (IDP) vision
+
 > **`foundry`** is my modular, portable, and opinionated development environment. It’s optimized for automation-first workflows, CLI-centric toolchains, and fast machine restore.  
 >
 > 🔁 Version-controlled with [`yadm`](https://yadm.io), powered by encrypted secrets, containerized CLI tools, and ergonomic shell customizations.
@@ -36,7 +58,8 @@ This project defines a **portable, idempotent, and intuitive** macOS development
 
 ## 📐 Design Principles
 
-> `foundry` is built with a modern engineering philosophy: **terminal-first**, **automation-first**, modular, minimalist, secure, deterministic, and designed to support the coming shift toward AI agents — software that reasons, acts, and collaborates.
+> `foundry` is built with a modern engineering philosophy: terminal-first, automation-first, and designed to support the coming shift toward AI agents.
+It’s engineered to be lightweight, low-friction, modular, and easy to undo — aligning with internal platform engineering best practices.
 
 | Principle                   | Description                                                                        |
 |-----------------------------|------------------------------------------------------------------------------------|
@@ -401,7 +424,6 @@ Installed from `~/.config/pipx/tools.txt` using a weekly LaunchAgent (`pipx-main
 
 | Tool         | Purpose                                        | Why it's included                             |
 |--------------|------------------------------------------------|-----------------------------------------------|
-| `aider-chat` | LLM-based commit messaging & edits             | Automates commit messages and refactors       |
 | `black`      | Python code formatter                          | Standardized, PEP8-compliant code formatting  |
 | `glances`    | Cross-platform system monitor                  | Useful for live diagnostics                   |
 | `httpie`     | Human-friendly HTTP CLI                        | Alternative to `curl`, great for APIs         |
@@ -765,6 +787,8 @@ You can modify or extend these associations in:
 ---
 
 ## 🧠 Local AI Integration (Ollama + Aider)
+
+> 🐋 Aider is managed via Docker (not pipx) using `aider-wrapper.sh`. This improves reproducibility, avoids build issues, and integrates cleanly with local models via Ollama.
 
 Foundry supports **fully local, free AI tooling** to enhance commit workflows, code refactoring, and terminal productivity — aligned with principles like *terminal-first*, *agent-oriented*, *minimalist*, and *secure*.
 

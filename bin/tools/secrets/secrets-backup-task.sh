@@ -19,6 +19,16 @@ fi
 
 echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') Starting secrets backup..."
 
+# ── Log truncation if file > 5MB ───────────────────────
+LOG_MAX_MB=5
+if [[ -f "$LOG_FILE" ]]; then
+  size=$(du -m "$LOG_FILE" | cut -f1)
+  if (( size > LOG_MAX_MB )); then
+    log INFO "🧹 Truncating $LOG_FILE (was ${size}MB)"
+    tail -n 200 "$LOG_FILE" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "$LOG_FILE"
+  fi
+fi
+
 # Wrap the backup process to track success/failure
 run_backup() {
   echo "📦 Creating secrets backup..."
@@ -147,6 +157,7 @@ if run_backup; then
   LABEL="$(basename "$0" .sh)"
   mkdir -p "$HOME/.cache/foundry"
   date +'%Y-%m-%d %H:%M:%S' > "$HOME/.cache/foundry/last-success-${LABEL}.txt"
+
 
   exit 0
 else

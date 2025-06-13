@@ -11,6 +11,16 @@ exec 2>&1
 timestamp() { date +'%Y-%m-%d %H:%M:%S'; }
 log() { local level="$1"; shift; printf '[%s] %s %s\n' "$level" "$(timestamp)" "$*"; }
 
+# ── Log truncation if file > 5MB ───────────────────────
+LOG_MAX_MB=5
+if [[ -f "$LOG_FILE" ]]; then
+  size=$(du -m "$LOG_FILE" | cut -f1)
+  if (( size > LOG_MAX_MB )); then
+    log INFO "🧹 Truncating $LOG_FILE (was ${size}MB)"
+    tail -n 200 "$LOG_FILE" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "$LOG_FILE"
+  fi
+fi
+
 run_maintenance() {
   log INFO "📦 Running brew update & upgrade..."
   brew update

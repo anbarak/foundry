@@ -4,8 +4,6 @@ set -euo pipefail
 # Paths
 AI_DIR=~/bin/tools/ai
 LOG_DIR=~/logs
-WRAPPER="$AI_DIR/foundry-llm.sh"
-ZSHRC_LOCAL=~/.zshrc.local
 
 MODE="${1:-interactive}"
 
@@ -43,23 +41,13 @@ if [[ "$enable_ai" =~ ^[Yy]$ ]]; then
   DEFAULT_MODEL_FILE="$HOME/.local/state/foundry/ollama-default-model"
   DEFAULT_MODEL=$(cat "$DEFAULT_MODEL_FILE" 2>/dev/null || echo llama3.2)
 
-  MODEL_LIST_FILE="$HOME/.config/ollama/model-list.txt"
-  if [[ "$IS_INTERACTIVE" == true && -f "$MODEL_LIST_FILE" ]]; then
-    echo "📄 Interactive session — using full model list"
-    mapfile -t models < "$MODEL_LIST_FILE"
+  echo "📦 Using default model only: $DEFAULT_MODEL"
+  if ! ollama show "$DEFAULT_MODEL" >/dev/null 2>&1; then
+    echo "⬇️  Pulling model: $DEFAULT_MODEL"
+    ollama pull "$DEFAULT_MODEL"
   else
-    echo "📦 Non-interactive — using default model only: $DEFAULT_MODEL"
-    models=("$DEFAULT_MODEL")
+    echo "✅ Model already pulled: $DEFAULT_MODEL"
   fi
-
-  for model in "${models[@]}"; do
-    if ! ollama show "$model" >/dev/null 2>&1; then
-      echo "⬇️  Pulling model: $model"
-      ollama pull "$model"
-    else
-      echo "✅ Model already pulled: $model"
-    fi
-  done
 
   # Install LaunchAgent to auto-start Ollama at login
   INSTALLER="$AI_DIR/install-ai-tools.sh"
@@ -67,40 +55,27 @@ if [[ "$enable_ai" =~ ^[Yy]$ ]]; then
     "$INSTALLER"
   fi
 
-  # Create LLM wrapper
-  cat <<'EOF' > "$WRAPPER"
-#!/usr/bin/env bash
-MODEL="${1:-$(<"$HOME/.local/state/foundry/ollama-default-model" 2>/dev/null || echo llama3.2)}"
-shift
-ollama run "$MODEL" "$@"
-EOF
-
-  chmod +x "$WRAPPER"
-
-  # Add shell aliases if missing
-  add_alias_if_missing() {
-    local name="$1"
-    local value="$2"
-    grep -q "$name=" "$ZSHRC_LOCAL" 2>/dev/null || echo "alias $name=$value" >> "$ZSHRC_LOCAL"
-  }
-
-  add_alias_if_missing llm "'$WRAPPER'"
-  add_alias_if_missing commit-ai "'git diff | llm codellama \"Write a conventional commit message:\"'"
-  add_alias_if_missing ollama-health "'curl -s http://localhost:11434/version || echo \"Ollama server not running\"'"
-
-  echo "✅ Aliases updated in $ZSHRC_LOCAL"
-
   if [[ "$IS_INTERACTIVE" == true ]]; then
-    # Ensure pipx and aider are installed
-    if ! command -v aider &>/dev/null; then
-      echo "📦 Installing aider-chat via pipx..."
-      brew list pipx &>/dev/null || brew install pipx
-      pipx install aider-chat
+    echo "📦 Ensuring Colima is running to pull aider Docker image..."
+
+    COLIMA_STARTED=false
+    if ! colima status | grep -q "Status: Running"; then
+      echo "🚀 Starting Colima temporarily..."
+      colima start
+      COLIMA_STARTED=true
     else
-      echo "✅ Aider already installed"
+      echo "✅ Colima already running"
+    fi
+
+    echo "📦 Pulling aider-full Docker image..."
+    docker pull paulgauthier/aider-full
+
+    if [[ "$COLIMA_STARTED" == true ]]; then
+      echo "🛑 Stopping Colima (was started just for this task)..."
+      colima stop
     fi
   else
-    echo "⏭️ Skipping aider install in non-interactive mode"
+    echo "⏭️ Skipping aider Docker pull in non-interactive mode"
   fi
 
 else

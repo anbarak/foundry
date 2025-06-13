@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck shell=bash
-# Suggest a conventional commit message using aider and staged git diff
+# Suggest a conventional commit message using Docker-based Aider
 set -euo pipefail
 
-exec aider --diff --message "Summarize these changes as a conventional commit message:"
+exec "$AI_TOOLS/aider-wrapper.sh" --diff --message "Summarize these changes as a conventional commit message:"

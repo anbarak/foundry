@@ -11,6 +11,16 @@ TIMESTAMP="$(date "+%Y-%m-%d %H:%M:%S")"
 NOTIFY_TITLE="🔄 Weekly Restart Reminder"
 NOTIFY_MESSAGE="Restart your Mac to keep it fast, stable, and secure. A weekly reboot clears memory leaks, resets services, and applies system updates."
 
+# ── Log truncation if file > 5MB ───────────────────────
+LOG_MAX_MB=5
+if [[ -f "$LOG_FILE" ]]; then
+  size=$(du -m "$LOG_FILE" | cut -f1)
+  if (( size > LOG_MAX_MB )); then
+    log INFO "🧹 Truncating $LOG_FILE (was ${size}MB)"
+    tail -n 200 "$LOG_FILE" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "$LOG_FILE"
+  fi
+fi
+
 # ====== Setup ======
 mkdir -p "$LOG_DIR"
 echo "[$TIMESTAMP] [$SCRIPT_NAME] Starting restart prep..." >> "$LOG_FILE"
