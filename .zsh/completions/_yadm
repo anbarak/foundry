@@ -1,0 +1,22 @@
+#compdef yadd yaddfuzzy
+
+_yadm() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+
+  _arguments -C \
+    '1: :->subcmds' \
+    '*::arg:->args'
+
+  case $service in
+    yadd)
+      _files
+      ;;
+    yaddfuzzy)
+      local -a files
+      files=("${(@f)$(yadm status --porcelain | awk '/^ M / {print $2}')}")
+
+      _describe -t files 'Modified files' files
+      ;;
+  esac
+}

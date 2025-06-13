@@ -122,3 +122,70 @@ if [[ -x "$HOME/bin/tools/dev/find-recent-files.sh" ]]; then
             --preview-window=right:30%
   }
 fi
+
+# =============================================================================
+# File Preview Helper: print_files
+# =============================================================================
+# Print contents of files in a directory, with optional recursion and filtering.
+#
+# Usage:
+#   print_files <dir> [-r] [-x pattern1[,pattern2,...]]
+#
+# Options:
+#   -r                    Recurse into subdirectories
+#   -x ext1[,ext2,...]    Exclude file extensions or patterns (e.g. log,tmp or *.log,*.tmp)
+#
+# Examples:
+#   print_files ~/.zsh/completions
+#   print_files ~/.zsh/completions -r
+#   print_files ~/.logs -x log
+#   print_files ~/configs -r -x tmp,log
+#   print_files ~/data -x '*.bak,*.tmp'
+#   print_files ~/data -r -x '*.bak,*.tmp'
+
+print_files() {
+  local recursive=false
+  local exclude_patterns=()
+  local dir=""
+
+  # Parse args
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -r)
+        recursive=true
+        shift
+        ;;
+      -x)
+        IFS=',' read -r -A exclude_patterns <<< "$2"
+        shift 2
+        ;;
+      *)
+        dir="$1"
+        shift
+        ;;
+    esac
+  done
+
+  if [[ -z "$dir" || ! -d "$dir" ]]; then
+    echo "Usage: print_files <dir> [-r] [-x pattern1[,pattern2,...]]" >&2
+    return 1
+  fi
+
+  local find_cmd=(find "$dir")
+  $recursive || find_cmd+=(-maxdepth 1)
+  find_cmd+=(-type f)
+
+  # Exclude patterns (extensions or globs)
+  for pattern in "${exclude_patterns[@]}"; do
+    find_cmd+=(! -name "$pattern")
+  done
+
+  "${find_cmd[@]}" | while read -r file; do
+    echo
+    echo "══════════════════════════════════════════════════════"
+    echo "📄 $file"
+    echo "──────────────────────────────────────────────────────"
+    cat "$file"
+    echo
+  done
+}

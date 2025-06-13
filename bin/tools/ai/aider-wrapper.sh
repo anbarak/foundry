@@ -10,7 +10,7 @@ if ! ollama list | grep -q "$MODEL"; then
 fi
 
 # Check if Colima is running
-if ! colima status | grep -q "Status: Running"; then
+if ! colima status --json 2>/dev/null | jq -e '.docker_socket | test("docker.sock")' >/dev/null; then
   echo "❌ Colima is not running. Please start it first with: colima start" >&2
   exit 1
 fi
