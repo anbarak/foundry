@@ -74,3 +74,4 @@ code/
 # ================================
 .vim/autoload/plug.vim
 .vim/plugged/**
+.foundry/tmp/

@@ -15,6 +15,7 @@ $HOME/.p10k.zsh
 $HOME/.p10k-tiny-aws.zsh
 $HOME/.vale.ini
 $HOME/.yadmignore
+$HOME/.editorconfig
 
 # ══════════════════════════════
 # Foundry/devtools/bootstrap bin
@@ -23,6 +24,7 @@ $HOME/bin/
 $HOME/.config/zsh/
 $HOME/.config/devtools/
 $HOME/.config/clouds/
+$HOME/.foundry/
 
 # ════════════════════
 # Terminal & Themes

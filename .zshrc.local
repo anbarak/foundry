@@ -81,6 +81,14 @@ compinit
 export CLICOLOR=1
 export LSCOLORS=GxFxCxDxBxegedabagaced
 
+# =============================================================================
+# Foundry Environment Setup
+# =============================================================================
+# Loads optional feature flags and environment variables for Foundry dev platform.
+# Controlled via ~/.foundry/.foundryrc (tracked in yadm)
+export FOUNDRY_HOME="$HOME/.foundry"
+[[ -f "$FOUNDRY_HOME/.foundryrc" ]] && source "$FOUNDRY_HOME/.foundryrc"
+
 # Function to check for Oh My Zsh updates and prompt user
 check_omz_update() {
     echo "Checking for Oh My Zsh updates..."

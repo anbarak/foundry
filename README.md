@@ -88,6 +88,30 @@ It’s engineered to be lightweight, low-friction, modular, and easy to undo —
 
 ---
 
+## ⚙️ Environment Configuration Files
+
+Foundry includes two environment-level config files that enhance consistency, modularity, and customization across your workflows:
+
+### 📄 `~/.editorconfig`
+
+This file enforces consistent formatting rules across all editors and tools. It is globally applied and tracked via `yadm`. Most modern editors (Vim, VSCode, JetBrains, etc.) detect and apply these rules automatically.
+
+> 💡 Keeps formatting consistent and prevents whitespace noise in commits.
+
+### 🧩 `~/.foundry/.foundryrc`
+
+This optional file allows you to define Foundry-specific flags and runtime overrides without touching your main shell or bootstrap scripts. It is sourced from your `~/.zshrc.local` early during shell initialization.
+
+Common uses:
+- Toggling feature flags like `ENABLE_AI_TOOLS`, `ENABLE_LOG_ROTATION`, `FOUNDRY_DEBUG`, etc.
+- Defining environment variables used across Foundry bootstrap modules.
+
+> 💡 Enables per-user or per-machine customization while preserving a clean, modular setup.
+
+Both files are committed to the repo and managed via `yadm`. You can safely customize them as needed to adapt Foundry to your workflow.
+
+---
+
 ## 🚀 Bootstrap Strategy
 
 The environment is broken into modular parts under `~/bin/`, making it easy to automate, debug, and customize:
