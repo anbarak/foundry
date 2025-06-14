@@ -19,6 +19,7 @@
 'builtin' 'setopt' 'no_aliases' 'no_sh_glob' 'brace_expand'
 
 () {
+
   emulate -L zsh -o extended_glob
 
   # Unset all configuration options. This allows you to apply configuration changes without

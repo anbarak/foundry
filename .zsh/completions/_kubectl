@@ -1,5 +1,5 @@
 #compdef kubectl
-compdef _kubectl kubectl
+#compdef _kubectl kubectl
 
 # Copyright 2016 The Kubernetes Authors.
 #
@@ -14,8 +14,6 @@ compdef _kubectl kubectl
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#compdef kubectl
-compdef _kubectl kubectl
 
 # zsh completion for kubectl                              -*- shell-script -*-
 

@@ -108,7 +108,7 @@ if [ -f "$(brew --prefix)/opt/asdf/libexec/asdf.sh" ]; then
 fi
 
 # Add asdf paths
-add_to_path "$HOME/.asdf/bin" "$HOME/.asdf/shims"
+add_to_path "$USER_HOME/.asdf/bin" "$USER_HOME/.asdf/shims"
 
 # Path to your Oh My Zsh installation.
 export ZSH="$USER_HOME/.oh-my-zsh"
@@ -117,7 +117,7 @@ export ZSH="$USER_HOME/.oh-my-zsh"
 # load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-export ZSH_THEME="powerlevel10k/powerlevel10k"
+#export ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -208,21 +208,17 @@ plugins=() # Refer to ~/.zshrc.plugins
 
 # Add SSH key to macOS keychain if it exists (Personal-specific)
 if [[ -f "$USER_HOME/.ssh/id_ed25519_centerfield" ]]; then
-  ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
+  ssh-add --apple-use-keychain "HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
 fi
 
 # Source local configuration file
-if [ -f "$HOME/.zshrc.local" ]; then
-  . "$HOME/.zshrc.local"
+if [ -f "$USER_HOME/.zshrc.local" ]; then
+  . "$USER_HOME/.zshrc.local"
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh
 # shellcheck source=/dev/null
-[ -f "$USER_HOME/.p10k.zsh" ] && . "$USER_HOME/.p10k.zsh"
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-# shellcheck source=/dev/null
-[ ! -f "$USER_HOME/.p10k.zsh" ] || . "$USER_HOME/.p10k.zsh"
+[[ -f "$USER_HOME/.p10k.zsh" ]] && source "$USER_HOME/.p10k.zsh"
 
 # Load tiny AWS badge
-[ -f "$USER_HOME/.p10k-tiny-aws.zsh" ] && . "$USER_HOME/.p10k-tiny-aws.zsh"
+[[ -f "$USER_HOME/.p10k-tiny-aws.zsh" ]] && source "$USER_HOME/.p10k-tiny-aws.zsh"
