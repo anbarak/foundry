@@ -91,9 +91,10 @@ run_backup() {
       --exclude='*.[oO][lL][dD]*' \
       -czf "$backup_file" \
       .ssh .aws .saml2aws .kube .gnupg .vpn-configs \
-      .gitconfig .gitconfig-centerfield .mysql
+      .gitconfig .gitconfig-centerfield .mysql \
+      .mylogin.cnf
 
-  echo "📤 Uploading to Bitwarden..." 
+  echo "📤 Uploading to Bitwarden..."
 
   item_id=$(bw list items --search "Sensitive Config Files Backup" --session "$BW_SESSION" | jq -r '.[0].id')
 
