@@ -1,25 +1,39 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# ─────────────────────────────────────────────────────────────
+# 🔒 Usage check
+# ─────────────────────────────────────────────────────────────
 if [[ -z "${1:-}" ]]; then
   echo "Usage: $0 <terraform-version> [terraform args...]"
-  exit 1
-fi
-
-# Ensure the modules path exists
-if [[ ! -d "../../modules" ]]; then
-  echo "Error: ../../modules directory does not exist"
   exit 1
 fi
 
 TF_VERSION="$1"
 shift
 
-MODULES_PATH=$(realpath ../../modules)
+# ─────────────────────────────────────────────────────────────
+# 📦 Colima check (auto-start if Docker isn't running)
+# ─────────────────────────────────────────────────────────────
+if ! docker info >/dev/null 2>&1; then
+  echo "🔄 Docker not running. Starting Colima..."
+  colima start --profile default
+fi
 
-# Run terraform 0.13 upgrade if running on terraform v0.13, only during init
-if [[ "$TF_VERSION" == "0.13"* && "$1" == "init" && ! -f ".terraform-version-upgraded" ]]; then
-  echo "Upgrading Terraform configuration to be compatible with v0.13..."
+# ─────────────────────────────────────────────────────────────
+# 📁 Modules path validation
+# ─────────────────────────────────────────────────────────────
+MODULES_PATH=$(realpath ../../modules)
+if [[ ! -d "$MODULES_PATH" ]]; then
+  echo "❌ Error: ../../modules directory does not exist at $MODULES_PATH"
+  exit 1
+fi
+
+# ─────────────────────────────────────────────────────────────
+# 🔧 Optional: Terraform 0.13 upgrade (once per workspace)
+# ─────────────────────────────────────────────────────────────
+if [[ "$TF_VERSION" == "0.13"* && "${1:-}" == "init" && ! -f ".terraform-version-upgraded" ]]; then
+  echo "⚙️  Running terraform 0.13upgrade..."
   docker run --rm -it \
     --platform linux/amd64 \
     -v "$PWD":/workspace \
@@ -27,16 +41,18 @@ if [[ "$TF_VERSION" == "0.13"* && "$1" == "init" && ! -f ".terraform-version-upg
     -w /workspace \
     devopscloudycontainers/terraform:"$TF_VERSION" 0.13upgrade .
 
-  # Mark the upgrade as done
   touch .terraform-version-upgraded
 fi
 
+# ─────────────────────────────────────────────────────────────
+# ▶️ Run Terraform in container
+# ─────────────────────────────────────────────────────────────
 docker run --rm -it \
   --platform linux/amd64 \
   -v "$PWD":/workspace \
   -v "$MODULES_PATH":/workspace/../../modules \
   -v "$HOME/.aws:/root/.aws" \
-  -e AWS_PROFILE="insurance-main-admin" \
+  -e AWS_PROFILE="${AWS_PROFILE:-insurance-main-admin}" \
   -e MYSQL_PASSWORD="${MYSQL_PASSWORD:-}" \
   -e MYSQL_USERNAME="${MYSQL_USERNAME:-}" \
   -e MYSQL_ENDPOINT="${MYSQL_ENDPOINT:-}" \
