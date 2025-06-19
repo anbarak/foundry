@@ -1,1 +1,4 @@
 # Optional config flags for Foundry
+#export ENABLE_AI_TOOLS=true
+#export ENABLE_LOG_ROTATION=true
+#export FOUNDRY_DEBUG=0

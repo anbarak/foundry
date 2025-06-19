@@ -1,6 +1,56 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# -----------------------------------------------------------------------------
+# 📦 Backup yadm-tracked dotfiles before doing anything else
+# -----------------------------------------------------------------------------
+if [[ -x "$HOME/bin/tools/backup/backup-tracked-dotfiles.sh" ]]; then
+  "$HOME/bin/tools/backup/backup-tracked-dotfiles.sh"
+else
+  echo "⚠️  Backup script not found or not executable: $HOME/bin/tools/backup/backup-tracked-dotfiles.sh"
+  echo "❌ Aborting setup to avoid overwriting existing files."
+  exit 1
+fi
+
+# -----------------------------------------------------------------------------
+# 🧠 Select Installation Profile
+# -----------------------------------------------------------------------------
+echo "────────────────────────────────────────────"
+echo "🧠 Choose your install profile"
+echo "────────────────────────────────────────────"
+
+PROFILE_CHOICE=$(gum choose --header "Choose your experience level:" --cursor "👉" \
+  "🧠 Expert - Full tools, AI, vim, tmux, containers" \
+  "🧪 Intermediate - CLI tools, no AI or advanced plugins" \
+  "🍼 Beginner - Safe defaults, no AI, tmux, or vim plugins" \
+  "⚙️ Custom - Pick what to include interactively")
+
+case "$PROFILE_CHOICE" in
+  *Expert*)       PROFILE="expert" ;;
+  *Intermediate*) PROFILE="intermediate" ;;
+  *Beginner*)     PROFILE="beginner" ;;
+  *Custom*)       PROFILE="custom" ;;
+esac
+
+echo "📁 Profile selected: $PROFILE"
+
+# Persist it to ~/.foundry/.foundryrc
+mkdir -p "$HOME/.foundry"
+echo "export FOUNDRY_PROFILE=\"$PROFILE\"" > "$HOME/.foundry/.foundryrc"
+
+# Load profile flags
+PROFILE_SCRIPT="$HOME/bin/foundry/profiles/$PROFILE.sh"
+if [[ -f "$PROFILE_SCRIPT" ]]; then
+  # shellcheck source=/dev/null
+  source "$PROFILE_SCRIPT"
+else
+  echo "⚠️ Profile script not found: $PROFILE_SCRIPT"
+  exit 1
+fi
+
+
+
+
 # Trap CTRL+C to cleanly exit
 trap "echo -e '\n❌ Setup cancelled.'; exit 130" INT
 

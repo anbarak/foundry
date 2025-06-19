@@ -91,13 +91,44 @@ for plugin in "${KREW_PLUGINS[@]}"; do
   fi
 done
 
-# Optional MySQL configuration
+# -----------------------------------------------------------------------------
+# 🪪 Ensuring CLI Shortcuts (Symlinks) to Tools
+# -----------------------------------------------------------------------------
+echo "────────────────────────────────────────────"
+echo "🪪 Ensuring CLI shortcuts (symlinks in ~/bin)"
+echo "────────────────────────────────────────────"
+
+# Format: "link_name:relative_or_absolute_path_to_target"
+CLI_SYMLINKS=(
+  "bkup:$HOME/bin/tools/backup/backup-tracked-dotfiles.sh"
+  "restore-foundry:$HOME/bin/dev-env/full-restore"
+  "finalize-foundry:$HOME/bin/dev-env/finalize"
+  "recent:$HOME/bin/tools/dev/find-recent-files.sh"
+  "aiwrap:$HOME/bin/tools/ai/foundry-ai-wrapper.sh"
+)
+
+for entry in "${CLI_SYMLINKS[@]}"; do
+  link_name=\"${entry%%:*}\"
+  target_path=\"${entry#*:}\"
+  link_path=\"$HOME/bin/$link_name\"
+
+  if [[ -L \"$link_path\" || -e \"$link_path\" ]]; then
+    echo \"✅ Symlink exists: $link_name\"
+  elif [[ -f \"$target_path\" ]]; then
+    ln -s \"$target_path\" \"$link_path\"
+    echo \"🔗 Created symlink: $link_name → $(basename \"$target_path\")\"
+  else
+    echo \"⚠️  Skipped: $target_path not found\"
+  fi
+done
+
+# MySQL configuration
 # ────────────────────────────────────────────
-# 🐘 Optional: Configure MySQL Credentials
+# 🐘 Configure MySQL Credentials
 # ────────────────────────────────────────────
 
 echo "────────────────────────────────────────────"
-echo "🐘 Optional: Configuring MySQL"
+echo "🐘 Configuring MySQL"
 echo "────────────────────────────────────────────"
 
 if gum confirm "🔔 Do you want to configure a MySQL login path now?"; then

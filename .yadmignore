@@ -9,6 +9,13 @@
 .zsh_sessions/
 
 # ================================
+# Foundry backups
+# ================================
+.foundry_backups/
+.config.backup/
+bin.backup/
+
+# ================================
 # Desktop & OS Clutter
 # ================================
 .DS_Store

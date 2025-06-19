@@ -1,0 +1,23 @@
+# Load the profile flags
+[[ -f "$HOME/.foundry/.foundryrc" ]] && source "$HOME/.foundry/.foundryrc"
+
+# Conditionally run modules
+[[ "${SKIP_PYTHON:-false}" != "true" ]] && ~/bin/bootstrap/setup-python-env.sh
+[[ "${ENABLE_AI_TOOLS:-false}" == "true" ]] && ~/bin/tools/ai/setup-ai-tools.sh
+[[ "${ENABLE_TMUX_RESTORE:-false}" == "true" ]] && echo "ℹ️ Tmux restore is enabled"
+# etc.
+
+# Suggest a diff view after restore
+echo ""
+if gum confirm "🔍 Do you want to compare restored files with your backup?"; then
+  latest_backup=$(ls -td "$HOME/.foundry_backups"/*/ | head -n1)
+  if command -v meld &>/dev/null; then
+    meld "$latest_backup" "$HOME"
+  else
+    echo "🛠 Run: diff -r \"$latest_backup\" \"$HOME\""
+    echo "📦 Or install meld for a GUI diff: brew install --cask meld"
+  fi
+else
+  echo "✅ Done. You can manually compare with:"
+  echo "   diff -r ~/.foundry_backups/<timestamp> ~/"
+fi
