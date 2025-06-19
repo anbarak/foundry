@@ -99,7 +99,6 @@ brew "zsh"
 brew "zsh-completions"
 brew "charmbracelet/tap/gum"
 brew "craftamap/tap/bb"
-brew "hashicorp/tap/terraform", link: false
 cask "aws-vpn-client"
 cask "background-music"
 cask "bitwarden"
