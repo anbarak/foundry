@@ -16,13 +16,19 @@ alias tfw_list='terraform workspace list'
 alias tfw_new='terraform workspace new'
 alias tfw_select='terraform workspace select'
 alias tfdoc='terraform-docs markdown table .'
-alias tfclean='rm -rf .terraform .terraform.lock.hcl tfplan.binary plan.json'
+alias tfclean='rm -rf .terraform .terraform.lock.hcl tfplan.binary plan.json plan.out'
 
 # Plan output shortcuts
 alias tfplanbin='terraform plan -out=tfplan.binary'
 alias tfplanjson='terraform show -json tfplan.binary | jq > plan.json'
 alias tfshow='terraform show -no-color tfplan.binary'
 alias tfbat='terraform show -no-color tfplan.binary | bat --language=hcl'
+alias tfxsummarize='tf-summarize --json plan.json'
+alias tfxplan-summary='~/bin/tools/terraform/tfxplan-summary.sh'
+alias tfxapply-summary='~/bin/tools/terraform/tfxapply-summary.sh'
+alias tfxdestroy-summary='~/bin/tools/terraform/tfxdestroy-summary.sh'
+alias tfxinit-summary='~/bin/tools/terraform/tfxinit-summary.sh'
+alias tfxoutput-summary='~/bin/tools/terraform/tfxoutput-summary.sh'
 
 # Security + Lint
 alias tfs='tfsec'

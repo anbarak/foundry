@@ -12,7 +12,7 @@ shift
 logfile="fmt.log"
 
 echo "🧹 Running Terraform fmt..."
-tfx "$version" fmt "$@" | tee "$logfile"
+"$HOME/bin/runners/terraform-container" "$version" fmt "$@" | tee "$logfile"
 
 echo "📄 Fmt log:"
 if command -v bat >/dev/null 2>&1; then

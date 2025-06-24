@@ -12,7 +12,7 @@ shift
 logfile="init.log"
 
 echo "🚀 Initializing Terraform workspace..."
-tfx "$version" init "$@" | tee "$logfile"
+"$HOME/bin/runners/terraform-container" "$version" init "$@" | tee "$logfile"
 
 echo "📄 Init log:"
 if command -v bat >/dev/null 2>&1; then

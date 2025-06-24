@@ -13,7 +13,7 @@ logfile="validate.log"
 
 # Validate and capture output
 echo "🔎 Validating Terraform configuration..."
-tfx "$version" validate "$@" | tee "$logfile"
+"$HOME/bin/runners/terraform-container" "$version" validate "$@" | tee "$logfile"
 
 # Show output
 echo "📄 Validate log:"

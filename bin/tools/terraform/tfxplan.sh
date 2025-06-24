@@ -12,10 +12,10 @@ shift
 outfile="plan.out"
 jsonfile="plan.json"
 
-tfx "$version" plan -out="$outfile" "$@"
+"$HOME/bin/runners/terraform-container" "$version" plan -out="$outfile" "$@"
 
 echo "📤 Showing plan JSON:"
-tfx "$version" show -json "$outfile" | jq > "$jsonfile"
+"$HOME/bin/runners/terraform-container" "$version" show -json "$outfile" | jq > "$jsonfile"
 
 if command -v bat >/dev/null 2>&1; then
   bat --paging=never --language=json "$jsonfile"
