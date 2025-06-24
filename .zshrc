@@ -99,7 +99,7 @@ fi
 
 if [ -d "$USER_HOME/code/cf/datalot/.datalot" ]; then
   add_to_path "$USER_HOME/code/cf/datalot/.datalot/bin"
-fi  
+fi
 
 # Add asdf to PATH and source asdf
 if [ -f "$(brew --prefix)/opt/asdf/libexec/asdf.sh" ]; then
@@ -208,7 +208,7 @@ plugins=() # Refer to ~/.zshrc.plugins
 
 # Add SSH key to macOS keychain if it exists (Personal-specific)
 if [[ -f "$USER_HOME/.ssh/id_ed25519_centerfield" ]]; then
-  ssh-add --apple-use-keychain "HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
+  ssh-add --apple-use-keychain "$HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
 fi
 
 # Source local configuration file
