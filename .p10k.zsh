@@ -51,7 +51,7 @@
   typeset -g POWERLEVEL9K_VI_MODE_TEXT_INSERT='INSERT'
   typeset -g POWERLEVEL9K_VI_MODE_TEXT_NORMAL='NORMAL'
   typeset -g POWERLEVEL9K_VI_MODE_TEXT_VISUAL='VISUAL'
-  typeset -g POWERLEVEL9K_VI_MODE_TEXT_OVERWRITE='OVR' 
+  typeset -g POWERLEVEL9K_VI_MODE_TEXT_OVERWRITE='OVR'
 
   # The list of segments shown on the right. Fill it with less important segments.
   # Right prompt on the last prompt line (where you are typing your commands) gets
@@ -228,13 +228,13 @@
   typeset -g POWERLEVEL9K_DIR_FOREGROUND=31
   # If directory is too long, shorten some of its segments to the shortest possible unique
   # prefix. The shortened directory can be tab-completed to the original.
-  typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=truncate_to_unique
+  #typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=truncate_to_unique
   # Replace removed segment suffixes with this symbol.
   typeset -g POWERLEVEL9K_SHORTEN_DELIMITER=
   # Color of the shortened directory segments.
   typeset -g POWERLEVEL9K_DIR_SHORTENED_FOREGROUND=103
-  # Truncates to 3 directories Truncates to 3 directories 
-  typeset -g PPOWERLEVEL9K_SHORTEN_PATH_MAX=4
+  # Truncates to 3 directories Truncates to 3 directories
+  typeset -g POWERLEVEL9K_SHORTEN_PATH_MAX=4
   typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=truncate_middle
   # Color of the anchor directory segments. Anchor segments are never shortened. The first
   # segment is always an anchor.
@@ -408,7 +408,7 @@
 
     if [[ -n $VCS_STATUS_LOCAL_BRANCH ]]; then
       local branch=${(V)VCS_STATUS_LOCAL_BRANCH}
-  
+
       # Truncate the end of the branch name if it's longer than 30 characters.
       # Keep the first 30 characters, and truncate the rest.
       if (( ${#branch} > 25 )); then
@@ -746,7 +746,7 @@
   typeset -g POWERLEVEL9K_RANGER_FOREGROUND=178
   # Custom icon.
   # typeset -g POWERLEVEL9K_RANGER_VISUAL_IDENTIFIER_EXPANSION='⭐'
-  
+
   ####################[ yazi: yazi shell (https://github.com/sxyazi/yazi) ]#####################
   # Yazi shell color.
   typeset -g POWERLEVEL9K_YAZI_FOREGROUND=178
@@ -947,10 +947,10 @@
   # Python virtual environment color.
   typeset -g POWERLEVEL9K_VIRTUALENV_FOREGROUND=37
   # Don't show Python version next to the virtual environment name.
-  typeset -g POWERLEVEL9K_VIRTUALENV_SHOW_PYTHON_VERSION=false
+  typeset -g POWERLEVEL9K_VIRTUALENV_SHOW_PYTHON_VERSION=true
   # If set to "false", won't show virtualenv if pyenv is already shown.
   # If set to "if-different", won't show virtualenv if it's the same as pyenv.
-  typeset -g POWERLEVEL9K_VIRTUALENV_SHOW_WITH_PYENV=false
+  typeset -g POWERLEVEL9K_VIRTUALENV_SHOW_WITH_PYENV=true
   # Separate environment name from Python version only with a space.
   typeset -g POWERLEVEL9K_VIRTUALENV_{LEFT,RIGHT}_DELIMITER=
   # Custom icon.
@@ -1734,7 +1734,8 @@ typeset -g POWERLEVEL9K_CONFIG_FILE=${${(%):-%x}:a}
 
 # Tell p10k about our tiny AWS segment
 typeset -g POWERLEVEL9K_AWS_TINY_FOREGROUND=208
+typeset -g POWERLEVEL9K_AWS_TINY_CONTENT_EXPANSION='${P9K_AWS_PROFILE//\%/%%}'
 
 # Disable cpu and memory on Powerlevel10k
-POWERLEVEL9K_CPU_LOAD_SHOW=false
-POWERLEVEL9K_MEMORY_USAGE_SHOW=false
+#POWERLEVEL9K_CPU_LOAD_SHOW=false
+#POWERLEVEL9K_MEMORY_USAGE_SHOW=false

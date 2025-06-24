@@ -117,7 +117,7 @@ export ZSH="$USER_HOME/.oh-my-zsh"
 # load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-#export ZSH_THEME="powerlevel10k/powerlevel10k"
+export ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -207,14 +207,17 @@ plugins=() # Refer to ~/.zshrc.plugins
 # alias are located in ~/.zshrc.local file
 
 # Add SSH key to macOS keychain if it exists (Personal-specific)
-if [[ -f "$USER_HOME/.ssh/id_ed25519_centerfield" ]]; then
-  ssh-add --apple-use-keychain "$HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
+if [ -f "$USER_HOME/.ssh/id_ed25519_centerfield" ]; then
+  ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
 fi
 
 # Source local configuration file
 if [ -f "$USER_HOME/.zshrc.local" ]; then
   . "$USER_HOME/.zshrc.local"
 fi
+
+# Enable vi mode before prompt is drawn
+bindkey -v
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh
 # shellcheck source=/dev/null
