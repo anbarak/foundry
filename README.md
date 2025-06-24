@@ -422,6 +422,36 @@ This setup includes:
 ### 🛠️ Dev & Cloud Tools
 - `kubectl`, `krew`, `k9s`, `terraform`, `awscli`, `session-manager-plugin`, `gcloud`, `tmux`, `vim`, `YouCompleteMe`, `goenv`, `pyenv`, `poetry`, `pipenv`, `bitwarden-cli`, `git-extras`, `gh`, `bb`
 
+### ⚠️ Manual Intervention Required for Some Homebrew Upgrades
+
+To preserve automation, Foundry’s scheduled Homebrew maintenance script:
+
+- ✅ Runs `brew update` and `brew upgrade`
+- 🚫 **Skips installing/upgrading any formula or cask that requires a password**
+- 📄 **Logs these skipped items at the end of the process**
+
+You can find the list of skipped upgrades in:
+
+```bash
+~/logs/brew-maintenance.log
+```
+
+#### 💡 To complete those upgrades manually:
+
+Run the following in an interactive terminal:
+
+```bash
+brew upgrade --cask --greedy
+```
+
+Or upgrade individual formulas/casks manually:
+
+```bash
+brew upgrade <name>
+```
+
+> 🔐 This behavior ensures your automation never blocks on a password prompt, while still informing you of pending privileged upgrades.
+
 ---
 
 ## 🐍 Python Environment & CLI Tools (Foundry Setup)
