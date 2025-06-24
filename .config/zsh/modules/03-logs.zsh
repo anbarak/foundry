@@ -21,3 +21,32 @@ taillog() {
 	fi
 	tail -f "$LOG_DIR/$1"
 }
+
+logsince() {
+  if (( $# < 2 )); then
+    echo "Usage: logsince <YYYY-MM-DD> <logfile>"
+    return 1
+  fi
+
+  local date="$1"
+  local file="$2"
+  [[ -f "$file" ]] || { echo "❌ File not found: $file"; return 2; }
+
+  # Find the first matching line with a date ≥ $date
+  local match
+  match=$(grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' "$file" | sort -u | awk -v d="$date" '$0 >= d { print; exit }')
+
+  if [[ -z "$match" ]]; then
+    echo "⚠️ No entries on or after $date found in $file"
+    return 0
+  fi
+
+  # Show log from the first matching date onward
+  sed -n "/$match/,\$p" "$file" | {
+    if command -v bat &>/dev/null; then
+      bat --language=log --paging=never
+    else
+      cat
+    fi
+  }
+}
