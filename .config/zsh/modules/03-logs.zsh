@@ -13,6 +13,7 @@ alias tailf200='tail -f -n 200'
 alias tailf500='tail -f -n 500'
 alias tailf1k='tail -f -n 1000'
 alias tailf2k='tail -f -n 2000'
+alias logsize='du -sh ~/logs/* | sort -h'
 
 taillog() {
 	if [[ -z "$1" ]]; then
