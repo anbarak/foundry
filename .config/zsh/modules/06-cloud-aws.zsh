@@ -116,6 +116,26 @@ awslogin() {
   export AWS_PROFILE="$profile"
   echo "✅ AWS_PROFILE set to $profile"
 
+  # ✅ Optional: show token expiration after login
+  local session_name start_url cache_file expires
+  session_name=$(aws configure get sso_session --profile "$profile" 2>/dev/null)
+  if [[ -n "$session_name" ]]; then
+    start_url=$(awk -v section="sso-session $session_name" '
+      $0 ~ "\\[" section "\\]" {found=1; next}
+      /^\[.*\]/ {found=0}
+      found && $1 ~ /sso_start_url/ {print $3; exit}
+    ' ~/.aws/config)
+  else
+    start_url=$(aws configure get sso_start_url --profile "$profile" 2>/dev/null)
+  fi
+
+  cache_file=$(grep -l "\"startUrl\": \"$start_url\"" ~/.aws/sso/cache/*.json 2>/dev/null | head -n1)
+  expires=$(jq -r '.expiresAt // empty' "$cache_file" 2>/dev/null)
+
+  if [[ -n "$expires" && "$expires" != "null" ]]; then
+    echo "⏳ Token expires at: $expires"
+  fi
+
   # Optional context switch if EKS_CLUSTER is set
   if [[ -n "$EKS_CLUSTER" ]]; then
     echo "🔄 Setting kubectl context to EKS cluster: $EKS_CLUSTER"
@@ -194,11 +214,17 @@ cleanup_old_sso_tokens() {
 
   for dir in ~/.aws/sso/cache ~/.aws/cli/cache; do
     [[ -d "$dir" ]] || continue
+
     find "$dir" -type f -name "*.json" | while read -r file; do
+      # Extract expiration timestamp safely
       local ts
-      ts=$(jq -r '.expiresAt // .Expiration' "$file" 2>/dev/null) || continue
-      local ts_epoch=$(date -u -d "$ts" +%s 2>/dev/null || gdate -u -d "$ts" +%s)
-      local now_epoch=$(date -u +%s)
+      ts=$(jq -r '.expiresAt // .Expiration // empty' "$file" 2>/dev/null)
+      [[ -z "$ts" || "$ts" == "null" ]] && continue
+
+      # Convert to epoch safely
+      local ts_epoch now_epoch
+      ts_epoch=$(gdate -u -d "$ts" +%s 2>/dev/null) || continue
+      now_epoch=$(gdate -u +%s)
 
       if (( now_epoch > ts_epoch )); then
         echo "🧹 Removing expired token: $file"
