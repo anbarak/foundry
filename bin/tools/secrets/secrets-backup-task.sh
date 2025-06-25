@@ -42,7 +42,11 @@ run_backup() {
   fi
 
   export BW_SESSION
-  BW_SESSION=$(echo "$BW_MASTER_PASSWORD" | bw unlock --raw)
+  BW_SESSION=$(bw unlock "$BW_MASTER_PASSWORD" --raw 2>/dev/null || true)
+  if [[ -z "$BW_SESSION" ]]; then
+    echo "❌ Failed to unlock Bitwarden with Keychain-stored password. Aborting..."
+    return 1
+  fi
   bw sync
   echo
 
