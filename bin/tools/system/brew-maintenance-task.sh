@@ -31,13 +31,14 @@ quit_app_if_running() {
 }
 
 get_skipped_items() {
-  local -n out=$1
-  out=()
+  local out_var="$1"
+  local skipped_items=()
 
-  mapfile -t casks < <(brew outdated --cask --greedy | grep -v '^\s*$')
+  # Fallback: avoid using mapfile
+  while IFS= read -r cask; do
+    [[ -z "$cask" ]] && continue
 
-  for cask in "${casks[@]}"; do
-    local json app_paths app_path full_path caskroom_path
+    local json app_path full_path caskroom_path
     if ! json=$(brew info --cask --json=v2 "$cask" 2>/dev/null); then
       continue
     fi
@@ -45,7 +46,7 @@ get_skipped_items() {
     caskroom_path="/opt/homebrew/Caskroom/$cask"
     local needs_privilege=false
 
-    # ── Heuristic 1: installer, uninstall, or pkg artifacts ──
+    # Heuristic 1
     if jq -e '
       .casks[0] |
       .uninstall or
@@ -55,68 +56,87 @@ get_skipped_items() {
       needs_privilege=true
     fi
 
-    # ── Heuristic 2: installed app(s) not writable ──
-    mapfile -t app_paths < <(jq -r '.casks[0].app[]?' <<<"$json")
-    for app_path in "${app_paths[@]}"; do
+    # Heuristic 2
+    while IFS= read -r app_path; do
       full_path="/Applications/$app_path"
       if [[ -e "$full_path" && ! -w "$full_path" ]]; then
         needs_privilege=true
         break
       fi
-    done
+    done < <(jq -r '.casks[0].app[]?' <<<"$json")
 
-    # ── Heuristic 3: caskroom dir not writable ──
+    # Heuristic 3
     if [[ -d "$caskroom_path" && ! -w "$caskroom_path" ]]; then
       needs_privilege=true
     fi
 
     if [[ "$needs_privilege" == true ]]; then
-      out+=("cask:$cask")
+      skipped_items+=("cask:$cask")
     fi
-  done
+  done < <(brew outdated --cask --greedy | grep -v '^\s*$')
+
+  # Export result via indirect reference
+  if (( ${#skipped_items[@]:-0} > 0 )); then
+    eval "$out_var=(\"\${skipped_items[@]}\")"
+  else
+    eval "$out_var=()"
+  fi
 }
 
 run_maintenance() {
-  local skipped=()
   get_skipped_items skipped
 
   log INFO "📦 Running brew update & upgrade..."
   brew update
 
   # Upgrade all formulae except those needing sudo
-  mapfile -t outdated_formulas < <(brew outdated --formula | grep -v '^\s*$')
-  for formula in "${outdated_formulas[@]}"; do
-    log INFO "⬆️  Upgrading $formula..."
-    brew upgrade "$formula"
-  done
+  outdated_formulas=()
+  if brew outdated --formula | grep -q .; then
+    while IFS= read -r f; do
+      [[ -n "$f" ]] && outdated_formulas+=("$f")
+    done < <(brew outdated --formula)
+  fi
+
+  if (( ${#outdated_formulas[@]:-0} > 0 )); then
+    for formula in "${outdated_formulas[@]}"; do
+      log INFO "⬆️  Upgrading $formula..."
+      brew upgrade "$formula"
+    done
+  fi
 
   # Upgrade all casks except skipped ones
-  mapfile -t outdated_casks < <(brew outdated --cask --greedy | grep -v '^\s*$')
-  for cask in "${outdated_casks[@]}"; do
-    if printf '%s\n' "${skipped[@]}" | grep -q "cask:$cask"; then
-      log INFO "⏭️  Skipping $cask (requires sudo)"
-    else
-      log INFO "⬆️  Upgrading cask: $cask..."
-      # Get app name from the cask metadata
-      app_name=$(brew info --cask --json=v2 "$cask" | jq -r '.casks[0].app[0]' 2>/dev/null || echo "")
-      if [[ -n "$app_name" ]]; then
-        quit_app_if_running "$app_name"
-      fi
+  outdated_casks=()
+  if brew outdated --cask --greedy | grep -q .; then
+    while IFS= read -r c; do
+      [[ -n "$c" ]] && outdated_casks+=("$c")
+    done < <(brew outdated --cask --greedy)
+  fi
 
-      # Check if existing app bundle is non-writable inside Caskroom
-      old_version=$(brew list --cask --versions "$cask" | awk '{print $2}')
-      caskroom_dir="/opt/homebrew/Caskroom/$cask/$old_version"
-      if [[ -d "$caskroom_dir" ]]; then
-        if ! find "$caskroom_dir" -type d -perm -u=w | grep -q .; then
-          log INFO "⏭️  Skipping $cask due to non-writable Caskroom path"
-          skipped+=("cask:$cask")
-          continue
+  if (( ${#outdated_casks[@]:-0} > 0 )); then
+    for cask in "${outdated_casks[@]}"; do
+      if printf '%s\n' "${skipped[@]}" | grep -q "cask:$cask"; then
+        log INFO "⏭️  Skipping $cask (requires sudo)"
+      else
+        log INFO "⬆️  Upgrading cask: $cask..."
+        app_name=$(brew info --cask --json=v2 "$cask" | jq -r '.casks[0].app[0]' 2>/dev/null || echo "")
+        if [[ -n "$app_name" ]]; then
+          quit_app_if_running "$app_name"
         fi
-      fi
 
-      brew upgrade --cask "$cask"
-    fi
-  done
+        old_version=$(brew list --cask --versions "$cask" | awk '{print $2}')
+        caskroom_dir="/opt/homebrew/Caskroom/$cask/$old_version"
+        if [[ -d "$caskroom_dir" ]]; then
+          if ! find "$caskroom_dir" -type d -perm -u=w | grep -q .; then
+            log INFO "⏭️  Skipping $cask due to non-writable Caskroom path"
+            skipped+=("cask:$cask")
+            continue
+          fi
+        fi
+
+        brew upgrade --cask "$cask"
+      fi
+    done
+  fi
 
   log INFO "🧹 Cleaning up unused packages..."
   brew cleanup -s
@@ -127,7 +147,16 @@ run_maintenance() {
 
   BREWFILE="$HOME/.config/homebrew/Brewfile"
   if [[ -f "$BREWFILE" ]]; then
+    # Ensure node is linked before dumping Brewfile
+    if brew list node &>/dev/null && ! brew list --formula node &>/dev/null; then
+      brew link node --overwrite --force || true
+    fi
+
     brew bundle dump --file="$BREWFILE" --force 2> >(grep -v "Their taps are in use" >&2)
+
+    # Sanitize link: false (node)
+    sed -i '' 's/brew "node", link: false/brew "node"/' "$BREWFILE"
+
     log INFO "✅ Brewfile updated."
 
     yadm add "$BREWFILE"

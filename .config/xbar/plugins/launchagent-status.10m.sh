@@ -12,10 +12,6 @@ weekly_jobs=(
   pipx-maintenance-task
   npm-maintenance-task
 )
-# 💻 Reboot Tasks
-reboot_jobs=(
-  install-ai-tools
-)
 
 echo "🛠️ Jobs"
 echo "---"
@@ -34,7 +30,7 @@ show_status() {
 
     # Time delta
     local mod_epoch now_epoch delta
-    mod_epoch=$(stat -f "%m" "$file")      # last modified timestamp
+    mod_epoch=$(date -j -f "%Y-%m-%d %H:%M:%S" "$time" +%s 2>/dev/null || echo 0)
     now_epoch=$(date +%s)
     delta=$((now_epoch - mod_epoch))
 
@@ -49,9 +45,7 @@ show_status() {
       ago="$((delta / 86400))d ago"
     fi
 
-    # Dynamic stale threshold: 2d for reboot jobs, 3d for weekly jobs
-    local threshold=259200  # default: 3 days
-    [[ "$label" == "install-ai-tools" ]] && threshold=172800  # 2 days
+    local threshold=604800  # 7 days in seconds
 
     if (( delta > threshold )); then
       echo "⚠️  Stale: Not run in $((delta / 86400)) days"
@@ -73,7 +67,6 @@ pretty_label() {
     secrets-backup-task)   echo "🔐 Secrets Backup (weekly)" ;;
     pipx-maintenance-task) echo "🐍 pipx Maintenance (weekly)" ;;
     npm-maintenance-task)  echo "📦 npm Maintenance (weekly)" ;;
-    install-ai-tools)      echo "🤖 Ollama Auto-Start (boot)" ;;
     *) echo "$1" ;;
   esac
 }
@@ -81,11 +74,5 @@ pretty_label() {
 echo "🛠️ Weekly Jobs"
 echo "---"
 for label in "${weekly_jobs[@]}"; do
-  show_status "$label"
-done
-
-echo "💻 Reboot Tasks"
-echo "---"
-for label in "${reboot_jobs[@]}"; do
   show_status "$label"
 done

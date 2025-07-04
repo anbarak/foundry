@@ -47,6 +47,9 @@ alias aider-ai="$AI_TOOLS/aider-wrapper.sh"
 # Use Aider to suggest commit message from git diff
 alias aider-commit="$AI_TOOLS/aider-commit.sh"
 
+# Start/stopp Ollama
+alias ollama-toggle="$AI_TOOLS/toggle-ollama.sh"
+
 # Run Ollama interactively with auto-update and model usage logging
 ollama_run() {
   local model args
