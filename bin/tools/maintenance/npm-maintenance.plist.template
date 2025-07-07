@@ -25,6 +25,6 @@
   <string>${LOG_DIR}/npm-maintenance.err</string>
 
   <key>RunAtLoad</key>
-  <true/>
+  <false/>
 </dict>
 </plist>

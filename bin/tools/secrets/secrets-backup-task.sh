@@ -95,7 +95,7 @@ run_backup() {
       --exclude='*.[oO][lL][dD]*' \
       -czf "$backup_file" \
       .ssh .aws .saml2aws .kube .gnupg .vpn-configs \
-      .gitconfig .gitconfig-centerfield .mysql \
+      .gitconfig .gitconfig-centerfield \
       .mylogin.cnf
 
   echo "📤 Uploading to Bitwarden..."

@@ -6,20 +6,24 @@
   <key>Label</key>
   <string>com.user.pipx-maintenance</string>
   <key>ProgramArguments</key>
+
   <array>
     <string>${SCRIPT}</string>
   </array>
+
   <key>StartCalendarInterval</key>
   <dict>
     <key>Weekday</key> <integer>1</integer>
     <key>Hour</key>    <integer>9</integer>
     <key>Minute</key>  <integer>10</integer>
   </dict>
+
   <key>StandardOutPath</key>
   <string>${LOG_DIR}/pipx-maintenance.log</string>
   <key>StandardErrorPath</key>
   <string>${LOG_DIR}/pipx-maintenance.err</string>
+
   <key>RunAtLoad</key>
-  <true/>
+  <false/>
 </dict>
 </plist>
