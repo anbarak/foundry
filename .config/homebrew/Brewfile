@@ -14,7 +14,7 @@ brew "awscli"
 brew "bat"
 brew "bc"
 brew "binutils"
-brew "node", link: false
+brew "node"
 brew "bitwarden-cli"
 brew "black"
 brew "freetype"
