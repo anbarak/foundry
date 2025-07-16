@@ -6,6 +6,9 @@ alias aws-activate='switch-cloud aws'
 alias gcp-activate='switch-cloud gcp'
 alias azure-activate='switch-cloud azure'
 
+# Cloudformation template validation
+alias cfcheck="~/bin/tools/cloudformation/cfn-validate.sh"
+
 awsc() {
   echo "🔍 Current AWS Profile: $AWS_PROFILE"
   aws sts get-caller-identity
