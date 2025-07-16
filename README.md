@@ -422,6 +422,23 @@ This setup includes:
 ### 🛠️ Dev & Cloud Tools
 - `kubectl`, `krew`, `k9s`, `terraform`, `awscli`, `session-manager-plugin`, `gcloud`, `tmux`, `vim`, `YouCompleteMe`, `goenv`, `pyenv`, `poetry`, `pipenv`, `bitwarden-cli`, `git-extras`, `gh`, `bb`
 
+### 🧪 CloudFormation Template Validation
+
+Foundry includes a CloudFormation validation helper for quick feedback on template structure and security risks. It combines two tools: `cfn-lint` (syntax and schema validation) and `cfn-nag` (security misconfiguration scanner). Use the `cfcheck` alias to run both tools in sequence.
+
+```bash
+cfcheck path/to/template.yaml
+```
+
+This command runs:
+
+- `cfn-lint` – Lints YAML/JSON syntax, CloudFormation resource types, and AWS region compatibility
+- `cfn-nag` – Detects security risks like wildcard IAM permissions, public security groups, and unencrypted resources
+
+The validation logic is implemented in `~/bin/tools/cloudformation/cfn-validate.sh` and exposed through an alias defined in `~/.config/zsh/modules/06-cloud-aws.zsh`. This ensures consistent validation for every template prior to deployment.
+
+✅ Use `cfcheck` before every CloudFormation deployment to catch issues early, enforce best practices, and reduce risk.
+
 ### ⚠️ Manual Intervention Required for Some Homebrew Upgrades
 
 To preserve automation, Foundry’s scheduled Homebrew maintenance script:
