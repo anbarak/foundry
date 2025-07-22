@@ -47,7 +47,22 @@ run_backup() {
     echo "❌ Failed to unlock Bitwarden with Keychain-stored password. Aborting..."
     return 1
   fi
-  bw sync
+  # Retry bw sync up to 3 times if ECONNRESET or other network errors occur
+  MAX_RETRIES=3
+  for attempt in $(seq 1 "$MAX_RETRIES"); do
+    if bw sync; then
+      echo "🔄 Bitwarden sync successful (attempt $attempt)"
+      break
+    else
+      echo "⚠️  $(date +'%Y-%m-%d %H:%M:%S') bw sync failed (attempt $attempt)... retrying in 5s"
+      sleep 5
+    fi
+
+    if [[ "$attempt" -eq "$MAX_RETRIES" ]]; then
+      echo "❌ Bitwarden sync failed after $MAX_RETRIES attempts. Aborting."
+      return 1
+    fi
+  done
   echo
 
   echo "📄 Backing up Jenkins hosts block to Bitwarden..."
