@@ -125,3 +125,14 @@ yaddfuzzy() {
   file=$(yfiles | fzf --prompt="Stage file: " --height=40% --reverse) || return 1
   yadd "$file"
 }
+
+# =============================================================================
+# Multi-line commit using $EDITOR
+# =============================================================================
+ycmf() {
+  local tmpfile
+  tmpfile=$(mktemp /tmp/ycm-msg.XXXXXX)
+  ${EDITOR:-vim} "$tmpfile"  # Open in your preferred editor
+  yadm commit -aF "$tmpfile"
+  rm -f "$tmpfile"
+}

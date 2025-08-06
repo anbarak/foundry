@@ -26,7 +26,7 @@ alias docker-clean-all='
 '
 
 ### ── Colima Management ────────────────────────────────
-alias colima-start="colima start --cpu 2 --memory 2 --disk 20"
+alias colima-start="colima start"
 alias colima-stop="colima stop"
 alias colima-restart="colima stop && colima start"
 alias colima-status="colima status"

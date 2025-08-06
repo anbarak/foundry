@@ -43,7 +43,7 @@ Public/
 .gitconfig
 .gitconfig-centerfield
 .saml2aws
-.config/hosts/
+.config/hosts/**
 *.pem
 *.ppk
 id_*
@@ -62,7 +62,9 @@ known_hosts*
 Library/Caches/**
 Library/Group Containers/**
 .config/AWSVPNClient/**
-".config/AWS VPN Client/"
+.config/AWS VPN Client/**
+.config/yadm/**
+.config/configstore/**
 Library/CloudStorage/**
 
 # ================================

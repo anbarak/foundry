@@ -75,6 +75,17 @@ for script in "${SCRIPTS[@]}"; do
 done
 
 # -----------------------------------------------------------------------------
+# Configure Colima (docker desktop replacement)
+# -----------------------------------------------------------------------------
+echo "▶️  Initializing Colima with default profile (aarch64)..."
+~/.colima/default/colima.yaml
+# Only set config if Colima is not already configured
+if [ ! -f "$HOME/.colima/default/colima.yaml" ]; then
+  colima start --arch aarch64 --cpu 2 --memory 2 --disk 20 --vm-type vz --save-config
+  colima stop
+fi
+
+# -----------------------------------------------------------------------------
 # Setup AI tools
 # -----------------------------------------------------------------------------
 echo "🧠 Installing AI tools..."

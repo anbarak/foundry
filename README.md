@@ -956,10 +956,18 @@ brew install colima docker
 
 ### 🚀 Start Colima VM
 
-Start Colima with custom resource limits:
+If you’ve already run `~/bin/foundry/restore` or `~/bin/init-machine`, your Colima default profile is pre-configured for Apple Silicon:
 
 ```bash
-colima start --cpu 2 --memory 2 --disk 20
+colima start
+```
+
+> 💡 No need to remember long flags — Foundry handles Colima setup automatically with the right architecture (`aarch64`), virtualization (`vz`), and system resource limits.
+
+To manually specify resource limits and architecture (e.g. for one-off custom runs):
+
+```bash
+colima start --arch aarch64 --cpu 2 --memory 2 --disk 20 --vm-type vz
 ```
 
 Optional: Start Colima with Kubernetes (via k3s):
