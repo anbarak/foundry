@@ -1,19 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
+umask 077
+
+# Keep PATH sane when run from non-interactive contexts
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${PATH:-}"
 
 # ── Setup log output ────────────────────────────────────────────
 LOG_FILE="$HOME/logs/secrets-backup.log"
 mkdir -p "$(dirname "$LOG_FILE")"
 exec >> "$LOG_FILE" 2>&1
-exec 2>&1
 
 # ── Check dependencies ──────────────────────────────────────────
 command -v bw >/dev/null || {
   echo "[ERROR] bw CLI not found in PATH" >&2
   exit 1
 }
+command -v envsubst >/dev/null || {
+  echo "[ERROR] envsubst (gettext) not found in PATH"
+  exit 1
+}
 
-# ── Helper functions ────────────────────────────────────────────
+# ── Helpers ─────────────────────────────────────────────────────
 timestamp() {
   date +'%Y-%m-%d %H:%M:%S'
 }
@@ -48,15 +55,40 @@ run_secrets_backup_setup() {
 
   envsubst < "$PLIST_TEMPLATE" > "$PLIST_DEST"
 
-  launchctl unload "$PLIST_DEST" 2>/dev/null || true
-  sleep 1
-  if launchctl load "$PLIST_DEST"; then
-    log INFO "✅ LaunchAgent reloaded successfully: $PLIST_DEST"
-    return 0
+  # LaunchAgent label/target
+  local LABEL="com.user.secrets-backup"
+  local AGENT_TARGET="gui/$UID/$LABEL"
+
+  # Stop existing (best-effort) using modern API, fall back if needed
+  if launchctl print "$AGENT_TARGET" >/dev/null 2>&1; then
+    launchctl bootout "gui/$UID" "$PLIST_DEST" 2>/dev/null || true
   else
-    log ERROR "❌ Failed to reload LaunchAgent: $PLIST_DEST"
-    return 1
+    launchctl unload "$PLIST_DEST" 2>/dev/null || true
   fi
+
+  # Start (modern first, fall back)
+  if launchctl bootstrap "gui/$UID" "$PLIST_DEST" 2>/dev/null; then
+    :
+  else
+    launchctl load "$PLIST_DEST"
+  fi
+
+  # Ensure enabled and fire once now
+  launchctl enable "$AGENT_TARGET" 2>/dev/null || true
+  launchctl kickstart -k "$AGENT_TARGET"
+
+  log INFO "✅ LaunchAgent installed and started: $PLIST_DEST"
+
+  # Optional: auto-wake before Monday 10:00 (requires sudo)
+  # Opt in by: export CF_ENABLE_BACKUP_WAKE=1
+  # Customize time via: export CF_BACKUP_WAKE_TIME="09:58:00"
+  if [[ "${CF_ENABLE_BACKUP_WAKE:-0}" == "1" ]]; then
+    local WAKE_TIME="${CF_BACKUP_WAKE_TIME:-09:58:00}"
+    log INFO "⏰ Configuring auto-wake for Mondays at $WAKE_TIME"
+    sudo pmset repeat wakeorpoweron M "$WAKE_TIME" || log WARN "⚠️  pmset failed; skipping auto-wake"
+  fi
+
+  return 0
 }
 
 if run_secrets_backup_setup; then

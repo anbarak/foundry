@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+umask 077
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${PATH:-}"
 
 # Determine interactivity *before* tee breaks stdout
 IS_INTERACTIVE=false
@@ -10,7 +12,6 @@ fi
 # Log setup (cron-friendly + interactive)
 LOG_FILE="$HOME/logs/secrets-backup.log"
 mkdir -p "$(dirname "$LOG_FILE")"
-
 if [[ "$IS_INTERACTIVE" == true ]]; then
   exec > >(tee -a "$LOG_FILE") 2>&1
 else
@@ -24,10 +25,28 @@ LOG_MAX_MB=5
 if [[ -f "$LOG_FILE" ]]; then
   size=$(du -m "$LOG_FILE" | cut -f1)
   if (( size > LOG_MAX_MB )); then
-    log INFO "🧹 Truncating $LOG_FILE (was ${size}MB)"
+    echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') 🧹 Truncating $LOG_FILE (was ${size}MB)"
     tail -n 200 "$LOG_FILE" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "$LOG_FILE"
   fi
 fi
+
+# ── Single-run lock + "missed schedule" safety ─────────
+mkdir -p "$HOME/.cache/foundry"
+LOCK_DIR="$HOME/.cache/foundry/secrets-backup.lock"
+STAMP_TODAY="$HOME/.cache/foundry/secrets-backup.$(date +%F).done"
+
+# Skip if already done today (lets StartInterval/RunAtLoad safely retry)
+if [[ -f "$STAMP_TODAY" ]]; then
+  echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') Already backed up today. Exiting."
+  exit 0
+fi
+
+# Lock to prevent overlap
+if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+  echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') Another backup run is in progress. Exiting."
+  exit 0
+fi
+trap 'rmdir "$LOCK_DIR" 2>/dev/null || true' EXIT
 
 # Wrap the backup process to track success/failure
 run_backup() {
@@ -56,18 +75,16 @@ run_backup() {
     else
       echo "⚠️  $(date +'%Y-%m-%d %H:%M:%S') bw sync failed (attempt $attempt)... retrying in 5s"
       sleep 5
-    fi
-
-    if [[ "$attempt" -eq "$MAX_RETRIES" ]]; then
-      echo "❌ Bitwarden sync failed after $MAX_RETRIES attempts. Aborting."
-      return 1
+      if [[ "$attempt" -eq "$MAX_RETRIES" ]]; then
+        echo "❌ Bitwarden sync failed after $MAX_RETRIES attempts. Aborting."
+        return 1
+      fi
     fi
   done
   echo
 
   echo "📄 Backing up Jenkins hosts block to Bitwarden..."
   jenkins_block=$(cat "$HOME/.config/hosts/jenkins.block")
-
   jenkins_note_id=$(bw list items --search "Hosts – Jenkins Centerfield" --session "$BW_SESSION" | jq -r '.[0].id // empty')
 
   if [[ -z "$jenkins_note_id" ]]; then
@@ -114,7 +131,6 @@ run_backup() {
       .mylogin.cnf
 
   echo "📤 Uploading to Bitwarden..."
-
   item_id=$(bw list items --search "Sensitive Config Files Backup" --session "$BW_SESSION" | jq -r '.[0].id')
 
   # Create item if missing
@@ -177,7 +193,7 @@ if run_backup; then
   LABEL="$(basename "$0" .sh)"
   mkdir -p "$HOME/.cache/foundry"
   date +'%Y-%m-%d %H:%M:%S' > "$HOME/.cache/foundry/last-success-${LABEL}.txt"
-
+  : > "$STAMP_TODAY"
 
   exit 0
 else
