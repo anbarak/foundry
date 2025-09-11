@@ -33,11 +33,11 @@ fi
 # ── Single-run lock + "missed schedule" safety ─────────
 mkdir -p "$HOME/.cache/foundry"
 LOCK_DIR="$HOME/.cache/foundry/secrets-backup.lock"
-STAMP_TODAY="$HOME/.cache/foundry/secrets-backup.$(date +%F).done"
+STAMP_WEEK="$HOME/.cache/foundry/secrets-backup.$(date +%G-W%V).done"
 
-# Skip if already done today (lets StartInterval/RunAtLoad safely retry)
-if [[ -f "$STAMP_TODAY" ]]; then
-  echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') Already backed up today. Exiting."
+# Skip if already done this ISO week (StartInterval will retry hourly until it succeeds)
+if [[ -f "$STAMP_WEEK" ]]; then
+  echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') Already backed up this week. Exiting."
   exit 0
 fi
 
@@ -193,7 +193,7 @@ if run_backup; then
   LABEL="$(basename "$0" .sh)"
   mkdir -p "$HOME/.cache/foundry"
   date +'%Y-%m-%d %H:%M:%S' > "$HOME/.cache/foundry/last-success-${LABEL}.txt"
-  : > "$STAMP_TODAY"
+  : > "$STAMP_WEEK"
 
   exit 0
 else

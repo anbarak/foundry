@@ -1,5 +1,5 @@
 ###################################################################################
-# This is a recommended file to store your own customizations and plugin          # 
+# This is a recommended file to store your own customizations and plugin          #
 # management. It helps keep your main ~/.zshrc file clean. You can source         #
 # this file from your ~/.zshrc to activate the settings within.                   #
 ###################################################################################
@@ -134,7 +134,7 @@ alias checkupdates='check_omz_update'
 # Docker
 export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
-# Go 
+# Go
 export GOPATH=$HOME/go
 export GOROOT=$(brew --prefix golang)/libexec
 export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
@@ -195,3 +195,9 @@ setopt HIST_FIND_NO_DUPS      # Skip dupes in history search
 setopt HIST_REDUCE_BLANKS     # Remove extra spaces between words
 
 precmd_functions+=(refresh_aws_sso)
+
+# Enable auto-wake on Mondays before the secrets-backup LaunchAgent runs
+# CF_ENABLE_BACKUP_WAKE=1 → tells the installer script to program pmset
+# CF_BACKUP_WAKE_TIME="09:58:00" → system wake time (2 minutes before 10:00 job)
+export CF_ENABLE_BACKUP_WAKE=1
+export CF_BACKUP_WAKE_TIME="09:58:00"
