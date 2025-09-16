@@ -13,3 +13,4 @@ alias restartmac='sudo shutdown -r now'
 alias weeklyreboot-reminder="$HOME/bin/tools/system/restart-prep.sh"
 alias mem-watch='vm_stat; echo ""; echo "Swap:"; sysctl vm.swapusage'
 alias mem-clean='killall Slack && killall VTDecoderXPCService && colima stop'
+alias tor='open -a "Tor Browser"'
