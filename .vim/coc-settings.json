@@ -1,0 +1,13 @@
+{
+  "yaml.format.enable": true,
+  "yaml.validate": true,
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": "/.github/workflows/*.y?(a)ml",
+    "https://raw.githubusercontent.com/awslabs/goformation/master/schema/cloudformation.schema.json": [
+      "**/cfn*.y?(a)ml",
+      "**/cloudformation*.y?(a)ml",
+      "**/template*.y?(a)ml",
+      "**/*cfn*/*.y?(a)ml"
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 " ─── Syntax & Mouse ─────────────────────────────────────────────
 syntax enable
 syntax on
-filetype off
+set termguicolors
 filetype plugin indent on
 set mouse=a
 
@@ -68,6 +68,12 @@ set rtp+=/usr/local/opt/fzf
 " YAML-specific indentation
 autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
 
+" Pretty-print YAML in-place with yq (leader + yy)
+nnoremap <leader>yy :%!yq -P<CR>
+
+" Show tabs/trailing chars (pairs well with gruvbox)
+set list listchars=tab:»\ ,trail:·,extends:…,precedes:…
+
 " Colorscheme
 autocmd vimenter * ++nested colorscheme gruvbox
 set background=dark
@@ -103,19 +109,6 @@ augroup END
 highlight clear SpellBad
 highlight SpellBad cterm=underline ctermfg=Red
 highlight def link CommentSpell SpellBad
-
-" ─── Clean Pasting Behavior ───────────────────────────────────────
-" F3 toggles paste mode to avoid corrupted pastes
-set pastetoggle=<F3>
-
-" Treat .plist.template files as XML
-autocmd BufRead,BufNewFile *.plist.template set filetype=xml
-
-" Use 2-space indentation for XML/plist
-autocmd FileType xml setlocal tabstop=2 shiftwidth=2 softtabstop=2 expandtab
-
-" Show hidden control characters (useful after pasting)
-nnoremap <leader>l :set list!<CR>
 
 " Optional: Toggle paste mode with ,p (with visual feedback)
 function! TogglePaste()

@@ -203,7 +203,7 @@ let g:linters_dockerfile = ['hadolint']
 
 " Kubernetes
 let g:lintdef_kube_score = "'kube-score score -o ci'"
-let g:linters_yaml = ['kube_score']
+let g:linters_yaml = ['yamllint', 'cfn_lint', 'kube_score']
 
 " YAML
 let g:vim_yaml_folds_custom_foldtext = 1
@@ -220,6 +220,10 @@ let g:linters_react = ['eslint']
 let g:lintdef_stylelint = "'stylelint --stdin --stdin-filename '.expand('%:p')"
 let g:linters_css = ['stylelint']
 
+" YAML formatting via Prettier
+let g:formatdef_prettier_yaml = "'prettier --stdin-filepath '.expand('%:p')"
+let g:formatters_yaml = ['prettier_yaml']
+
 " Enable default formatting
 let g:autoformat_autoindent = 0
 let g:autoformat_retab = 0
@@ -234,6 +238,16 @@ let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 let g:ale_sign_error = '✘'
 let g:ale_sign_warning = '⚠'
 let g:ale_lint_on_text_changed = 'never'
+" Default for regular YAML files
+let g:ale_linters = {'yaml': ['yamllint']}
+" Use cfn-lint for CloudFormation templates (*.template)
+augroup ale_cfn
+  autocmd!
+  autocmd BufRead,BufNewFile *.template let b:ale_linters = ['cfn-lint']
+augroup END
+" Hard-path executables so PATH issues can't break it
+let g:ale_yaml_cfn_lint_executable = '/opt/homebrew/bin/cfn-lint'
+let g:ale_yaml_yamllint_executable = '/opt/homebrew/bin/yamllint'
 
 " Keybinding for OSCYank
 nmap <Leader>y <Plug>OSCYank

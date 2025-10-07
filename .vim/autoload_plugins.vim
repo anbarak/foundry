@@ -29,7 +29,6 @@ Plug 'ekalinin/dockerfile.vim'              " Dockerfile syntax highlighting
 Plug 'hashivim/vim-terraform'               " Terraform syntax and indentation
 Plug 'itchyny/lightline.vim'                " Lightweight status line
 Plug 'junegunn/vim-easy-align'              " Dynamic alignment
-Plug 'w0rp/ale'                             " Asynchronous Lint Engine
 
 " Productivity and Navigation
 Plug 'junegunn/fzf'                         " Fuzzy finder
@@ -47,9 +46,9 @@ Plug 'davidhalter/jedi-vim'                 " Python autocompletion
 Plug 'tmhedberg/SimpylFold'                 " Python folding
 Plug 'vim-scripts/indentpython.vim'         " Improved Python indentation
 
-" SQL 
+" SQL
 Plug 'kezhenxu94/vim-mysql-plugin'          " MySQL syntax highlighting
-Plug 'tpope/vim-dadbod'                     " Interacting with databases directly within vim                           
+Plug 'tpope/vim-dadbod'                     " Interacting with databases directly within vim
 
 " Vim Configuration and Enhancements
 Plug 'tpope/vim-commentary'                 " Commenting plugin
@@ -58,7 +57,7 @@ Plug 'tpope/vim-repeat'                      " Makes . work with plugin commands
 Plug 'tpope/vim-sensible'                   " Opinionated defaults for Vim
 Plug 'tpope/vim-surround'                   " Surround text objects
 Plug 'morhetz/gruvbox'                      " Colorsheme for vim
-Plug 'lukas-reineke/virt-column.nvim'       " Add this line to install vim-virtcolumn 
+Plug 'lukas-reineke/virt-column.nvim'       " Add this line to install vim-virtcolumn
 
 " UI Enhancements
 Plug 'vim-airline/vim-airline'              " Status/tabline
