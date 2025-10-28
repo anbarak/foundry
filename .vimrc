@@ -43,15 +43,41 @@ set foldlevelstart=20
 " ─── Clean Pasting Behavior ───────────────────────────────────────
 " F3 toggles paste mode to avoid corrupted pastes
 set pastetoggle=<F3>
+" Toggle paste mode with ,p (with visual feedback)
+function! TogglePaste()
+  if &paste | set nopaste | echo "📤 Paste mode OFF"
+  else       | set paste   | echo "📥 Paste mode ON"
+  endif
+endfunction
+nnoremap <leader>p :call TogglePaste()<CR>
 
+" ─── Filetype-specific indentation ──────────────────────────────
 " Treat .plist.template files as XML
 autocmd BufRead,BufNewFile *.plist.template set filetype=xml
 
 " Use 2-space indentation for XML/plist
 autocmd FileType xml setlocal tabstop=2 shiftwidth=2 softtabstop=2 expandtab
 
-" Show hidden control characters (for cleanup if needed)
-nnoremap <leader>l :set list!<CR>
+" YAML-specific indentation
+autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+
+" Shell (sh/bash/zsh) → 2 spaces
+autocmd FileType sh,bash,zsh setlocal ts=2 sw=2 sts=2 expandtab
+let g:sh_indent_case_labels = 1
+
+" Makefiles must use real tabs
+augroup IndentExceptions
+  autocmd!
+  autocmd FileType make setlocal noexpandtab tabstop=8 shiftwidth=8 softtabstop=0
+augroup END
+
+" ─── Whitespace visibility (toggle) ─────────────────────────────
+set listchars=tab:»\ ,trail:·,extends:…,precedes:…
+set nolist
+nnoremap <leader>l :set invlist<CR>
+
+" ─── YAML pretty-print via yq ───────────────────────────────────
+nnoremap <leader>yy :%!yq -P<CR>
 
 " ─── UI & Visuals ───────────────────────────────────────────────
 set colorcolumn=88
@@ -65,12 +91,6 @@ let &t_EI.="\e[1 q"
 " Add fzf to the runtime path
 set rtp+=/usr/local/opt/fzf
 
-" YAML-specific indentation
-autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
-
-" Pretty-print YAML in-place with yq (leader + yy)
-nnoremap <leader>yy :%!yq -P<CR>
-
 " Show tabs/trailing chars (pairs well with gruvbox)
 set list listchars=tab:»\ ,trail:·,extends:…,precedes:…
 
@@ -83,15 +103,10 @@ let g:gruvbox_contrast_dark='hard'
 set title
 set titlestring=%t\ %(\ %M%)\ %(%{&ff}\ -\ %y%)
 
-" Load plugin files
-source ~/.vim/autoload_plugins.vim
-source ~/.vim/plugin_config.vim
-
 " Force fileformat=unix only when modifiable
 autocmd BufReadPost * if &modifiable | set fileformat=unix | endif
 
 " ─── Spellchecking Setup ────────────────────────────────────────
-
 " Enable basic spellcheck in key writing filetypes
 autocmd FileType gitcommit,markdown,text setlocal spell spelllang=en_us
 
@@ -99,7 +114,7 @@ autocmd FileType gitcommit,markdown,text setlocal spell spelllang=en_us
 autocmd BufRead,BufNewFile .tmux.conf,.zshrc,.bashrc,.bash_profile setlocal filetype=sh
 autocmd FileType sh setlocal spell spelllang=en_us
 
-" Optional: comment-only spellcheck (safe, limited filetypes)
+"  Comment-only spellcheck (safe, limited filetypes)
 augroup CommentSpell
   autocmd!
   autocmd FileType gitcommit,markdown,text syntax match CommentSpell "\v\c.*" containedin=Comment
@@ -110,14 +125,6 @@ highlight clear SpellBad
 highlight SpellBad cterm=underline ctermfg=Red
 highlight def link CommentSpell SpellBad
 
-" Optional: Toggle paste mode with ,p (with visual feedback)
-function! TogglePaste()
-  if &paste
-    set nopaste
-    echo "📤 Paste mode OFF"
-  else
-    set paste
-    echo "📥 Paste mode ON"
-  endif
-endfunction
-nnoremap <leader>p :call TogglePaste()<CR>
+" ─── Plugins ────────────────────────────────────────────────────
+source ~/.vim/autoload_plugins.vim
+source ~/.vim/plugin_config.vim
