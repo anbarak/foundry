@@ -201,3 +201,12 @@ precmd_functions+=(refresh_aws_sso)
 # CF_BACKUP_WAKE_TIME="09:58:00" → system wake time (2 minutes before 10:00 job)
 export CF_ENABLE_BACKUP_WAKE=1
 export CF_BACKUP_WAKE_TIME="09:58:00"
+
+# =============================================================================
+# Fix slow Zsh prompt caused by pyenv virtualenv hook
+# =============================================================================
+# Prevent pyenv from running the expensive filesystem scan on every prompt.
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+
+# Remove the slow precmd hook injected by pyenv (keeps pyenv working normally).
+precmd_functions=(${precmd_functions:#_pyenv_virtualenv_hook})
