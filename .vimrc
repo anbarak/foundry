@@ -91,6 +91,10 @@ let &t_EI.="\e[1 q"
 " Add fzf to the runtime path
 set rtp+=/usr/local/opt/fzf
 
+" FZF-powered Ag/Rg with preview
+command! -bang -nargs=* Ag call fzf#vim#ag_interactive(<q-args>, fzf#vim#with_preview('right:50%:hidden', 'alt-h'))
+command! -bang -nargs=* Rg call fzf#vim#rg_interactive(<q-args>, fzf#vim#with_preview('right:50%:hidden', 'alt-h'))
+
 " Show tabs/trailing chars (pairs well with gruvbox)
 set list listchars=tab:»\ ,trail:·,extends:…,precedes:…
 

@@ -31,14 +31,16 @@ Plug 'itchyny/lightline.vim'                " Lightweight status line
 Plug 'junegunn/vim-easy-align'              " Dynamic alignment
 
 " Productivity and Navigation
-Plug 'junegunn/fzf'                         " Fuzzy finder
-Plug 'junegunn/fzf.vim'                     " Fzf integration with Vim
-Plug 'preservim/nerdtree'                   " File system explorer
-Plug 'preservim/tagbar'                     " Tagbar plugin for Vim
-Plug 'Chiel92/vim-autoformat'               " Autoformat plugin
-Plug 'machakann/vim-highlightedyank'        " Automatically yank highlighted text to system clipboard
-Plug 'christoomey/vim-tmux-navigator'       " Improved navigation between vim and tmux
-Plug 'ojroques/vim-oscyank'                 " Enhance clipboard management
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }  " Fuzzy finder
+Plug 'junegunn/fzf.vim'                              " Fzf integration with Vim
+Plug 'preservim/nerdtree'                            " File system explorer
+Plug 'preservim/tagbar'                              " Tagbar plugin for Vim
+Plug 'Chiel92/vim-autoformat'                        " Autoformat plugin
+Plug 'machakann/vim-highlightedyank'                 " Automatically yank highlighted text to system clipboard
+Plug 'christoomey/vim-tmux-navigator'                " Improved navigation between vim and tmux
+Plug 'ojroques/vim-oscyank'                          " Enhance clipboard management
+Plug 'lotabout/skim', { 'dir': '~/.skim', 'do': './install' }
+Plug 'lotabout/skim.vim'
 
 " Python Development
 Plug 'vim-python/python-syntax'             " Python syntax highlighting
