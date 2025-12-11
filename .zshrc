@@ -99,9 +99,6 @@ add_to_path "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/loc
 # Go paths
 add_to_path "$USER_HOME/go/bin" "$HOMEBREW_PREFIX/opt/go/libexec/bin"
 
-# Add custom tools to PATH
-add_to_path "$USER_HOME/bin/tools"
-
 # Java paths
 export JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk"
 add_to_path "$JAVA_HOME/bin"
@@ -122,13 +119,21 @@ if [ -d "$USER_HOME/code/cf/datalot/.datalot" ]; then
   add_to_path "$USER_HOME/code/cf/datalot/.datalot/bin"
 fi
 
-# Add asdf to PATH and source asdf
-if [ -f "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh" ]; then
-  # shellcheck source=/dev/null
-  . "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh"
-fi
-
 # Add asdf paths
+_init_asdf() {
+  if [[ -z "$ASDF_INITIALIZED" && -f "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh" ]]; then
+    # shellcheck source=/dev/null
+    . "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh"
+    export ASDF_INITIALIZED=1
+  fi
+}
+
+asdf() {
+  _init_asdf
+  unfunction asdf 2>/dev/null
+  command asdf "$@"
+}
+
 add_to_path "$USER_HOME/.asdf/bin" "$USER_HOME/.asdf/shims"
 
 # Path to your Oh My Zsh installation.
@@ -141,10 +146,19 @@ export ZSH="$USER_HOME/.oh-my-zsh"
 export ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # ---- Custom completions (must be before OMZ loads) ----
-export DISABLE_COMPFIX=true
+export ZSH_DISABLE_COMPFIX=true
 mkdir -p "$HOME/.zsh/completions"
 fpath+=("$HOME/.zsh/completions")
-# -------------------------------------------------------
+
+# ---- OMZ compdump location + light refresh ----
+export ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${HOST}-${ZSH_VERSION}"
+mkdir -p "${ZSH_COMPDUMP:h}"
+
+# If older than 1 day, remove so OMZ rebuilds once this launch
+if [[ -f "$ZSH_COMPDUMP" ]] \
+  && [[ -n "$(command find "$ZSH_COMPDUMP" -mtime +1 2>/dev/null)" ]]; then
+  rm -f "$ZSH_COMPDUMP"
+fi
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -235,7 +249,9 @@ plugins=() # Refer to ~/.zshrc.plugins
 
 # Add SSH key to macOS keychain if it exists (Personal-specific)
 if [ -f "$USER_HOME/.ssh/id_ed25519_centerfield" ]; then
-  ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
+  # Only add if not already loaded
+  ssh-add -l 2>/dev/null | grep -q "id_ed25519_centerfield" || \
+    ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
 fi
 
 # Source local configuration file
