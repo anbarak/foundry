@@ -5,7 +5,38 @@
 ###################################################################################
 
 # Auto-commit Brewfile changes using Homebrew hook
-export HOMEBREW_POST_COMMAND_HOOK="$HOME/bin/tools/system/brew-hooks.sh"
+brew() {
+  command brew "$@"
+  if [[ "$1" == "install" || "$1" == "upgrade" || "$1" == "uninstall" ]]; then
+    echo "📦 Updating Brewfile..."
+    brew bundle dump --file="$HOME/.config/homebrew/Brewfile" --force
+
+    echo "🔍 Checking for Brewfile diff..."
+    if ! yadm diff --quiet "$HOME/.config/homebrew/Brewfile"; then
+      echo "🚫 Saving staged changes (if any)..."
+      STAGED=$(yadm diff --cached --name-only | grep -v 'Brewfile' || true)
+      for file in $STAGED; do
+        yadm reset HEAD "$file"
+      done
+
+      echo "➕ Adding Brewfile..."
+      yadm add "$HOME/.config/homebrew/Brewfile"
+
+      echo "✅ Committing Brewfile..."
+      yadm commit -m "📦 Updated Brewfile" --no-gpg-sign || echo "⚠️ Commit skipped"
+
+      echo "🚀 Pushing..."
+      yadm push || echo "⚠️ Push skipped"
+
+      echo "🔁 Re-staging previous files..."
+      for file in $STAGED; do
+        yadm add "$file"
+      done
+    else
+      echo "✅ No changes in Brewfile."
+    fi
+  fi
+}
 
 export GPG_TTY=$(tty)
 
