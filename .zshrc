@@ -1,5 +1,8 @@
 #!/usr/bin/env zsh
 
+# Performance profiling (comment out when not needed)
+# zmodload zsh/zprof
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -33,8 +36,7 @@ export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 # Ensure Homebrew is in the PATH
 add_to_path "/opt/homebrew/bin"
 
-HOMEBREW_PREFIX=$(brew --prefix)
-export HOMEBREW_PREFIX
+export HOMEBREW_PREFIX="/opt/homebrew"
 
 # Add GNU coreutils to PATH for standard behavior (ls, cat, etc.)
 # ⚠️ May cause issues with GMP/Python builds — review with `brew doctor`
@@ -63,12 +65,31 @@ add_to_path "$USER_HOME/.local/bin"  # For pipx and Poetry-installed tools
 export PYENV_ROOT="$USER_HOME/.pyenv"
 
 if [ -d "$PYENV_ROOT" ]; then
-  add_to_path "$PYENV_ROOT/bin"
-  add_to_path "$PYENV_ROOT/plugins/pyenv-virtualenv/shims" "$PYENV_ROOT/shims"
-  eval "$(pyenv init --path)"
-  eval "$(pyenv init -)"
-  eval "$(pyenv virtualenv-init -)"
+  add_to_path "$PYENV_ROOT/bin" "$PYENV_ROOT/shims"
 fi
+
+# Lazy init - only when python is actually used
+_init_pyenv() {
+  if [[ -z "$PYENV_INITIALIZED" && -d "$PYENV_ROOT" ]]; then
+    eval "$(pyenv init --path)"
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+    export PYENV_INITIALIZED=1
+  fi
+}
+
+# Wrapper function
+python() {
+  _init_pyenv
+  unfunction python 2>/dev/null
+  command python "$@"
+}
+
+python3() {
+  _init_pyenv
+  unfunction python3 2>/dev/null
+  command python3 "$@"
+}
 
 # Apple security paths
 add_to_path "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin" \
@@ -102,9 +123,9 @@ if [ -d "$USER_HOME/code/cf/datalot/.datalot" ]; then
 fi
 
 # Add asdf to PATH and source asdf
-if [ -f "$(brew --prefix)/opt/asdf/libexec/asdf.sh" ]; then
+if [ -f "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh" ]; then
   # shellcheck source=/dev/null
-  . "$(brew --prefix)/opt/asdf/libexec/asdf.sh"
+  . "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh"
 fi
 
 # Add asdf paths
@@ -118,6 +139,12 @@ export ZSH="$USER_HOME/.oh-my-zsh"
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 export ZSH_THEME="powerlevel10k/powerlevel10k"
+
+# ---- Custom completions (must be before OMZ loads) ----
+export DISABLE_COMPFIX=true
+mkdir -p "$HOME/.zsh/completions"
+fpath+=("$HOME/.zsh/completions")
+# -------------------------------------------------------
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -225,9 +252,3 @@ bindkey -v
 
 # Load tiny AWS badge
 [[ -f "$USER_HOME/.p10k-tiny-aws.zsh" ]] && source "$USER_HOME/.p10k-tiny-aws.zsh"
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc'; fi
