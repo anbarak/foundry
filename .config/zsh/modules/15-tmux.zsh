@@ -8,4 +8,4 @@ alias tn='tmux new -s'                # Create a new named session
 alias tks='tmux kill-session -t'      # Kill a specific session
 alias tka='tmux kill-server'          # Kill all tmux sessions/server
 alias tl='tmux ls'                    # List all tmux sessions
-alias tr='tmux source-file ~/.tmux.conf && tmux display-message "Config reloaded ✅"'  # Reload tmux config
+alias tmr='tmux source-file ~/.tmux.conf && tmux display-message "Config reloaded ✅"'  # Reload tmux config
