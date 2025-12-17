@@ -12,9 +12,9 @@ log() { local level="$1"; shift; printf '[%s] %s %s\n' "$level" "$(timestamp)" "
 log INFO "🔧 Installing pipx maintenance LaunchAgent..."
 
 # ── Variables ───────────────────────────────────────────────────
-SCRIPT="$HOME/bin/tools/maintenance/npm-maintenance-task.sh"
-PLIST_TEMPLATE="$HOME/bin/tools/maintenance/npm-maintenance.plist.template"
-PLIST_DEST="$HOME/Library/LaunchAgents/com.user.npm-maintenance.plist"
+SCRIPT="$HOME/bin/tools/maintenance/pipx-maintenance-task.sh"
+PLIST_TEMPLATE="$HOME/bin/tools/maintenance/pipx-maintenance.plist.template"
+PLIST_DEST="$HOME/Library/LaunchAgents/com.user.pipx-maintenance.plist"
 LOG_DIR="$HOME/logs"
 
 # ── Ensure permissions ──────────────────────────────────────────

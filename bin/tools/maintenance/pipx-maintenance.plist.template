@@ -5,8 +5,8 @@
 <dict>
   <key>Label</key>
   <string>com.user.pipx-maintenance</string>
-  <key>ProgramArguments</key>
 
+  <key>ProgramArguments</key>
   <array>
     <string>${SCRIPT}</string>
   </array>
@@ -19,9 +19,10 @@
   </dict>
 
   <key>StandardOutPath</key>
-  <string>${LOG_DIR}/pipx-maintenance.log</string>
+  <string>${LOG_DIR}/pipx-maintenance.launchd.out</string>
+
   <key>StandardErrorPath</key>
-  <string>${LOG_DIR}/pipx-maintenance.err</string>
+  <string>${LOG_DIR}/pipx-maintenance.launchd.err</string>
 
   <key>RunAtLoad</key>
   <false/>

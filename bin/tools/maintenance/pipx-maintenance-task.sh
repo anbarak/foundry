@@ -6,12 +6,31 @@ set -euo pipefail
 export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
 
 LOG_FILE="$HOME/logs/pipx-maintenance.log"
-TOOLS_FILE="$HOME/.config/pipx/tools.txt"
 mkdir -p "$(dirname "$LOG_FILE")"
-exec > >(tee -a "$LOG_FILE") 2>&1
+
+# If interactive → tee. If running under launchd → append only (avoid double logs
+# because launchd already captures stdout/stderr via StandardOutPath).
+if [[ -t 1 ]]; then
+  exec > >(tee -a "$LOG_FILE") 2>&1
+else
+  exec >>"$LOG_FILE" 2>&1
+fi
+
+TOOLS_FILE="$HOME/.config/pipx/tools.txt"
 
 timestamp() { date +'%Y-%m-%d %H:%M:%S'; }
 log() { local level="$1"; shift; printf '[%s] %s %s\n' "$level" "$(timestamp)" "$*"; }
+
+# ── Concurrency lock (avoid overlapping runs) ────────────────────────────────
+LOCK_DIR="$HOME/.cache/foundry/locks"
+LOCK="$LOCK_DIR/$(basename "$0").lock"
+mkdir -p "$LOCK_DIR"
+
+if ! mkdir "$LOCK" 2>/dev/null; then
+  log WARN "Another run is in progress; exiting."
+  exit 0
+fi
+trap 'rmdir "$LOCK" 2>/dev/null || true' EXIT
 
 # ── Log truncation if file > 5MB ───────────────────────
 LOG_MAX_MB=5
@@ -22,6 +41,14 @@ if [[ -f "$LOG_FILE" ]]; then
     tail -n 200 "$LOG_FILE" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "$LOG_FILE"
   fi
 fi
+
+py_for_pipx() {
+  if command -v pyenv >/dev/null 2>&1; then
+    pyenv which python3 2>/dev/null || true
+    return
+  fi
+  command -v python3 2>/dev/null || true
+}
 
 ensure_pipx() {
   if command -v pipx >/dev/null 2>&1; then
@@ -65,7 +92,14 @@ safe_pipx_install() {
 
   if [[ "$tool" == "aider-chat" ]]; then
     log INFO "🐍 Precreating aider-chat venv and injecting numpy to avoid build issues"
-    pipx install --python "$(pyenv which python3)" --no-cache --suffix -bootstrap virtualenv || true
+
+    py="$(py_for_pipx)"
+    if [[ -z "$py" ]]; then
+      log ERROR "🛑 No python3 found (and pyenv not available)."
+      return 1
+    fi
+
+    pipx install --python "$py" --no-cache --suffix -bootstrap virtualenv || true
     pipx runpip aider-chat-bootstrap install numpy==1.24.3 || true
     pipx uninstall aider-chat-bootstrap || true
   fi

@@ -5,11 +5,28 @@ export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/
 
 LOG_FILE="$HOME/logs/brew-maintenance.log"
 mkdir -p "$(dirname "$LOG_FILE")"
-exec > >(tee -a "$LOG_FILE") 2>&1
-exec 2>&1
+
+# If interactive → tee. If running under launchd → append only (avoid double logs
+# because launchd already captures stdout/stderr via StandardOutPath).
+if [[ -t 1 ]]; then
+  exec > >(tee -a "$LOG_FILE") 2>&1
+else
+  exec >>"$LOG_FILE" 2>&1
+fi
 
 timestamp() { date +'%Y-%m-%d %H:%M:%S'; }
 log() { local level="$1"; shift; printf '[%s] %s %s\n' "$level" "$(timestamp)" "$*"; }
+
+# ── Concurrency lock (avoid overlapping runs) ────────────────────────────────
+LOCK_DIR="$HOME/.cache/foundry/locks"
+LOCK="$LOCK_DIR/$(basename "$0").lock"
+mkdir -p "$LOCK_DIR"
+
+if ! mkdir "$LOCK" 2>/dev/null; then
+  log WARN "Another run is in progress; exiting."
+  exit 0
+fi
+trap 'rmdir "$LOCK" 2>/dev/null || true' EXIT
 
 # ── Log truncation if file > 5MB ───────────────────────
 LOG_MAX_MB=5
@@ -29,6 +46,8 @@ quit_app_if_running() {
     sleep 2
   fi
 }
+
+is_interactive() { [[ -t 1 ]]; }
 
 get_skipped_items() {
   local out_var="$1"
@@ -84,6 +103,7 @@ get_skipped_items() {
 }
 
 run_maintenance() {
+  local -a skipped=()
   get_skipped_items skipped
 
   log INFO "📦 Running brew update & upgrade..."
@@ -104,38 +124,40 @@ run_maintenance() {
     done
   fi
 
-  # Upgrade all casks except skipped ones
-  outdated_casks=()
-  if brew outdated --cask --greedy | grep -q .; then
-    while IFS= read -r c; do
-      [[ -n "$c" ]] && outdated_casks+=("$c")
-    done < <(brew outdated --cask --greedy)
-  fi
+  # Upgrade casks:
+  # - launchd mode: conservative (no sudo prompts)
+  # - interactive mode: greedy (will prompt for sudo)
+  if is_interactive; then
+    log INFO "Interactive mode: upgrading casks with --greedy (may prompt for sudo)..."
+    sudo -v
+    brew upgrade --cask --greedy || true
+  else
+    log INFO "Launchd mode: upgrading casks without --greedy (no sudo prompts)..."
 
-  if (( ${#outdated_casks[@]:-0} > 0 )); then
-    for cask in "${outdated_casks[@]}"; do
-      if printf '%s\n' "${skipped[@]}" | grep -q "cask:$cask"; then
-        log INFO "⏭️  Skipping $cask (requires sudo)"
-      else
+    # Keep your existing skip logic for sudo-required casks
+    outdated_casks=()
+    if brew outdated --cask | grep -q .; then
+      while IFS= read -r c; do
+        [[ -n "$c" ]] && outdated_casks+=("$c")
+      done < <(brew outdated --cask)
+    fi
+
+    if (( ${#outdated_casks[@]:-0} > 0 )); then
+      for cask in "${outdated_casks[@]}"; do
+        if printf '%s\n' "${skipped[@]}" | grep -q "cask:$cask"; then
+          log INFO "⏭️  Skipping $cask (requires sudo)"
+          continue
+        fi
+
         log INFO "⬆️  Upgrading cask: $cask..."
         app_name=$(brew info --cask --json=v2 "$cask" | jq -r '.casks[0].app[0]' 2>/dev/null || echo "")
         if [[ -n "$app_name" ]]; then
           quit_app_if_running "$app_name"
         fi
 
-        old_version=$(brew list --cask --versions "$cask" | awk '{print $2}')
-        caskroom_dir="/opt/homebrew/Caskroom/$cask/$old_version"
-        if [[ -d "$caskroom_dir" ]]; then
-          if ! find "$caskroom_dir" -type d -perm -u=w | grep -q .; then
-            log INFO "⏭️  Skipping $cask due to non-writable Caskroom path"
-            skipped+=("cask:$cask")
-            continue
-          fi
-        fi
-
-        brew upgrade --cask "$cask"
-      fi
-    done
+        brew upgrade --cask "$cask" || true
+      done
+    fi
   fi
 
   log INFO "🧹 Cleaning up unused packages..."

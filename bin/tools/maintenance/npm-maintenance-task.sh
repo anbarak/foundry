@@ -3,11 +3,28 @@ set -euo pipefail
 
 LOG_FILE="$HOME/logs/npm-maintenance.log"
 mkdir -p "$(dirname "$LOG_FILE")"
-exec > >(tee -a "$LOG_FILE") 2>&1
-exec 2>&1
+
+# If interactive → tee. If running under launchd → append only (avoid double logs
+# because launchd already captures stdout/stderr via StandardOutPath).
+if [[ -t 1 ]]; then
+  exec > >(tee -a "$LOG_FILE") 2>&1
+else
+  exec >>"$LOG_FILE" 2>&1
+fi
 
 timestamp() { date +'%Y-%m-%d %H:%M:%S'; }
 log() { local level="$1"; shift; printf '[%s] %s %s\n' "$level" "$(timestamp)" "$*"; }
+
+# ── Concurrency lock (avoid overlapping runs) ────────────────────────────────
+LOCK_DIR="$HOME/.cache/foundry/locks"
+LOCK="$LOCK_DIR/$(basename "$0").lock"
+mkdir -p "$LOCK_DIR"
+
+if ! mkdir "$LOCK" 2>/dev/null; then
+  log WARN "Another run is in progress; exiting."
+  exit 0
+fi
+trap 'rmdir "$LOCK" 2>/dev/null || true' EXIT
 
 # ── Log truncation if file > 5MB ───────────────────────
 LOG_MAX_MB=5

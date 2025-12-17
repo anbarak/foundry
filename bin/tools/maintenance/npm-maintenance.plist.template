@@ -19,10 +19,10 @@
   </dict>
 
   <key>StandardOutPath</key>
-  <string>${LOG_DIR}/npm-maintenance.log</string>
+  <string>${LOG_DIR}/npm-maintenance.launchd.out</string>
 
   <key>StandardErrorPath</key>
-  <string>${LOG_DIR}/npm-maintenance.err</string>
+  <string>${LOG_DIR}/npm-maintenance.launchd.err</string>
 
   <key>RunAtLoad</key>
   <false/>

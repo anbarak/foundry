@@ -19,12 +19,12 @@
   </dict>
 
   <key>StandardOutPath</key>
-  <string>${LOG_DIR}/brew-maintenance.log</string>
+  <string>${LOG_DIR}/brew-maintenance.launchd.out</string>
 
   <key>StandardErrorPath</key>
-  <string>${LOG_DIR}/brew-maintenance.err</string>
+  <string>${LOG_DIR}/brew-maintenance.launchd.err</string>
 
   <key>RunAtLoad</key>
-  <true/>
+  <false/>
 </dict>
 </plist>
