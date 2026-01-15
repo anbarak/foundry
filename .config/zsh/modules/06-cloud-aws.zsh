@@ -241,3 +241,10 @@ cleanup_old_sso_tokens() {
 # Aliases
 # ----------------------------------------
 alias okta="open https://centerfield.okta.com"
+
+# ----------------------------------------
+# Containerized AWS CLI v1
+# ----------------------------------------
+aws1() {
+  "$HOME/bin/runners/aws-container-v1" "$@"
+}

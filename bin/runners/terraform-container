@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ─────────────────────────────────────────────────────────────
-# 🔒 Usage check
-# ─────────────────────────────────────────────────────────────
 if [[ -z "${1:-}" ]]; then
   echo "Usage: $0 <terraform-version> [terraform args...]"
   exit 1
@@ -11,33 +8,54 @@ fi
 
 TF_VERSION="$1"
 shift
+TF_COMMAND="${1:-}"
 
 # ─────────────────────────────────────────────────────────────
-# 📦 Colima check (auto-start if Docker isn't running)
+# 📦 Colima check (auto-start with x86_64 if not running)
 # ─────────────────────────────────────────────────────────────
 if ! docker info >/dev/null 2>&1; then
-  echo "▶️ Docker not running. Starting Colima..."
-  colima start
+  echo "▶️ Docker not running. Starting Colima (x86_64)..."
+  colima start --arch x86_64 --cpu 4 --memory 4
+fi
+
+# ─────────────────────────────────────────────────────────────
+# 🔍 Verify Colima architecture
+# ─────────────────────────────────────────────────────────────
+COLIMA_ARCH=$(colima list -j 2>/dev/null | jq -r '.arch // empty')
+if [[ -z "$COLIMA_ARCH" ]]; then
+  COLIMA_ARCH=$(colima list -j 2>/dev/null | jq -r '.[0].arch // empty')
+fi
+if [[ "$COLIMA_ARCH" != "x86_64" ]]; then
+  echo "⚠️  Colima is running $COLIMA_ARCH, but x86_64 is required for Terraform."
+  echo "   Run: colima delete -f && colima start --arch x86_64 --cpu 4 --memory 4"
+  exit 1
+fi
+
+# ─────────────────────────────────────────────────────────────
+# 🔧 Fix plugin permissions BEFORE running Terraform
+# ─────────────────────────────────────────────────────────────
+if [[ -d ".terraform/plugins" ]]; then
+  chmod -R +x .terraform/plugins/
 fi
 
 # ─────────────────────────────────────────────────────────────
 # 📁 Modules path validation
 # ─────────────────────────────────────────────────────────────
-MODULES_PATH=$(realpath ../../modules)
-if [[ ! -d "$MODULES_PATH" ]]; then
-  echo "❌ Error: ../../modules directory does not exist at $MODULES_PATH"
-  exit 1
+MODULES_PATH=$(realpath ../../modules 2>/dev/null || echo "")
+MODULES_MOUNT=()
+if [[ -d "$MODULES_PATH" ]]; then
+  MODULES_MOUNT=(-v "$MODULES_PATH:/workspace/../../modules")
 fi
 
 # ─────────────────────────────────────────────────────────────
 # 🔧 Optional: Terraform 0.13 upgrade (once per workspace)
 # ─────────────────────────────────────────────────────────────
-if [[ "$TF_VERSION" == "0.13"* && "${1:-}" == "init" && ! -f ".terraform-version-upgraded" ]]; then
+if [[ "$TF_VERSION" == "0.13"* && "$TF_COMMAND" == "init" && ! -f ".terraform-version-upgraded" ]]; then
   echo "⚙️  Running terraform 0.13upgrade..."
   docker run --rm -it \
     --platform linux/amd64 \
     -v "$PWD":/workspace \
-    -v "$MODULES_PATH":/workspace/../../modules \
+    "${MODULES_MOUNT[@]}" \
     -w /workspace \
     devopscloudycontainers/terraform:"$TF_VERSION" 0.13upgrade .
 
@@ -50,7 +68,7 @@ fi
 docker run --rm -it \
   --platform linux/amd64 \
   -v "$PWD":/workspace \
-  -v "$MODULES_PATH":/workspace/../../modules \
+  "${MODULES_MOUNT[@]}" \
   -v "$HOME/.aws:/root/.aws" \
   -e AWS_PROFILE="${AWS_PROFILE:-insurance-main-admin}" \
   -e MYSQL_PASSWORD="${MYSQL_PASSWORD:-}" \
@@ -58,3 +76,10 @@ docker run --rm -it \
   -e MYSQL_ENDPOINT="${MYSQL_ENDPOINT:-}" \
   -w /workspace \
   devopscloudycontainers/terraform:"$TF_VERSION" "$@"
+
+# ─────────────────────────────────────────────────────────────
+# 🔧 Fix plugin permissions after init (for newly downloaded plugins)
+# ─────────────────────────────────────────────────────────────
+if [[ "$TF_COMMAND" == "init" && -d ".terraform/plugins" ]]; then
+  chmod -R +x .terraform/plugins/
+fi
