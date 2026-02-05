@@ -285,7 +285,7 @@ wsl --install -d Ubuntu-24.04
 sudo apt-get update && sudo apt-get install -y yadm git
 
 # 2. Clone dotfiles
-yadm clone https://github.com/YOUR_USERNAME/dotfiles.git
+yadm clone https://github.com/anbarak/foundry.git
 
 # 3. Run automated setup
 ~/bin/bootstrap/init-machine
