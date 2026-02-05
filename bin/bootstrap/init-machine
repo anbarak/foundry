@@ -58,12 +58,17 @@ esac
 if [[ ! -f "$HOME/.config/python/versions.txt" ]]; then
   echo "🚫 Missing python versions.txt — skipping Python setup"
 else
-  if ! command -v pyenv >/dev/null; then
-    echo "🔧 Installing Python toolchain (pyenv, versions, poetry, pip-tools)..."
-    ~/bin/tools/setup/setup-python-env.sh
+  # Install pyenv first via Homebrew (if not already installed)
+  if ! command -v pyenv >/dev/null 2>&1; then
+    echo "📦 Installing pyenv via Homebrew..."
+    brew install pyenv pyenv-virtualenv
   else
-    echo "✅ Python toolchain already initialized"
+    echo "✅ pyenv already installed"
   fi
+
+  # Now run the Python environment setup
+  echo "🔧 Setting up Python environment..."
+  ~/bin/tools/setup/setup-python-env.sh
 fi
 
 # -----------------------------------------------------------------------------
