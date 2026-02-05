@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Ensure Homebrew is available
+# shellcheck source=/dev/null
+source "$HOME/bin/foundry/ensure-brew-path.sh"
+
 LOG_FILE="$HOME/logs/setup-python-env.log"
 mkdir -p "$(dirname "$LOG_FILE")"
 exec > >(tee -a "$LOG_FILE") 2>&1

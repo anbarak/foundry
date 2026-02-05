@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Ensure Homebrew is available
+# shellcheck source=/dev/null
+source "$HOME/bin/foundry/ensure-brew-path.sh"
+
 echo "🔧 Setting up CLI tools (pipx/npm)..."
 
 # ---------------------
