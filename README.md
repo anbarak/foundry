@@ -263,45 +263,52 @@ yadm clone git@github.com:anbarak/foundry.git
 # 3. Run automated setup
 ~/bin/bootstrap/init-machine
 
-# 4. Launch interactive menu
+# 4. Launch interactive menu (optional)
 ~/bin/setup
 ```
 
 ---
 
-### 🐧 Linux / WSL2 (Ubuntu/Debian)
+### 🐧 WSL2 (Windows Subsystem for Linux)
+
+**On Windows (PowerShell as Administrator):**
+```powershell
+# Enable WSL2 and install Ubuntu
+wsl --install -d Ubuntu-24.04
+
+# Reboot when prompted
+```
+
+**After reboot, Ubuntu will launch. Then inside Ubuntu:**
 ```bash
 # 1. Update system and install yadm
-sudo apt-get update && sudo apt-get install -y yadm
+sudo apt-get update && sudo apt-get install -y yadm git
 
 # 2. Clone dotfiles
-yadm clone git@github.com:anbarak/foundry.git
+yadm clone https://github.com/YOUR_USERNAME/dotfiles.git
 
 # 3. Run automated setup
 ~/bin/bootstrap/init-machine
 
-# 4. Install Homebrew (for dev tools)
-# This is handled automatically by init-machine
-
-# 5. Logout and login to apply shell changes
+# 4. Logout and login to apply changes
 exit
-# Reopen terminal
+# Then reopen Ubuntu from Start Menu
 
-# 6. Launch interactive menu
+# 5. Launch interactive menu (optional)
 ~/bin/setup
 ```
 
 **WSL-Specific Notes:**
-- Clipboard integration works via `clip.exe` and `powershell.exe`
-- Docker uses native Docker Engine (not Colima)
-- Keep your files in `/home/$USER` for best performance (avoid `/mnt/c/`)
+- ✅ Clipboard integration works automatically (`pbcopy` uses `clip.exe`)
+- ✅ Docker uses native Engine or Docker Desktop
+- ⚠️ Keep files in `/home/$USER` (not `/mnt/c/`) for best performance
 
 ---
 
-### 🐧 Linux (RHEL/CentOS)
+### 🐧 Native Linux (Ubuntu/Debian)
 ```bash
-# 1. Update system and install yadm
-sudo yum install -y yadm
+# 1. Install yadm
+sudo apt-get update && sudo apt-get install -y yadm git
 
 # 2. Clone dotfiles
 yadm clone git@github.com:anbarak/foundry.git
@@ -313,11 +320,33 @@ yadm clone git@github.com:anbarak/foundry.git
 exit
 # Reopen terminal
 
-# 5. Launch interactive menu
+# 5. Launch interactive menu (optional)
 ~/bin/setup
 ```
 
 ---
+
+### 🐧 Linux (RHEL/CentOS/Fedora)
+```bash
+# 1. Install yadm
+sudo yum install -y yadm git
+
+# 2. Clone dotfiles
+yadm clone git@github.com:anbarak/foundry.git
+
+# 3. Run automated setup
+~/bin/bootstrap/init-machine
+
+# 4. Logout and login
+exit
+# Reopen terminal
+
+# 5. Launch interactive menu (optional)
+~/bin/setup
+```
+
+---
+
 
 ## 🔐 Secrets & Bitwarden Strategy
 
