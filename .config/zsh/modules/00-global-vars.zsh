@@ -9,3 +9,9 @@ export LOG_DIR="/var/log"
 export AWS_CRED_HOME="$HOME/.aws"
 export MY_CODE="$HOME/code/my"
 export CF_CODE="$HOME/code/cf"
+
+# =============================================================================
+# OS Detection Variables (set by detect-os.sh)
+# =============================================================================
+export FOUNDRY_OS="${FOUNDRY_OS:-unknown}"           # macos, linux, wsl
+export FOUNDRY_PKG_MANAGER="${FOUNDRY_PKG_MANAGER:-unknown}"  # brew, apt, yum

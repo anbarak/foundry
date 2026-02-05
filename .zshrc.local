@@ -40,12 +40,24 @@ brew() {
 
 export GPG_TTY=$(tty)
 
-# Source modular aliases from ~/.config/zsh/modules
+# ============================================================================
+# Module Loading - Base + Platform Overrides
+# ============================================================================
 ZSH_MODULES="$HOME/.config/zsh/modules"
 if [[ -d "$ZSH_MODULES" ]]; then
-  for module in "$ZSH_MODULES"/*.zsh; do
+  # Load base modules (00-99, excluding platform overrides)
+  for module in "$ZSH_MODULES"/[0-9][0-9]-*.zsh; do
+    # Skip platform-specific files (loaded separately below)
+    [[ "$module" =~ -(macos|linux|wsl)\.zsh$ ]] && continue
     source "$module"
   done
+
+  # Load platform-specific overrides AFTER base modules
+  if [[ "$FOUNDRY_OS" == "macos" && -f "$ZSH_MODULES/01-coreutils-macos.zsh" ]]; then
+    source "$ZSH_MODULES/01-coreutils-macos.zsh"
+  elif [[ -f "$ZSH_MODULES/01-coreutils-linux.zsh" ]]; then
+    source "$ZSH_MODULES/01-coreutils-linux.zsh"
+  fi
 fi
 
 # Load persisted default model if available

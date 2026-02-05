@@ -2,6 +2,12 @@
 # Whisper CLI Configuration & Transcription Tools
 # =============================================================================
 
+# Only enable on macOS (requires BlackHole, afplay, etc.)
+if [[ "$FOUNDRY_OS" != "macos" ]]; then
+  echo "⚠️  Transcription tools are macOS-only (requires BlackHole)" >&2
+  return 0
+fi
+
 export WHISPER_MODEL_DIR="$HOME/.local/share/whisper/models"
 
 # Transcribe any audio/video file (auto converts, multilingual model support)

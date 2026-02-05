@@ -4,7 +4,7 @@
 > Built for engineers who live in the terminal — minimal, secure, and fast to rebuild.
 > This project is continuously refined to reflect the principles below — staying aligned with modern DevOps and internal developer platform (IDP) practices.
 
-![macOS](https://img.shields.io/badge/os-macOS%20(Apple%20Silicon)-blue?style=flat-square&logo=apple)
+![Cross-Platform](https://img.shields.io/badge/os-macOS%20%7C%20Linux%20%7C%20WSL-blue?style=flat-square&logo=apple)
 ![Terminal First](https://img.shields.io/badge/terminal-first-lightgrey?style=flat-square&logo=gnubash)
 ![Automation](https://img.shields.io/badge/restore-fully--automated-success?style=flat-square&logo=githubactions)
 ![Dotfile Managed](https://img.shields.io/badge/dotfiles-managed%20by%20yadm-9cf?style=flat-square&logo=git)
@@ -20,7 +20,7 @@
 ### 🧭 Motto: What Foundry Stands For
 
 > “Foundry is a frictionless, privacy-first, and terminal-native development environment —  
-> designed to be minimal, easily undoable, and fast to restore.  
+> designed to be minimal, easily undoable, fast to restore, and **cross-platform**.
 > It's continuously refined to help engineers focus, automate, and ship faster —  
 > all while leaving a minimal footprint and integrating cleanly into a larger internal platform strategy.”
 
@@ -52,7 +52,35 @@ This project defines a **portable, idempotent, and intuitive** macOS development
 - 🔐 Secure — sensitive files are encrypted and synced via Bitwarden
 - 📦 Git-tracked (via `yadm`) for dotfile management and reproducibility
 
-> ⚠️ This environment is tailored **only for macOS (Apple Silicon)**. Some tooling may work cross-platform, but scripts and paths are macOS-specific.
+> ✅ This environment supports **macOS (Apple Silicon/Intel), Linux, and WSL2**. Scripts automatically detect your platform and install the appropriate tools.
+
+---
+
+## 🖥️ Platform Support
+
+Foundry is designed to work seamlessly across multiple platforms:
+
+| Platform | Status | Package Manager | Notes |
+|----------|--------|-----------------|-------|
+| 🍎 **macOS (Apple Silicon)** | ✅ Fully Supported | Homebrew | Primary development platform |
+| 🍎 **macOS (Intel)** | ✅ Supported | Homebrew | Tested on Intel Macs |
+| 🐧 **Linux (Ubuntu/Debian)** | ✅ Supported | APT + Homebrew | Uses Homebrew for dev tools |
+| 🐧 **WSL2 (Ubuntu)** | ✅ Supported | APT + Homebrew | Clipboard integration included |
+| 🐧 **Linux (RHEL/CentOS)** | 🧪 Experimental | YUM + Homebrew | Basic support |
+
+### Key Platform Features
+
+**macOS:**
+- LaunchAgents for scheduled maintenance
+- Native GUI apps (Shottr, Bitwarden, etc.)
+- System clipboard integration
+- macOS-specific optimizations
+
+**Linux/WSL:**
+- Systemd timers for scheduled tasks (WSL2)
+- CLI-only tool stack
+- Windows clipboard integration (WSL)
+- Docker Engine instead of Colima
 
 ---
 
@@ -222,6 +250,75 @@ Foundry optionally configures your system to use fast, privacy-respecting public
 
 ---
 
+## 🚀 Quick Start by Platform
+
+### 📱 macOS
+```bash
+# 1. Install yadm
+brew install yadm
+
+# 2. Clone dotfiles
+yadm clone git@github.com:anbarak/foundry.git
+
+# 3. Run automated setup
+~/bin/bootstrap/init-machine
+
+# 4. Launch interactive menu
+~/bin/setup
+```
+
+---
+
+### 🐧 Linux / WSL2 (Ubuntu/Debian)
+```bash
+# 1. Update system and install yadm
+sudo apt-get update && sudo apt-get install -y yadm
+
+# 2. Clone dotfiles
+yadm clone git@github.com:anbarak/foundry.git
+
+# 3. Run automated setup
+~/bin/bootstrap/init-machine
+
+# 4. Install Homebrew (for dev tools)
+# This is handled automatically by init-machine
+
+# 5. Logout and login to apply shell changes
+exit
+# Reopen terminal
+
+# 6. Launch interactive menu
+~/bin/setup
+```
+
+**WSL-Specific Notes:**
+- Clipboard integration works via `clip.exe` and `powershell.exe`
+- Docker uses native Docker Engine (not Colima)
+- Keep your files in `/home/$USER` for best performance (avoid `/mnt/c/`)
+
+---
+
+### 🐧 Linux (RHEL/CentOS)
+```bash
+# 1. Update system and install yadm
+sudo yum install -y yadm
+
+# 2. Clone dotfiles
+yadm clone git@github.com:anbarak/foundry.git
+
+# 3. Run automated setup
+~/bin/bootstrap/init-machine
+
+# 4. Logout and login
+exit
+# Reopen terminal
+
+# 5. Launch interactive menu
+~/bin/setup
+```
+
+---
+
 ## 🔐 Secrets & Bitwarden Strategy
 
 Sensitive files are excluded from version control and backed up securely using Bitwarden.
@@ -258,6 +355,23 @@ The following scripts help you validate SSH and Bitwarden setup:
 [`check-bitwarden.sh`](https://github.com/anbarak/foundry/blob/main/bin/tools/backup/check-bitwarden.sh) – Verifies Bitwarden CLI is logged in and responsive
 
 Run them individually or bundle them into your restore process.
+
+### 🔐 Bitwarden CLI Setup
+
+**macOS:**
+Bitwarden master password is stored in macOS Keychain via:
+```bash
+~/bin/tools/setup/save-bitwarden-master-password-to-keychain.sh
+```
+
+**Linux/WSL:**
+> ⚠️ Linux doesn't have macOS Keychain. You'll need to:
+> - Use `pass` (the standard Unix password manager)
+> - Use `gnome-keyring` (if on GNOME)
+> - Or manually unlock Bitwarden each session:
+> ```bash
+> export BW_SESSION=$(bw unlock --raw)
+> ```
 
 ### 💾 Bitwarden Backup/Restore Scripts
 
@@ -1026,6 +1140,46 @@ If migrating from Docker Desktop:
 
 > 💡 This setup eliminates heavy resource usage from Docker Desktop and improves startup time and system performance.
 
+## 🐳 Docker Setup
+
+### macOS: Colima
+
+Docker is powered by [`Colima`](https://github.com/abiosoft/colima) — a lightweight alternative to Docker Desktop.
+
+**Installation:**
+```bash
+brew install colima docker
+colima start
+```
+
+**Usage:**
+```bash
+docker ps
+docker run hello-world
+```
+
+---
+
+### Linux/WSL: Docker Engine
+
+On Linux/WSL, use native Docker Engine:
+
+**Installation (handled by `init-machine`):**
+```bash
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker $USER
+```
+
+**After installation, logout and login for group changes to take effect.**
+
+**Usage:**
+```bash
+docker ps
+docker run hello-world
+```
+
+> 💡 WSL users can also use Docker Desktop for Windows with WSL2 backend integration.
+
 ---
 
 ## 📄 Tracked Dotfiles via `yadm`
@@ -1083,6 +1237,38 @@ ypush                    # Push to origin
 ## 💬 Contributing
 
 PRs welcome if you use a similar dotfile strategy and want to generalize any parts.
+
+---
+
+## 🔧 Platform-Specific Notes
+
+### macOS
+
+- ✅ LaunchAgents handle scheduled tasks (brew maintenance, secrets backup)
+- ✅ GUI apps installed via Homebrew casks
+- ✅ Native clipboard integration
+- ✅ Colima for Docker
+- ✅ macOS Keychain for secrets
+
+---
+
+### Linux
+
+- ✅ Homebrew on Linux for dev tools consistency
+- ✅ APT/YUM for system packages
+- ✅ Docker Engine instead of Colima
+- ⚠️ No GUI apps (CLI-only)
+- ⚠️ Use `pass` or `gnome-keyring` for secrets
+
+---
+
+### WSL2
+
+- ✅ All Linux features
+- ✅ Windows clipboard integration (`clip.exe`, `powershell.exe`)
+- ✅ Docker Desktop integration (optional)
+- ⚠️ Keep files in `/home/$USER` for performance
+- ⚠️ Avoid `/mnt/c/` for git repos and development
 
 ---
 

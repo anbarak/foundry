@@ -1,7 +1,13 @@
 # shellcheck shell=bash
 # =============================================================================
-# Homebrew
+# Homebrew (macOS only)
 # =============================================================================
+
+# Only load on macOS
+if [[ "$FOUNDRY_OS" != "macos" ]]; then
+  return 0
+fi
+
 alias brewup='brew update; brew upgrade; brew cleanup'
 
 brewupdate() {

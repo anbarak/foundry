@@ -84,3 +84,8 @@ code/
 .vim/autoload/plug.vim
 .vim/plugged/**
 .foundry/tmp/
+
+# ================================
+# WSL-Specific (Windows filesystem mounts)
+# ================================
+/mnt/**

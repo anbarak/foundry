@@ -24,6 +24,11 @@ else
 fi
 
 # ---------------------
+# Platform detection
+# ---------------------
+source "$HOME/bin/foundry/detect-os.sh"
+
+# ---------------------
 # npm tools
 # ---------------------
 if command -v npm >/dev/null 2>&1 && [ -f "$HOME/.config/npm/global-packages.txt" ]; then

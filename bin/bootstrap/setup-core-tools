@@ -80,9 +80,12 @@ else
 fi
 
 # --------------------------------------------------------------------
-# Setup Shottr (screenshot tool)
+# Setup Shottr (screenshot tool) - macOS only
 # --------------------------------------------------------------------
-if [ "$SKIP_SHOTTR" = false ]; then
+# shellcheck source=/dev/null
+source "$HOME/bin/foundry/detect-os.sh"
+
+if [[ "$FOUNDRY_OS" == "macos" ]] && [[ "$SKIP_SHOTTR" = false ]]; then
   echo "📸 Setting up Shottr..."
 
   if ! brew list --cask -1 | grep -qx shottr; then
@@ -110,6 +113,8 @@ if [ "$SKIP_SHOTTR" = false ]; then
   fi
 
   echo "✅ Shottr setup complete."
+elif [[ "$FOUNDRY_OS" != "macos" ]]; then
+  echo "⏭️  Skipping Shottr setup (macOS-only tool)"
 else
   echo "⏭️  Skipping Shottr setup (--skip-shottr)"
 fi

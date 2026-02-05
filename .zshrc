@@ -20,6 +20,12 @@ fi
 # Set USER_HOME variable
 export USER_HOME="$HOME"
 
+# ============================================================================
+# OS Detection - Must load before PATH configuration
+# ============================================================================
+[[ -f "$HOME/bin/foundry/detect-os.sh" ]] && source "$HOME/bin/foundry/detect-os.sh"
+
+
 # Function to add paths only if they are not already in PATH
 add_to_path() {
   for DIR in "$@"; do
@@ -33,15 +39,19 @@ add_to_path() {
 # Reset PATH to a minimal default to avoid duplicates
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-# Ensure Homebrew is in the PATH
-add_to_path "/opt/homebrew/bin"
+# Platform-specific PATH setup
+if [[ "$FOUNDRY_OS" == "macos" ]]; then
+  # Ensure Homebrew is in the PATH
+  add_to_path "/opt/homebrew/bin"
+  export HOMEBREW_PREFIX="/opt/homebrew"
 
-export HOMEBREW_PREFIX="/opt/homebrew"
-
-# Add GNU coreutils to PATH for standard behavior (ls, cat, etc.)
-# ⚠️ May cause issues with GMP/Python builds — review with `brew doctor`
-add_to_path "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
-add_to_path "$HOMEBREW_PREFIX/opt/findutils/libexec/gnubin"
+  # Add GNU coreutils to PATH for standard behavior (ls, cat, etc.)
+  add_to_path "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
+  add_to_path "$HOMEBREW_PREFIX/opt/findutils/libexec/gnubin"
+elif [[ "$FOUNDRY_OS" == "linux" ]] || [[ "$FOUNDRY_OS" == "wsl" ]]; then
+  # Linux uses system coreutils - no need for GNU overrides
+  add_to_path "/usr/local/bin"
+fi
 
 # Homebrew paths
 if [ -n "$HOMEBREW_PREFIX" ]; then

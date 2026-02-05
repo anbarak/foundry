@@ -7,15 +7,50 @@ echo "⚙️ Initializing dev machine..."
 # Install Homebrew and core CLI tools via Brewfile.
 # Setup weekly homebrew maintenance (LaunchAgent)
 # -----------------------------------------------------------------------------
-if ! command -v brew &>/dev/null; then
-  echo "🛠️ Homebrew not found — installing..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-else
-  echo "🍺 Homebrew already installed."
-fi
+# Detect OS and set up package manager
+# shellcheck source=../foundry/detect-os.sh
+source "$HOME/bin/foundry/detect-os.sh"
 
-echo "📦 Updating Homebrew packages via maintain-homebrew.sh..."
-"$HOME/bin/tools/system/install-brew-maintenance.sh"
+case "$FOUNDRY_OS" in
+  macos)
+    if ! command -v brew &>/dev/null; then
+      echo "🛠️ Homebrew not found — installing..."
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+      echo "🍺 Homebrew already installed."
+    fi
+    echo "📦 Setting up Homebrew maintenance..."
+    "$HOME/bin/tools/system/install-brew-maintenance.sh"
+    ;;
+  wsl|linux)
+    echo "🐧 Detected Linux/WSL - updating package lists..."
+    if [[ "$FOUNDRY_PKG_MANAGER" == "apt" ]]; then
+      sudo apt-get update
+      sudo apt-get install -y \
+        build-essential \
+        curl \
+        git \
+        wget \
+        unzip
+    elif [[ "$FOUNDRY_PKG_MANAGER" == "yum" ]]; then
+      sudo yum groupinstall -y "Development Tools"
+      sudo yum install -y curl git wget unzip
+    fi
+
+    # Install Homebrew on Linux for dev tools consistency
+    if ! command -v brew &>/dev/null; then
+      echo "🍺 Installing Homebrew for Linux..."
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+      # Add to PATH for current session
+      if [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+      fi
+    else
+      echo "✅ Homebrew already installed"
+    fi
+    ;;
+esac
 
 # -----------------------------------------------------------------------------
 # Install Python Environment Toolchain
