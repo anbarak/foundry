@@ -37,21 +37,17 @@ case "$FOUNDRY_OS" in
       sudo yum install -y curl git wget unzip
     fi
 
-    # Install Homebrew on Linux for dev tools consistency
-    if ! command -v brew &>/dev/null; then
+    # Check if Homebrew executable exists (not just the directory)
+    if [[ ! -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
       echo "🍺 Installing Homebrew for Linux..."
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-      # Add to PATH for current session
-      if [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-      fi
     else
       echo "✅ Homebrew already installed"
-      # Ensure it's in PATH for this session (in case of re-run)
-      if [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-      fi
+    fi
+
+    # Always ensure Homebrew is in PATH for the current session
+    if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+      eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     fi
     ;;
 esac
