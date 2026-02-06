@@ -1,6 +1,5 @@
 # whisper.cpp model manifest
 # Format: <filename>  # <comment about use case>
-
 ggml-base.en.bin        # English-only, small
 ggml-medium.en.bin      # English-only, medium
 ggml-large-v3.bin       # Multilingual, best accuracy
