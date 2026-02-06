@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Load brew path helpers if present (macOS/Linuxbrew)
+# so `ollama` can be resolved via PATH cross-platform.
+if [[ -f "$HOME/bin/lib/ensure-brew-path.sh" ]]; then
+  # shellcheck disable=SC1091
+  source "$HOME/bin/lib/ensure-brew-path.sh"
+fi
+
 # Paths
-AI_DIR=~/bin/tools/ai
-LOG_DIR=~/logs
+AI_DIR="$HOME/bin/tools/ai"
+LOG_DIR="$HOME/logs"
 
 MODE="${1:-interactive}"
 
@@ -29,10 +36,35 @@ if [[ "$enable_ai" =~ ^[Yy]$ ]]; then
   # Create folders
   mkdir -p "$AI_DIR" "$LOG_DIR"
 
+  # Ensure ollama exists in PATH
+  if ! command -v ollama >/dev/null 2>&1; then
+    echo "❌ ollama not found in PATH"
+    echo "   Make sure Homebrew/Linuxbrew is installed and ensure-brew-path.sh is sourced."
+    exit 1
+  fi
+
   # Start Ollama server if not running
   if ! pgrep -f "ollama serve" >/dev/null 2>&1; then
-    nohup /opt/homebrew/bin/ollama serve > "$LOG_DIR/ollama.log" 2>&1 &
-    echo "✅ Started Ollama server in background"
+    echo "🚀 Starting Ollama server..."
+    nohup ollama serve > "$LOG_DIR/ollama.log" 2>&1 &
+
+    # Wait for Ollama to be ready (max 30 seconds)
+    echo "⏳ Waiting for Ollama server to start..."
+    i=1
+    while [[ "$i" -le 30 ]]; do
+      if ollama list >/dev/null 2>&1; then
+        echo "✅ Ollama server is ready"
+        break
+      fi
+      sleep 1
+      i=$((i + 1))
+    done
+
+    # Final check
+    if ! ollama list >/dev/null 2>&1; then
+      echo "❌ Ollama server failed to start. Check logs at $LOG_DIR/ollama.log"
+      exit 1
+    fi
   else
     echo "✅ Ollama server already running"
   fi
