@@ -58,12 +58,20 @@ esac
 if [[ ! -f "$HOME/.config/python/versions.txt" ]]; then
   echo "🚫 Missing python versions.txt — skipping Python setup"
 else
-  # Install pyenv first via Homebrew (if not already installed)
+  # Install pyenv and pipx first via Homebrew (if not already installed)
   if ! command -v pyenv >/dev/null 2>&1; then
     echo "📦 Installing pyenv via Homebrew..."
     brew install pyenv pyenv-virtualenv
   else
     echo "✅ pyenv already installed"
+  fi
+
+  if ! command -v pipx >/dev/null 2>&1; then
+    echo "📦 Installing pipx via Homebrew..."
+    brew install pipx
+    pipx ensurepath
+  else
+    echo "✅ pipx already installed"
   fi
 
   # Now run the Python environment setup
