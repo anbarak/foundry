@@ -28,10 +28,16 @@ case "$FOUNDRY_OS" in
       sudo apt-get update
       sudo apt-get install -y \
         build-essential \
+        gcc-12 \
+        g++-12 \
         curl \
         git \
         wget \
         unzip
+
+      # Make gcc-12 and g++-12 available as alternatives
+      sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100
+      sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100
     elif [[ "$FOUNDRY_PKG_MANAGER" == "yum" ]]; then
       sudo yum groupinstall -y "Development Tools"
       sudo yum install -y curl git wget unzip
@@ -104,6 +110,16 @@ echo "📁 Creating code folders (cf, my, tmp)..."
 mkdir -p "$HOME/code/cf" "$HOME/code/my" "$HOME/code/tmp"
 
 # -----------------------------------------------------------------------------
+# Install Ollama (if not already installed)
+# -----------------------------------------------------------------------------
+if ! command -v ollama &>/dev/null; then
+  echo "📦 Installing Ollama via Homebrew..."
+  brew install ollama
+else
+  echo "✅ Ollama already installed"
+fi
+
+# -----------------------------------------------------------------------------
 # Modular setup scripts (cloud/dev tools)
 # -----------------------------------------------------------------------------
 SCRIPTS=(
@@ -131,16 +147,6 @@ echo "▶️  Initializing Colima with default profile (aarch64)..."
 if [ ! -f "$HOME/.colima/default/colima.yaml" ]; then
   colima start --arch aarch64 --cpu 2 --memory 2 --disk 20 --vm-type vz --save-config
   colima stop
-fi
-
-# -----------------------------------------------------------------------------
-# Install Ollama (if not already installed)
-# -----------------------------------------------------------------------------
-if ! command -v ollama &>/dev/null; then
-  echo "📦 Installing Ollama via Homebrew..."
-  brew install ollama
-else
-  echo "✅ Ollama already installed"
 fi
 
 # -----------------------------------------------------------------------------
