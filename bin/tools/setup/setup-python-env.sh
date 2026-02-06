@@ -68,4 +68,8 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
 fi
 
 log INFO "✅ Python environment setup complete."
-osascript -e 'display notification "✅ Python + Poetry/pip-tools ready." with title "Foundry Setup"'
+
+# Only show macOS notification if osascript is available
+if command -v osascript &>/dev/null; then
+  osascript -e 'display notification "✅ Python + Poetry/pip-tools ready." with title "Foundry Setup"'
+fi
