@@ -49,7 +49,13 @@ if [ "$SKIP_WHISPER" = false ]; then
 
     if [[ ! -f "$MODEL_PATH" ]]; then
       echo "⬇️  Downloading $MODEL..."
-      curl -Ls -o "$MODEL_PATH" "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$MODEL"
+      if curl -Ls -o "$MODEL_PATH" "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$MODEL"; then
+        echo "✅ Downloaded $MODEL"
+      else
+        echo "❌ Failed to download $MODEL (network error or file not found)"
+        echo "⏭️  Continuing with remaining models..."
+        continue
+      fi
     else
       echo "✅ $MODEL already exists."
     fi
