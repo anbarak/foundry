@@ -39,7 +39,12 @@ if [ "$SKIP_WHISPER" = false ]; then
   fi
 
   # Filter out comments and empty lines
-  mapfile -t WHISPER_MODELS < <(grep -v '^\s*#' "$WHISPER_MODEL_MANIFEST" | grep -v '^[[:space:]]*$')
+  mapfile -t WHISPER_MODELS < <(
+    grep -v '^\s*#' "$WHISPER_MODEL_MANIFEST" |
+    grep -v '^[[:space:]]*$' |
+    sed 's/#.*//' |
+    awk '{print $1}'
+  )
 
   for MODEL in "${WHISPER_MODELS[@]}"; do
     # Skip empty model names

@@ -134,13 +134,23 @@ if [ ! -f "$HOME/.colima/default/colima.yaml" ]; then
 fi
 
 # -----------------------------------------------------------------------------
+# Install Ollama (if not already installed)
+# -----------------------------------------------------------------------------
+if ! command -v ollama &>/dev/null; then
+  echo "📦 Installing Ollama via Homebrew..."
+  brew install ollama
+else
+  echo "✅ Ollama already installed"
+fi
+
+# -----------------------------------------------------------------------------
 # Setup AI tools
 # -----------------------------------------------------------------------------
 echo "🧠 Installing AI tools..."
 if [[ -x "$HOME/bin/tools/ai/setup-ai-tools.sh" ]]; then
   "$HOME/bin/tools/ai/setup-ai-tools.sh"
 else
-  echo "⚠️  Skipping AI tools intallation — script not found or not executable"
+  echo "⚠️  Skipping AI tools installation — script not found or not executable"
 fi
 
 # -----------------------------------------------------------------------------
