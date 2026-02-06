@@ -38,9 +38,13 @@ if [ "$SKIP_WHISPER" = false ]; then
     exit 1
   fi
 
-  mapfile -t WHISPER_MODELS < <(grep -v '^\s*#' "$WHISPER_MODEL_MANIFEST")
+  # Filter out comments and empty lines
+  mapfile -t WHISPER_MODELS < <(grep -v '^\s*#' "$WHISPER_MODEL_MANIFEST" | grep -v '^[[:space:]]*$')
 
   for MODEL in "${WHISPER_MODELS[@]}"; do
+    # Skip empty model names
+    [[ -z "$MODEL" ]] && continue
+
     MODEL_PATH="$WHISPER_MODEL_DIR/$MODEL"
 
     if [[ ! -f "$MODEL_PATH" ]]; then
