@@ -11,6 +11,7 @@ if command -v bw &>/dev/null; then
     export BW_SESSION=$(cat "$HOME/.cache/bw-session")
   fi
   if [[ -n "$BW_SESSION" ]]; then
+    { bw sync --session "$BW_SESSION" &>/dev/null } &!
     export ATLASSIAN_TOKEN=$(bw get password "Atlassian - haarabi-automation" --session "$BW_SESSION" 2>/dev/null)
     export ATLASSIAN_EMAIL="haarabi@centerfield.com"
     export ATLASSIAN_URL="https://centerfieldmedia.atlassian.net"
