@@ -12,7 +12,9 @@ if command -v bw &>/dev/null; then
   fi
   if [[ -n "$BW_SESSION" ]]; then
     { bw sync --session "$BW_SESSION" &>/dev/null } &!
-    export ATLASSIAN_TOKEN=$(bw get password "Atlassian - haarabi-automation" --session "$BW_SESSION" 2>/dev/null)
+    if bw unlock --check --session "$BW_SESSION" &>/dev/null; then
+      export ATLASSIAN_TOKEN=$(bw get password "Atlassian - haarabi-automation" --session "$BW_SESSION" 2>/dev/null)
+    fi
     export ATLASSIAN_EMAIL="haarabi@centerfield.com"
     export ATLASSIAN_URL="https://centerfieldmedia.atlassian.net"
   fi
