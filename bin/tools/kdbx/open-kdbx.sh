@@ -14,6 +14,7 @@ declare -A db_folders=(
   [NetEngDatabase]="NetEng"
   [ITOperationsDB]="SysEng"
   [QDPassDatabase]="SysEng"
+  [3rdPartyVendors]="Third Party"
 )
 
 folder="${db_folders[$db_id]:-}"
