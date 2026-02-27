@@ -16,7 +16,7 @@ alias tfw_list='terraform workspace list'
 alias tfw_new='terraform workspace new'
 alias tfw_select='terraform workspace select'
 alias tfdoc='terraform-docs markdown table .'
-alias tfclean='rm -rf .terraform .terraform.lock.hcl tfplan.binary plan.json plan.out'
+alias tfclean='rm -rf .terraform .terraform.lock.hcl tfplan.binary plan.json plan.out init.log fmt.log validate.log'
 
 # Plan output shortcuts
 alias tfplanbin='terraform plan -out=tfplan.binary'
