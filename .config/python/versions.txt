@@ -2,3 +2,4 @@
 3.13.0
 3.12.11
 3.11.9 # Compatibility for aider-chat, numpy<1.25, older tools
+3.9.21  # Lambda python3.9 runtime compatibility
