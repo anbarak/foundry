@@ -24,7 +24,7 @@ plugins=(
   # 💻 Development Tools
   pip                      # Python package manager completions
   python                   # Aliases for python and virtualenv helpers
-  git                      # Git aliases and functions
+  # git                      # Git aliases and functions
   gh                       # GitHub CLI completions
   tmux                     # Tmux aliases and completions
 
