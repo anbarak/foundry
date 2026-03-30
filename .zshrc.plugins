@@ -6,9 +6,9 @@
 # Define the list of plugins to load
 plugins=(
   # 🔁 Navigation & Productivity
-  autojump                 # Fast directory jumping using usage history
-  fzf                      # Fuzzy finding for history, files, directories, etc.
-  clipboard                # macOS clipboard tools (copyfile, copypath)
+  # autojump                 # Fast directory jumping using usage history
+  # fzf                      # Fuzzy finding for history, files, directories, etc.
+  # clipboard                # macOS clipboard tools (copyfile, copypath)
   colored-man-pages        # Color-enhanced `man` pages for better readability
 
   # ☁️ Cloud & DevOps Tools
@@ -17,7 +17,7 @@ plugins=(
   docker                   # Docker CLI aliases and completions
   helm                     # Helm CLI completions and aliases
   terraform                # Terraform completions, prompt info, aliases
-  k                        # Wrapper for `kubectl` with shorthand
+  # k                        # Wrapper for `kubectl` with shorthand
   kubectl                  # Core Kubernetes CLI support
   kubectx                  # Show/switch active kube contexts easily
 

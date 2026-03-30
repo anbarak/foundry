@@ -180,10 +180,10 @@ fi
 # Uncomment one of the following lines to change the auto-update behavior
 # zstyle ':omz:update' mode disabled  # disable automatic updates
 # zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
+zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
 # Uncomment the following line to change how often to auto-update (in days).
-# zstyle ':omz:update' frequency 13
+zstyle ':omz:update' frequency 30
 
 # Uncomment the following line if pasting URLs and other text is messed up.
 # DISABLE_MAGIC_FUNCTIONS="true"
@@ -230,6 +230,10 @@ plugins=() # Refer to ~/.zshrc.plugins
 # Load Oh My Zsh
 # shellcheck source=/dev/null
 . "$ZSH/oh-my-zsh.sh"
+zle -A .bracketed-paste bracketed-paste 2>/dev/null
+
+# Skip OMZ's ls detection — we use eza (saves ~140ms)
+unfunction test-ls-args 2>/dev/null
 
 # User configuration
 
@@ -257,11 +261,9 @@ plugins=() # Refer to ~/.zshrc.plugins
 # For a full list of active aliases, run `alias`.
 # alias are located in ~/.zshrc.local file
 
-# Add SSH key to macOS keychain if it exists (Personal-specific)
-if [ -f "$USER_HOME/.ssh/id_ed25519_centerfield" ]; then
-  # Only add if not already loaded
-  ssh-add -l 2>/dev/null | grep -q "id_ed25519_centerfield" || \
-    ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
+# Add SSH key to macOS keychain (skip in tmux — already inherited)
+if [[ -z "$TMUX" && -f "$USER_HOME/.ssh/id_ed25519_centerfield" ]]; then
+  ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
 fi
 
 # Source local configuration file
@@ -278,3 +280,7 @@ bindkey -v
 
 # Load tiny AWS badge
 [[ -f "$USER_HOME/.p10k-tiny-aws.zsh" ]] && source "$USER_HOME/.p10k-tiny-aws.zsh"
+
+# Must be last — remove pyenv virtualenv hook re-injected by plugins
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+precmd_functions=(${precmd_functions:#_pyenv_virtualenv_hook})
