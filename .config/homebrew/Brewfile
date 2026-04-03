@@ -98,7 +98,7 @@ brew "ruby"
 brew "shellcheck"
 brew "shfmt"
 brew "sk"
-brew "sleepwatcher", restart_service: :changed
+brew "sleepwatcher"
 brew "snyk-cli"
 brew "stern"
 brew "stylelint"
