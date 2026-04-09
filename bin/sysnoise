@@ -1,0 +1,724 @@
+#!/usr/bin/env bash
+# =============================================================================
+# sysnoise — detect OS-level noise that could affect shell/process performance
+# =============================================================================
+#
+# USAGE:
+#   sysnoise              One-shot snapshot of current system state
+#   sysnoise window [N]   Sample over N seconds, report aggregate (default 10s)
+#   sysnoise watch [N]    Continuously refresh every N seconds (default 2s)
+#   sysnoise top          Show top CPU/memory hogs only
+#   sysnoise help         Show this help
+#
+# WHEN TO USE WHICH:
+#   snapshot   Quick "what's happening right now?" check (one instant)
+#   window     "What's been happening over the last N seconds?" — best for
+#              correlating with a specific event (e.g., a slow metrics-variance
+#              run). Distinguishes consistent culprits from one-shot spikes.
+#   watch      Continuous monitoring — see noise as it happens in real time
+#   top        Just the CPU/memory hogs, fast
+#
+# WHAT IT CHECKS:
+#   - CPU load (1/5/15 min averages)
+#   - Top CPU and memory consumers
+#   - Memory pressure (free/active/inactive/wired/compressed)
+#   - Swap activity (swapins/swapouts since boot, rate during windows)
+#   - Memory compressor activity
+#   - Swap usage
+#   - Disk I/O activity
+#   - Disk space (root volume)
+#   - Network throughput on active interface
+#   - Number of running processes
+#   - Thermal pressure (when throttling)
+#   - Power state (AC/battery)
+#   - Background daemons known to cause noise (Spotlight, Time Machine,
+#     iCloud, Photos analysis, kernel_task)
+#
+# WORKFLOW WITH METRICS SUITE:
+#   In one pane:    sysnoise window 30
+#   In another:     metrics-full   (runs during the window)
+#   When sysnoise finishes, you'll see what the OS was doing during the test.
+# =============================================================================
+
+set -uo pipefail
+
+# Colors (only if stdout is a terminal)
+if [[ -t 1 ]]; then
+  C_RESET=$'\033[0m'
+  C_BOLD=$'\033[1m'
+  C_DIM=$'\033[2m'
+  C_GREEN=$'\033[32m'
+  C_YELLOW=$'\033[33m'
+  C_RED=$'\033[31m'
+  C_BLUE=$'\033[34m'
+  C_CYAN=$'\033[36m'
+else
+  C_RESET="" C_BOLD="" C_DIM="" C_GREEN="" C_YELLOW="" C_RED="" C_BLUE="" C_CYAN=""
+fi
+
+# OS check
+if [[ "$(uname -s)" != "Darwin" ]]; then
+  echo "❌ sysnoise currently only supports macOS. Detected: $(uname -s)"
+  exit 1
+fi
+
+# -----------------------------------------------------------------------------
+# Helper: status icon based on threshold
+# -----------------------------------------------------------------------------
+status_icon() {
+  local value=$1 warn=$2 crit=$3
+  if (( $(echo "$value >= $crit" | bc -l) )); then
+    echo "🔴"
+  elif (( $(echo "$value >= $warn" | bc -l) )); then
+    echo "⚠️ "
+  else
+    echo "✅"
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Section header
+# -----------------------------------------------------------------------------
+header() {
+  local title=$1
+  echo ""
+  echo "${C_BOLD}${title}${C_RESET}"
+  echo "${C_DIM}─────────────────────────────────────────────────────────────${C_RESET}"
+}
+
+# -----------------------------------------------------------------------------
+# Section: CPU load averages
+# -----------------------------------------------------------------------------
+check_load() {
+  header "CPU Load"
+  local load_line load1 load5 load15 cores
+  load_line=$(uptime | sed 's/.*load averages*: //')
+  load1=$(echo "$load_line" | awk '{print $1}' | tr -d ',')
+  load5=$(echo "$load_line" | awk '{print $2}' | tr -d ',')
+  load15=$(echo "$load_line" | awk '{print $3}' | tr -d ',')
+  cores=$(sysctl -n hw.ncpu)
+
+  local load1_pct
+  load1_pct=$(echo "scale=2; $load1 / $cores" | bc)
+  local icon
+  icon=$(status_icon "$load1_pct" "0.7" "1.0")
+
+  printf "  %s 1-min:  %s  %s5-min: %s  15-min: %s%s  (%d cores)\n" \
+    "$icon" "$load1" "$C_DIM" "$load5" "$load15" "$C_RESET" "$cores"
+
+  if (( $(echo "$load1_pct >= 1.0" | bc -l) )); then
+    echo "     ${C_RED}System is fully saturated. Top CPU consumers below.${C_RESET}"
+  elif (( $(echo "$load1_pct >= 0.7" | bc -l) )); then
+    echo "     ${C_YELLOW}High load. Could affect interactive performance.${C_RESET}"
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Section: top CPU processes
+# -----------------------------------------------------------------------------
+check_top_cpu() {
+  header "Top 5 CPU Consumers"
+  printf "  ${C_DIM}%-8s %6s %6s  %s${C_RESET}\n" "PID" "%CPU" "%MEM" "COMMAND"
+  ps -arcwwwxo pid,%cpu,%mem,comm | tail -n +2 | head -5 | \
+    while read -r pid cpu mem comm; do
+      local icon=" "
+      if (( $(echo "$cpu >= 50.0" | bc -l) )); then icon="🔴"
+      elif (( $(echo "$cpu >= 20.0" | bc -l) )); then icon="⚠️ "
+      else icon="  "
+      fi
+      printf "  %s %-8s %6s %6s  %s\n" "$icon" "$pid" "$cpu" "$mem" "$comm"
+    done
+}
+
+# -----------------------------------------------------------------------------
+# Section: top memory processes
+# -----------------------------------------------------------------------------
+check_top_mem() {
+  header "Top 5 Memory Consumers"
+  printf "  ${C_DIM}%-8s %6s %8s  %s${C_RESET}\n" "PID" "%MEM" "RSS_MB" "COMMAND"
+  ps -mrcwwwxo pid,%mem,rss,comm | tail -n +2 | head -5 | \
+    while read -r pid mem rss comm; do
+      local rss_mb=$((rss / 1024))
+      printf "    %-8s %6s %7sM  %s\n" "$pid" "$mem" "$rss_mb" "$comm"
+    done
+}
+
+# -----------------------------------------------------------------------------
+# Section: memory pressure
+# -----------------------------------------------------------------------------
+check_memory() {
+  header "Memory Pressure"
+
+  local total_gb free_pct pressure
+  total_gb=$(echo "scale=1; $(sysctl -n hw.memsize) / 1073741824" | bc)
+
+  pressure=$(memory_pressure 2>/dev/null | grep "System-wide memory free percentage" | awk '{print $NF}' | tr -d '%')
+  if [[ -z "$pressure" ]]; then pressure="0"; fi
+  free_pct=$pressure
+
+  local icon
+  if (( free_pct < 10 )); then
+    icon="🔴"
+  elif (( free_pct < 25 )); then
+    icon="⚠️ "
+  else
+    icon="✅"
+  fi
+
+  printf "  %s Free: %s%%  ${C_DIM}(of %sGB total)${C_RESET}\n" "$icon" "$free_pct" "$total_gb"
+
+  local page_size pages_compressed swap_used
+  page_size=$(vm_stat | head -1 | awk '{print $8}' | tr -d '.')
+  pages_compressed=$(vm_stat | grep "Pages occupied by compressor" | awk '{print $5}' | tr -d '.')
+  local compressed_mb=$((pages_compressed * page_size / 1048576))
+
+  swap_used=$(sysctl vm.swapusage | awk '{print $7}' | sed 's/M//')
+
+  printf "    Compressed:  %5sMB\n" "$compressed_mb"
+  printf "    Swap used:   %5sMB\n" "$swap_used"
+
+  if (( $(echo "$swap_used > 1000" | bc -l) )); then
+    echo "     ${C_YELLOW}High swap usage — system is under memory pressure.${C_RESET}"
+  fi
+
+  # Paging activity since boot (cumulative counters — useful for "has this
+  # machine been thrashing?" even in snapshot mode)
+  local swapins swapouts
+  swapins=$(vm_stat | awk '/Swapins/ {gsub(/\./,""); print $2}')
+  swapouts=$(vm_stat | awk '/Swapouts/ {gsub(/\./,""); print $2}')
+  if [[ -n "$swapins" && -n "$swapouts" ]]; then
+    local swapins_fmt swapouts_fmt
+    swapins_fmt=$(printf "%'d" "$swapins" 2>/dev/null || echo "$swapins")
+    swapouts_fmt=$(printf "%'d" "$swapouts" 2>/dev/null || echo "$swapouts")
+    printf "    Swapins:     %9s pages ${C_DIM}(since boot)${C_RESET}\n" "$swapins_fmt"
+    printf "    Swapouts:    %9s pages ${C_DIM}(since boot)${C_RESET}\n" "$swapouts_fmt"
+    if (( swapins > 1000000 )); then
+      echo "     ${C_YELLOW}Heavy cumulative paging — machine has been under pressure.${C_RESET}"
+      echo "     ${C_DIM}Run 'sysnoise window 30' to see current paging rate.${C_RESET}"
+    fi
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Section: disk I/O
+# -----------------------------------------------------------------------------
+check_disk_io() {
+  header "Disk I/O"
+  local stats
+  stats=$(iostat -d -w 1 -c 2 disk0 2>/dev/null | tail -1)
+  if [[ -n "$stats" ]]; then
+    local kb_t tps mb_s
+    kb_t=$(echo "$stats" | awk '{print $1}')
+    tps=$(echo "$stats" | awk '{print $2}')
+    mb_s=$(echo "$stats" | awk '{print $3}')
+
+    local icon="✅"
+    if (( $(echo "$mb_s > 100" | bc -l) )); then
+      icon="🔴"
+    elif (( $(echo "$mb_s > 30" | bc -l) )); then
+      icon="⚠️ "
+    fi
+
+    printf "  %s %s MB/s  ${C_DIM}(%s tps, %s KB/transfer)${C_RESET}\n" \
+      "$icon" "$mb_s" "$tps" "$kb_t"
+
+    if (( $(echo "$mb_s > 30" | bc -l) )); then
+      echo "     ${C_YELLOW}Active disk I/O — may slow file ops and shell startup.${C_RESET}"
+    fi
+  else
+    echo "  (iostat unavailable)"
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Section: disk space
+# -----------------------------------------------------------------------------
+check_disk_space() {
+  header "Disk Space"
+  local line use_pct avail
+  line=$(df -h / | tail -1)
+  use_pct=$(echo "$line" | awk '{print $5}' | tr -d '%')
+  avail=$(echo "$line" | awk '{print $4}')
+
+  local icon="✅"
+  if (( use_pct >= 90 )); then
+    icon="🔴"
+  elif (( use_pct >= 80 )); then
+    icon="⚠️ "
+  fi
+
+  printf "  %s %s%% used  ${C_DIM}(%s available on /)${C_RESET}\n" "$icon" "$use_pct" "$avail"
+
+  if (( use_pct >= 90 )); then
+    echo "     ${C_RED}Critically low disk space — can cause OS-wide slowdowns.${C_RESET}"
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Section: network activity
+# -----------------------------------------------------------------------------
+check_network() {
+  header "Network Activity"
+  local iface
+  iface=$(route get default 2>/dev/null | grep interface | awk '{print $2}')
+  if [[ -z "$iface" ]]; then
+    echo "  (no active default interface)"
+    return
+  fi
+
+  local rx1 tx1 rx2 tx2 rx_kbs tx_kbs
+  read -r rx1 tx1 < <(netstat -ibn | awk -v i="$iface" '$1 == i {print $7, $10; exit}')
+  sleep 1
+  read -r rx2 tx2 < <(netstat -ibn | awk -v i="$iface" '$1 == i {print $7, $10; exit}')
+
+  rx_kbs=$(( (rx2 - rx1) / 1024 ))
+  tx_kbs=$(( (tx2 - tx1) / 1024 ))
+
+  local icon="✅"
+  if (( rx_kbs > 5000 || tx_kbs > 5000 )); then
+    icon="⚠️ "
+  fi
+
+  printf "  %s ${C_BOLD}%s${C_RESET}  ↓ %s KB/s  ↑ %s KB/s\n" "$icon" "$iface" "$rx_kbs" "$tx_kbs"
+}
+
+# -----------------------------------------------------------------------------
+# Section: process count
+# -----------------------------------------------------------------------------
+check_processes() {
+  header "Processes"
+  local total user_proc
+  total=$(ps -A | wc -l | tr -d ' ')
+  user_proc=$(ps -u "$USER" | wc -l | tr -d ' ')
+
+  local icon="✅"
+  if (( total > 800 )); then
+    icon="⚠️ "
+  fi
+  if (( total > 1500 )); then
+    icon="🔴"
+  fi
+
+  printf "  %s Total: %s  ${C_DIM}(yours: %s)${C_RESET}\n" "$icon" "$total" "$user_proc"
+}
+
+# -----------------------------------------------------------------------------
+# Section: thermal & power state
+# -----------------------------------------------------------------------------
+check_thermal() {
+  header "Thermal & Power"
+
+  local thermal
+  thermal=$(pmset -g therm 2>/dev/null | grep "CPU_Speed_Limit" | awk '{print $NF}')
+  if [[ -n "$thermal" ]]; then
+    local icon="✅"
+    if (( thermal < 100 )); then
+      icon="🔴"
+      printf "  %s CPU throttled to %s%%  ${C_RED}(thermal pressure)${C_RESET}\n" "$icon" "$thermal"
+    else
+      printf "  %s CPU at full speed (%s%%)\n" "$icon" "$thermal"
+    fi
+  fi
+
+  local power
+  power=$(pmset -g batt | head -1 | grep -oE "AC Power|Battery Power")
+  printf "  ✅ Power source: %s\n" "$power"
+
+  local batt_pct
+  batt_pct=$(pmset -g batt | grep -oE '[0-9]+%' | head -1)
+  if [[ -n "$batt_pct" ]]; then
+    printf "    Battery: %s\n" "$batt_pct"
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Section: known noisy macOS daemons
+# -----------------------------------------------------------------------------
+check_noisy_daemons() {
+  header "Known Noisy Daemons"
+
+  local daemons=(
+    "mds_stores:Spotlight indexing"
+    "mdworker:Spotlight worker"
+    "backupd:Time Machine"
+    "bird:iCloud sync"
+    "cloudd:CloudKit"
+    "photoanalysisd:Photos analysis"
+    "mediaanalysisd:Media analysis"
+    "AssetCacheLocatorService:Apple content caching"
+    "softwareupdated:Software updates"
+    "XProtect:XProtect malware scan"
+    "syspolicyd:Gatekeeper / app security policy"
+    "trustd:Certificate trust evaluation"
+    "kernel_task:Kernel (often thermal throttling)"
+  )
+
+  # Get current CPU% from ps with -r (sorted by current CPU)
+  local ps_output
+  ps_output=$(ps -arcwwwxo %cpu,comm)
+
+  local found_active=0
+  for entry in "${daemons[@]}"; do
+    local pattern="${entry%%:*}"
+    local name="${entry##*:}"
+    local cpu_usage
+    # Sum CPU% across all matching processes (some daemons spawn multiple workers)
+    cpu_usage=$(echo "$ps_output" | awk -v p="$pattern" '
+      tolower($0) ~ tolower(p) {sum += $1}
+      END {printf "%.1f", sum + 0}
+    ')
+
+    if (( $(echo "$cpu_usage >= 5.0" | bc -l) )); then
+      local icon
+      if (( $(echo "$cpu_usage >= 20.0" | bc -l) )); then
+        icon="🔴"
+      else
+        icon="⚠️ "
+      fi
+      printf "  %s ${C_BOLD}%s${C_RESET} using %s%% CPU  ${C_DIM}(%s)${C_RESET}\n" \
+        "$icon" "$name" "$cpu_usage" "$pattern"
+      found_active=1
+    fi
+  done
+
+  if (( found_active == 0 )); then
+    echo "  ✅ No noisy daemons currently active"
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Snapshot mode: run all checks once
+# -----------------------------------------------------------------------------
+snapshot() {
+  echo ""
+  echo "${C_BOLD}System Noise Report${C_RESET}  ${C_DIM}—  $(date '+%Y-%m-%d %H:%M:%S')  —  $(hostname)${C_RESET}"
+  echo "${C_DIM}─────────────────────────────────────────────────────────────${C_RESET}"
+
+  check_load
+  check_memory
+  check_disk_io
+  check_disk_space
+  check_network
+  check_processes
+  check_thermal
+  check_top_cpu
+  check_top_mem
+  check_noisy_daemons
+
+  echo ""
+  echo "${C_DIM}Run 'sysnoise window 30' for time-windowed analysis.${C_RESET}"
+  echo "${C_DIM}Run 'sysnoise watch' for continuous monitoring.${C_RESET}"
+  echo "${C_DIM}Run 'sysnoise help' for usage details.${C_RESET}"
+}
+
+# -----------------------------------------------------------------------------
+# Window mode: sample the system over a time window and report aggregates
+# -----------------------------------------------------------------------------
+window_mode() {
+  local duration=${1:-10}
+  local sample_interval=1
+  local samples=$((duration / sample_interval))
+
+  echo ""
+  echo "${C_BOLD}System Noise Window${C_RESET}  ${C_DIM}—  ${duration}s @ ${sample_interval}s intervals  —  $(date '+%H:%M:%S')${C_RESET}"
+  echo "${C_DIM}─────────────────────────────────────────────────────────────${C_RESET}"
+  echo ""
+  echo "${C_DIM}Sampling for ${duration} seconds...${C_RESET}"
+
+  local tmpdir
+  tmpdir=$(mktemp -d)
+  trap "rm -rf $tmpdir" EXIT
+
+  local cpu_samples="$tmpdir/cpu"
+  local proc_samples="$tmpdir/procs"
+  local mem_samples="$tmpdir/mem"
+  local io_samples="$tmpdir/io"
+
+  local iface
+  iface=$(route get default 2>/dev/null | grep interface | awk '{print $2}')
+  local net_rx_start=0 net_tx_start=0
+  if [[ -n "$iface" ]]; then
+    read -r net_rx_start net_tx_start < <(netstat -ibn | awk -v i="$iface" '$1 == i {print $7, $10; exit}')
+  fi
+
+  # Capture swap/paging counters at window start (cumulative since boot;
+  # we diff at the end to get the rate during this window specifically).
+  local swapins_start swapouts_start compressor_start
+  swapins_start=$(vm_stat | awk '/Swapins/ {gsub(/\./,""); print $2}')
+  swapouts_start=$(vm_stat | awk '/Swapouts/ {gsub(/\./,""); print $2}')
+  compressor_start=$(vm_stat | awk '/Pages occupied by compressor/ {gsub(/\./,""); print $5}')
+  : "${swapins_start:=0}"
+  : "${swapouts_start:=0}"
+  : "${compressor_start:=0}"
+  local page_size
+  page_size=$(vm_stat | head -1 | awk '{print $8}' | tr -d '.')
+
+  local window_start
+  window_start=$(date +%s)
+
+  local window_start
+  window_start=$(date +%s)
+
+  local i
+  for ((i=1; i<=samples; i++)); do
+    uptime | sed 's/.*load averages*: //' | awk '{print $1}' | tr -d ',' >> "$cpu_samples"
+
+    ps -arcwwwxo pid,%cpu,%mem,comm | tail -n +2 | head -10 >> "$proc_samples"
+    echo "---" >> "$proc_samples"
+
+    memory_pressure 2>/dev/null | grep "System-wide memory free percentage" | \
+      awk '{print $NF}' | tr -d '%' >> "$mem_samples"
+
+    iostat -d -c 2 disk0 2>/dev/null | tail -1 | awk '{print $3}' >> "$io_samples"
+
+    printf "\r${C_DIM}  Sample %d/%d...${C_RESET}" "$i" "$samples"
+  done
+  echo ""
+
+  local window_end
+  window_end=$(date +%s)
+  local actual_duration=$((window_end - window_start))
+
+  local net_rx_end=0 net_tx_end=0
+  if [[ -n "$iface" ]]; then
+    read -r net_rx_end net_tx_end < <(netstat -ibn | awk -v i="$iface" '$1 == i {print $7, $10; exit}')
+  fi
+
+  # Capture swap/paging counters at window end and compute deltas
+  local swapins_end swapouts_end compressor_end
+  swapins_end=$(vm_stat | awk '/Swapins/ {gsub(/\./,""); print $2}')
+  swapouts_end=$(vm_stat | awk '/Swapouts/ {gsub(/\./,""); print $2}')
+  compressor_end=$(vm_stat | awk '/Pages occupied by compressor/ {gsub(/\./,""); print $5}')
+  : "${swapins_end:=0}"
+  : "${swapouts_end:=0}"
+  : "${compressor_end:=0}"
+
+  echo ""
+  echo "${C_BOLD}Results${C_RESET} ${C_DIM}(over ${actual_duration}s, ${samples} samples)${C_RESET}"
+  echo "${C_DIM}─────────────────────────────────────────────────────────────${C_RESET}"
+
+  # CPU load summary
+  echo ""
+  echo "${C_BOLD}CPU Load (1-min average)${C_RESET}"
+  awk '
+    BEGIN { min=999; max=0; sum=0; n=0 }
+    { sum+=$1; n++; if($1<min)min=$1; if($1>max)max=$1 }
+    END {
+      avg=sum/n
+      printf "  Min: %.2f   Avg: %.2f   Max: %.2f\n", min, avg, max
+    }
+  ' "$cpu_samples"
+
+  local cores
+  cores=$(sysctl -n hw.ncpu)
+  local avg_load
+  avg_load=$(awk '{sum+=$1} END {print sum/NR}' "$cpu_samples")
+  local saturation
+  saturation=$(awk -v l="$avg_load" -v c="$cores" 'BEGIN {printf "%.0f", (l/c)*100}')
+
+  if (( saturation >= 100 )); then
+    echo "  ${C_RED}🔴 Average saturation: ${saturation}% of ${cores} cores — system overloaded${C_RESET}"
+  elif (( saturation >= 70 )); then
+    echo "  ${C_YELLOW}⚠️  Average saturation: ${saturation}% of ${cores} cores — high load${C_RESET}"
+  else
+    echo "  ${C_GREEN}✅ Average saturation: ${saturation}% of ${cores} cores${C_RESET}"
+  fi
+
+  # Memory summary
+  echo ""
+  echo "${C_BOLD}Memory Free %${C_RESET}"
+  awk '
+    BEGIN { min=999; max=0; sum=0; n=0 }
+    { sum+=$1; n++; if($1<min)min=$1; if($1>max)max=$1 }
+    END {
+      avg=sum/n
+      printf "  Min: %d%%   Avg: %.0f%%   Max: %d%%\n", min, avg, max
+    }
+  ' "$mem_samples"
+
+  # Disk I/O summary
+  echo ""
+  echo "${C_BOLD}Disk I/O (MB/s)${C_RESET}"
+  awk '
+    BEGIN { min=99999; max=0; sum=0; n=0 }
+    { sum+=$1; n++; if($1<min)min=$1; if($1>max)max=$1 }
+    END {
+      avg=sum/n
+      printf "  Min: %.1f   Avg: %.1f   Max: %.1f\n", min, avg, max
+    }
+  ' "$io_samples"
+
+  local avg_io
+  avg_io=$(awk '{sum+=$1} END {printf "%.0f", sum/NR}' "$io_samples")
+  if (( avg_io > 100 )); then
+    echo "  ${C_RED}🔴 Sustained heavy I/O — disk is the likely bottleneck${C_RESET}"
+  elif (( avg_io > 30 )); then
+    echo "  ${C_YELLOW}⚠️  Elevated I/O throughout window${C_RESET}"
+  fi
+
+  # Network summary
+  if [[ -n "$iface" ]] && (( actual_duration > 0 )); then
+    echo ""
+    echo "${C_BOLD}Network${C_RESET} ${C_DIM}(${iface})${C_RESET}"
+    local rx_total=$((net_rx_end - net_rx_start))
+    local tx_total=$((net_tx_end - net_tx_start))
+    local rx_kbs=$((rx_total / 1024 / actual_duration))
+    local tx_kbs=$((tx_total / 1024 / actual_duration))
+    printf "  ↓ %d KB/s avg   ↑ %d KB/s avg   ${C_DIM}(over %ds)${C_RESET}\n" \
+      "$rx_kbs" "$tx_kbs" "$actual_duration"
+  fi
+
+  # Memory paging summary — catches the "memory_pressure reports 38% free
+  # but you're actually thrashing" case invisible to other sections.
+  echo ""
+  echo "${C_BOLD}Memory Paging${C_RESET} ${C_DIM}(during window)${C_RESET}"
+  local swapin_delta swapout_delta compressor_delta
+  swapin_delta=$((swapins_end - swapins_start))
+  swapout_delta=$((swapouts_end - swapouts_start))
+  compressor_delta=$((compressor_end - compressor_start))
+
+  local swapin_rate swapout_rate
+  if (( actual_duration > 0 )); then
+    swapin_rate=$((swapin_delta / actual_duration))
+    swapout_rate=$((swapout_delta / actual_duration))
+  else
+    swapin_rate=0
+    swapout_rate=0
+  fi
+
+  local paging_icon="✅"
+  local paging_color="$C_GREEN"
+  if (( swapin_rate >= 200 )); then
+    paging_icon="🔴"
+    paging_color="$C_RED"
+  elif (( swapin_rate >= 50 )); then
+    paging_icon="⚠️ "
+    paging_color="$C_YELLOW"
+  fi
+
+  printf "  %s Swapins:  ${paging_color}%d pages/s${C_RESET}  ${C_DIM}(%d total)${C_RESET}\n" \
+    "$paging_icon" "$swapin_rate" "$swapin_delta"
+  printf "     Swapouts: %d pages/s  ${C_DIM}(%d total)${C_RESET}\n" \
+    "$swapout_rate" "$swapout_delta"
+
+  local compressor_mb_delta=$((compressor_delta * page_size / 1048576))
+  local compressor_sign="+"
+  (( compressor_mb_delta < 0 )) && compressor_sign=""
+  printf "     Compressor: ${compressor_sign}%d MB ${C_DIM}(delta)${C_RESET}\n" "$compressor_mb_delta"
+
+  # Top consistent CPU consumers
+  echo ""
+  echo "${C_BOLD}Top CPU Consumers${C_RESET} ${C_DIM}(consistent across window)${C_RESET}"
+  echo "${C_DIM}  Ranked by avg CPU% across all samples${C_RESET}"
+  printf "  ${C_DIM}%-8s %8s %8s %6s  %s${C_RESET}\n" "PID" "AVG%CPU" "PEAK%" "SEEN" "COMMAND"
+
+  awk '
+    /^---$/ { next }
+    {
+      pid = $1
+      cpu = $2
+      comm = ""
+      for (i=4; i<=NF; i++) comm = comm (i>4?" ":"") $i
+
+      count[pid]++
+      sum[pid] += cpu
+      if (cpu > peak[pid]) peak[pid] = cpu
+      name[pid] = comm
+    }
+    END {
+      for (pid in count) {
+        avg = sum[pid] / count[pid]
+        printf "%s\t%.1f\t%.1f\t%d\t%s\n", pid, avg, peak[pid], count[pid], name[pid]
+      }
+    }
+  ' "$proc_samples" | sort -t$'\t' -k2 -rn | head -8 | \
+  while IFS=$'\t' read -r pid avg peak seen comm; do
+    local icon="  "
+    local color="$C_RESET"
+    if (( $(echo "$avg >= 30.0" | bc -l) )); then
+      icon="🔴"
+      color="$C_RED"
+    elif (( $(echo "$avg >= 15.0" | bc -l) )); then
+      icon="⚠️ "
+      color="$C_YELLOW"
+    fi
+    printf "  %s ${color}%-8s %8s %8s %3d/%d  %s${C_RESET}\n" \
+      "$icon" "$pid" "$avg" "$peak" "$seen" "$samples" "$comm"
+  done
+
+  # Diagnosis hints
+  echo ""
+  echo "${C_DIM}─────────────────────────────────────────────────────────────${C_RESET}"
+  echo "${C_BOLD}Diagnosis${C_RESET}"
+
+  local issues=()
+  (( saturation >= 70 )) && issues+=("High CPU saturation across the window")
+  (( avg_io > 30 )) && issues+=("Sustained disk I/O — file ops will be slow")
+
+  local avg_mem
+  avg_mem=$(awk '{sum+=$1} END {printf "%.0f", sum/NR}' "$mem_samples")
+  (( avg_mem < 25 )) && issues+=("Low free memory — swap likely active")
+
+  # Sustained swapins during the window = cold reads will stall.
+  # 50 pages/sec threshold picked because on Apple Silicon NVMe that's
+  # roughly where process-startup fault-ins become visibly slow.
+  if (( swapin_rate >= 50 )); then
+    issues+=("Active paging from swap (${swapin_rate} pages/s) — cold reads will stall")
+    issues+=("  → Process startup, shell exec, and file opens will be 4-5x slower than warm")
+  fi
+
+  if (( ${#issues[@]} == 0 )); then
+    echo "  ${C_GREEN}✅ System looks healthy across the window. No bottleneck detected.${C_RESET}"
+    echo "  ${C_DIM}If you saw a slow shell run during this window, it was likely${C_RESET}"
+    echo "  ${C_DIM}OS noise we can't easily attribute (kernel scheduling, brief I/O,${C_RESET}"
+    echo "  ${C_DIM}or filesystem cache eviction).${C_RESET}"
+  else
+    for issue in "${issues[@]}"; do
+      echo "  ${C_YELLOW}•${C_RESET} $issue"
+    done
+    echo ""
+    echo "  ${C_DIM}Check the 'Top CPU Consumers' table above for named culprits.${C_RESET}"
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Watch mode: continuous refresh
+# -----------------------------------------------------------------------------
+watch_mode() {
+  local interval=${1:-2}
+  echo "${C_DIM}Watching system noise (refresh every ${interval}s, Ctrl+C to stop)...${C_RESET}"
+  while true; do
+    clear
+    snapshot
+    sleep "$interval"
+  done
+}
+
+# -----------------------------------------------------------------------------
+# Top mode: just CPU + memory hogs
+# -----------------------------------------------------------------------------
+top_mode() {
+  check_top_cpu
+  check_top_mem
+  check_noisy_daemons
+}
+
+# -----------------------------------------------------------------------------
+# Help
+# -----------------------------------------------------------------------------
+show_help() {
+  # Extract the comment block from "# USAGE:" through the closing "# ====" line
+  sed -n '/^# USAGE:/,/^# ===========.*===$/p' "$0" | sed 's/^# \?//'
+}
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+case "${1:-snapshot}" in
+  snapshot|"")    snapshot ;;
+  window)         window_mode "${2:-10}" ;;
+  watch)          watch_mode "${2:-2}" ;;
+  top)            top_mode ;;
+  help|-h|--help) show_help ;;
+  *)              echo "Unknown mode: $1"; show_help; exit 1 ;;
+esac
