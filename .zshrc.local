@@ -145,7 +145,6 @@ export DOCKER_DEFAULT_PLATFORM=linux/amd64
 # Go
 export GOPATH=$HOME/go
 export GOROOT="/opt/homebrew/opt/golang/libexec"
-export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
 
 # Python
 if [[ ":$PYTHONPATH:" != *":$HOME/code/cf/my/insurance-services-utils/scripts:"* ]]; then
@@ -167,7 +166,15 @@ if [[ -f "$HOME/.zshrc.plugins" ]]; then
   source "$HOME/.zshrc.plugins"
 fi
 
-eval "$(direnv hook zsh)"
+# Optimized direnv hook - only runs when directory changes
+_direnv_hook_fast() {
+  if [[ "$_direnv_prev_dir" != "$PWD" ]]; then
+    _direnv_prev_dir="$PWD"
+    eval "$(direnv export zsh 2>/dev/null)"
+  fi
+}
+precmd_functions=(${precmd_functions:#_direnv_hook})
+precmd_functions+=(_direnv_hook_fast)
 
 # Default editors for Git, Yadm, and general shell use
 export EDITOR=vim
@@ -206,5 +213,725 @@ metrics() {
   echo "Lazy-loadable commands: aws, gcloud, docker, helm, terraform, kubectl, k, gh, pip, j"
 }
 
-# Show zprof results (uncomment when profiling)
-# zprof | head -20
+# =============================================================================
+# Performance Monitoring & History
+# =============================================================================
+#
+# USAGE:
+#
+#   metrics              Quick interactive snapshot of current shell state.
+#                        Shows startup time, plugins, functions, hooks, paths.
+#
+#   metrics-help         Show this usage documentation.
+#
+#   metrics-all          Quick comprehensive snapshot (~2s). Runs metrics,
+#                        metrics-hooks, and metrics-path in one go. Use this
+#                        as your default "show me everything important" command.
+#
+#   metrics-full         Deep validation suite (~15s). Runs every diagnostic
+#                        in the suite — variance, hooks, path, tmux, p10k,
+#                        plugins, aliases. Use before locking in a baseline
+#                        or when investigating an unexplained slowdown.
+#
+#   metrics-baseline     Save current performance as the "golden" baseline.
+#                        Run this once after a tuning session to lock in a
+#                        reference point.
+#
+#   metrics-diff         Compare current shell to baseline. Use anytime you
+#                        suspect a regression (added a plugin, things feel
+#                        slower, weird lag). Warns if startup is >20% slower.
+#
+#   metrics-log          Append current run to history file. Run occasionally
+#                        to build a time series of shell performance.
+#
+#   metrics-history [N]  Show the last N runs from the log (default: 20).
+#                        Useful for spotting trends over weeks/months.
+#
+#   metrics-hooks [N]    Time each precmd hook over N iterations (default: 50).
+#                        Use this when typing/Enter feels laggy — identifies
+#                        which per-prompt hook is the offender.
+#
+#   metrics-profile      Full zprof workflow in one command. Run twice with
+#                        'exec zsh' between calls:
+#                          metrics-profile     # enables profiling
+#                          exec zsh            # restart shell with zprof loaded
+#                          metrics-profile     # captures report, disables
+#                          exec zsh            # restart to remove overhead
+#                        Saves a timestamped report to ~/.cache/zsh-profile-*.txt
+#                        and prints the top 10 slowest functions inline. Use
+#                        this when startup feels slow and you need to know why.
+#
+#   metrics-path         Check PATH health: duplicates, missing directories,
+#                        and full PATH listing in order. Run after editing
+#                        any PATH-related config.
+#
+#   metrics-tmux         Measure shell startup specifically inside tmux.
+#                        Compares spawn time, in-tmux startup, and current
+#                        shell startup to detect tmux-specific overhead.
+#
+#   metrics-variance [N] Run startup measurement N times (default: 10) and
+#                        report min/max/avg/stddev. Use this to detect
+#                        whether your performance is consistent or highly
+#                        variable across runs. Variance >30% indicates a
+#                        systemic issue worth investigating.#
+#
+#   metrics-aliases      Show alias breakdown — total count, sample listing,
+#                        and warnings about aliases that shadow real commands.
+#                        Use when you're not sure where an alias came from
+#                        or you suspect alias conflicts.
+#
+#   metrics-p10k         Show Powerlevel10k diagnostics — active segments,
+#                        per-render timing, gitstatusd status, and prompt
+#                        modes. Use when prompt rendering feels slow or
+#                        before adding/removing prompt segments.
+#
+#   metrics-plugins      Show plugin loading status — which plugins load
+#                        immediately vs lazy, plus a benchmark of the cost
+#                        to source each immediate plugin. Use when adding
+#                        a new plugin to decide whether to lazy-load it.
+#
+#   metrics-export       Dump current state as JSON. Pipe to jq or append to
+#                        a file for external analysis:
+#                          metrics-export | jq .
+#                          metrics-export >> ~/metrics-archive.jsonl
+#
+#   zsh-profile on|off   Low-level toggle for zprof loading. Most of the time
+#                        you want 'metrics-profile' instead, which wraps this
+#                        with capture and reporting. Use the raw toggle only
+#                        if you want to keep profiling on across multiple
+#                        shells without auto-capturing.
+#
+# FILES:
+#   ~/.cache/zsh-metrics.log              History log (TSV)
+#   ~/.cache/zsh-metrics-baseline         Saved baseline state
+#   ~/.cache/zsh-profile-*.txt            Timestamped zprof reports
+#   ~/.cache/.zsh-profile-enabled         Flag file (presence enables zprof)
+#
+# WORKFLOW EXAMPLES:
+#
+#   Routine check (am I still fast?):
+#     metrics-all                        # quick snapshot of everything important
+#
+#   Validate before locking in a new baseline:
+#     metrics-full                       # full diagnostic — variance + all subsystems
+#     metrics-baseline                   # only after metrics-full looks clean
+#
+#   Suspect a regression:
+#     metrics-diff                       # how far off baseline are we?
+#     metrics-hooks                      # if typing lag, which hook?
+#     metrics-profile                    # if startup slow, which function?
+#       exec zsh
+#       metrics-profile
+#       exec zsh
+#
+#   Investigate specific subsystems:
+#     metrics-p10k                       # prompt rendering slow?
+#     metrics-plugins                    # plugin loading slow?
+#     metrics-aliases                    # alias conflicts or shadowing?
+#
+#   Track trends over time:
+#     metrics-log                        # append current run to history
+#     metrics-history 50                 # see last 50 runs
+#
+# =============================================================================
+
+ZSH_METRICS_LOG="$HOME/.cache/zsh-metrics.log"
+ZSH_METRICS_BASELINE="$HOME/.cache/zsh-metrics-baseline"
+ZSH_METRICS_SOURCE_FILE="${(%):-%x}"  # captured at source-time for metrics-help
+
+[[ -d "$HOME/.cache" ]] || mkdir -p "$HOME/.cache"
+
+# Internal helper: measure startup time of a fresh interactive shell
+# Uses EPOCHREALTIME (zsh built-in) to avoid orphaned subprocesses
+# from the `time (...)` subshell pattern
+_metrics_startup_time() {
+  zmodload zsh/datetime 2>/dev/null
+
+  local times=()
+  local i start end
+  for i in 1 2 3 4 5; do
+    start=$EPOCHREALTIME
+    zsh -i -c exit </dev/null >/dev/null 2>&1
+    end=$EPOCHREALTIME
+    times+=($(awk -v s="$start" -v e="$end" 'BEGIN { printf "%.3f", e - s }'))
+  done
+
+  REPLY=$(printf '%s\n' "${times[@]}" | sort -n | head -1)
+}
+
+# -----------------------------------------------------------------------------
+# metrics: quick interactive performance snapshot
+# -----------------------------------------------------------------------------
+metrics() {
+  _metrics_startup_time
+  local startup_time=$REPLY
+  local plugin_count=${#plugins[@]}
+  local func_count=$(print -l ${(ok)functions} | wc -l | tr -d ' ')
+  local func_real=$(print -l ${(ok)functions} | grep -v '^_' | wc -l | tr -d ' ')
+  local alias_count=$(alias | wc -l | tr -d ' ')
+  local path_count=$(print -l ${(s.:.)PATH} | wc -l | tr -d ' ')
+  local fpath_count=$(print -l ${fpath} | wc -l | tr -d ' ')
+  local hook_count=${#precmd_functions[@]}
+
+  cat <<EOF
+╔══════════════════════════════════════════════════════════════╗
+║              Zsh Performance Metrics                         ║
+╚══════════════════════════════════════════════════════════════╝
+📊 Startup time:        ${startup_time}s
+📦 Loaded components:
+   Plugins (immediate): ${plugin_count}
+   Functions (total):   ${func_count}
+   Functions (real):    ${func_real}    ← excludes completion stubs
+   Aliases:             ${alias_count}
+   Precmd hooks:        ${hook_count}
+🔗 Environment:
+   PATH entries:        ${path_count}
+   FPATH entries:       ${fpath_count}
+⏳ Lazy-load commands:  aws, gcloud, docker, helm, terraform, kubectl, k, gh, pip, j, python
+
+💡 Commands:
+   metrics-help     show full usage docs
+   metrics-all      quick comprehensive snapshot (~2s)  ← NEW
+   metrics-full     deep validation suite (~15s)         ← NEW
+   metrics-log      log this run to history
+   metrics-history  show recent runs
+   metrics-baseline save current as baseline
+   metrics-diff     compare current to baseline
+   metrics-hooks    time each precmd hook (typing lag debug)
+   metrics-profile  full zprof workflow (startup lag debug)
+   metrics-path     check PATH for duplicates and broken entries
+   metrics-tmux     measure shell startup inside tmux
+   metrics-variance run startup N times to check consistency
+   metrics-aliases  show alias breakdown
+   metrics-p10k     show p10k segments and render timing
+   metrics-plugins  show plugin loading status and cost
+   metrics-export   dump full metrics as JSON
+EOF
+}
+
+# -----------------------------------------------------------------------------
+# metrics-help: print usage docs by parsing the comment header in this file
+# -----------------------------------------------------------------------------
+metrics-help() {
+  if [[ -f "$ZSH_METRICS_SOURCE_FILE" ]]; then
+    sed -n '/^# USAGE:/,/^# =====/p' "$ZSH_METRICS_SOURCE_FILE" | sed 's/^# \?//'
+  else
+    echo "Source file not found. See ~/.zshrc.local for usage."
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# metrics-log: append current run to history file (TSV format)
+# -----------------------------------------------------------------------------
+metrics-log() {
+  _metrics_startup_time
+  local startup=$REPLY
+  local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  local plugin_count=${#plugins[@]}
+  local func_count=$(print -l ${(ok)functions} | wc -l | tr -d ' ')
+  local hook_count=${#precmd_functions[@]}
+
+  printf "%s\t%s\t%d\t%d\t%d\n" \
+    "$timestamp" "$startup" "$plugin_count" "$func_count" "$hook_count" \
+    >> "$ZSH_METRICS_LOG"
+
+  echo "✅ Logged: ${startup}s startup, ${plugin_count} plugins, ${func_count} functions"
+}
+
+# -----------------------------------------------------------------------------
+# metrics-history: show recent runs in a table
+# -----------------------------------------------------------------------------
+metrics-history() {
+  local n=${1:-20}
+  if [[ ! -f "$ZSH_METRICS_LOG" ]]; then
+    echo "No history yet. Run 'metrics-log' to start tracking."
+    return 1
+  fi
+
+  printf "%-22s %10s %8s %10s %6s\n" "Timestamp" "Startup" "Plugins" "Functions" "Hooks"
+  printf "%-22s %10s %8s %10s %6s\n" "─────────" "───────" "───────" "─────────" "─────"
+  tail -n "$n" "$ZSH_METRICS_LOG" | while IFS=$'\t' read -r ts startup plugins funcs hooks; do
+    printf "%-22s %9ss %8d %10d %6d\n" "$ts" "$startup" "$plugins" "$funcs" "$hooks"
+  done
+}
+
+# -----------------------------------------------------------------------------
+# metrics-baseline: save current state as the reference baseline
+# -----------------------------------------------------------------------------
+metrics-baseline() {
+  _metrics_startup_time
+  local startup=$REPLY
+
+  cat > "$ZSH_METRICS_BASELINE" <<EOF
+startup=$startup
+plugins=${#plugins[@]}
+functions=$(print -l ${(ok)functions} | wc -l | tr -d ' ')
+hooks=${#precmd_functions[@]}
+date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+EOF
+
+  echo "✅ Baseline saved: ${startup}s startup"
+  echo "   Run 'metrics-diff' anytime to detect regressions."
+}
+
+# -----------------------------------------------------------------------------
+# metrics-diff: compare current state to saved baseline
+# -----------------------------------------------------------------------------
+metrics-diff() {
+  if [[ ! -f "$ZSH_METRICS_BASELINE" ]]; then
+    echo "❌ No baseline saved. Run 'metrics-baseline' first."
+    return 1
+  fi
+
+  # Read baseline values into local vars (avoid polluting shell)
+  local b_startup b_plugins b_funcs b_hooks b_date
+  while IFS='=' read -r key value; do
+    case "$key" in
+      startup)   b_startup="$value" ;;
+      plugins)   b_plugins="$value" ;;
+      functions) b_funcs="$value" ;;
+      hooks)     b_hooks="$value" ;;
+      date)      b_date="$value" ;;
+    esac
+  done < "$ZSH_METRICS_BASELINE"
+
+  _metrics_startup_time
+  local c_startup=$REPLY
+  local c_plugins=${#plugins[@]}
+  local c_funcs=$(print -l ${(ok)functions} | wc -l | tr -d ' ')
+  local c_hooks=${#precmd_functions[@]}
+
+  local delta_startup=$(awk -v c="$c_startup" -v b="$b_startup" 'BEGIN { printf "%+.3f", c - b }')
+  local pct=$(awk -v c="$c_startup" -v b="$b_startup" 'BEGIN { printf "%+.1f", ((c - b) / b) * 100 }')
+
+  cat <<EOF
+╔══════════════════════════════════════════════════════════════╗
+║              Metrics Diff vs Baseline                        ║
+╚══════════════════════════════════════════════════════════════╝
+Baseline saved: $b_date
+
+                    Baseline       Current       Delta
+Startup time:       ${b_startup}s         ${c_startup}s         ${delta_startup}s (${pct}%)
+Plugins:            ${b_plugins}              ${c_plugins}              $((c_plugins - b_plugins))
+Functions:          ${b_funcs}           ${c_funcs}           $((c_funcs - b_funcs))
+Precmd hooks:       ${b_hooks}              ${c_hooks}              $((c_hooks - b_hooks))
+EOF
+
+  # Warn on regression (>20% slower)
+  local regression=$(awk -v c="$c_startup" -v b="$b_startup" 'BEGIN { print (c > b * 1.20) }')
+  if [[ "$regression" == "1" ]]; then
+    echo ""
+    echo "⚠️  REGRESSION DETECTED: startup is >20% slower than baseline"
+    echo "   Run 'metrics-hooks' to identify per-prompt offenders, or"
+    echo "   'zsh-profile on && exec zsh && zprof' for startup breakdown."
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# metrics-hooks: time each precmd hook over N iterations
+# -----------------------------------------------------------------------------
+metrics-hooks() {
+  zmodload zsh/datetime 2>/dev/null
+  local iterations=${1:-50}
+  echo "Timing each precmd hook over $iterations iterations..."
+  echo ""
+  printf "%-40s %12s %12s\n" "Hook" "Total" "Per-call"
+  printf "%-40s %12s %12s\n" "────" "─────" "────────"
+
+  local i
+  for hook in $precmd_functions; do
+    local start=$EPOCHREALTIME
+    for i in {1..$iterations}; do
+      $hook 2>/dev/null
+    done
+    local end=$EPOCHREALTIME
+    local total=$(awk -v s="$start" -v e="$end" 'BEGIN { printf "%.3f", e - s }')
+    local per_call=$(awk -v t="$total" -v n="$iterations" 'BEGIN { printf "%.2fms", (t / n) * 1000 }')
+    printf "%-40s %11ss %12s\n" "$hook" "$total" "$per_call"
+  done
+}
+
+# -----------------------------------------------------------------------------
+# metrics-export: dump everything as JSON for external analysis
+# -----------------------------------------------------------------------------
+metrics-export() {
+  _metrics_startup_time
+  local startup=$REPLY
+
+  cat <<EOF
+{
+  "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+  "host": "$(hostname)",
+  "shell_version": "$ZSH_VERSION",
+  "startup_seconds": $startup,
+  "plugins_immediate": ${#plugins[@]},
+  "functions_total": $(print -l ${(ok)functions} | wc -l | tr -d ' '),
+  "functions_real": $(print -l ${(ok)functions} | grep -v '^_' | wc -l | tr -d ' '),
+  "aliases": $(alias | wc -l | tr -d ' '),
+  "path_entries": $(print -l ${(s.:.)PATH} | wc -l | tr -d ' '),
+  "fpath_entries": $(print -l ${fpath} | wc -l | tr -d ' '),
+  "precmd_hooks": ${#precmd_functions[@]},
+  "tmux_session": "${TMUX:+yes}",
+  "term": "$TERM"
+}
+EOF
+}
+
+# -----------------------------------------------------------------------------
+# zsh-profile: toggle zprof loading for the next shell
+# -----------------------------------------------------------------------------
+zsh-profile() {
+  local flag_file="$HOME/.cache/.zsh-profile-enabled"
+  case "$1" in
+    on)  touch "$flag_file"; echo "✅ Profiling ENABLED — run 'exec zsh' to apply" ;;
+    off) rm -f "$flag_file"; echo "❌ Profiling DISABLED — run 'exec zsh' to apply" ;;
+    *)   [[ -f "$flag_file" ]] && echo "Profiling: ON" || echo "Profiling: OFF" ;;
+  esac
+}
+
+# -----------------------------------------------------------------------------
+# metrics-profile: full profiling workflow in one command
+#
+# Enables zprof, prompts you to exec a new shell, captures the report, then
+# disables profiling. Saves the output to ~/.cache/zsh-profile-<timestamp>.txt
+# so you can compare runs.
+# -----------------------------------------------------------------------------
+metrics-profile() {
+  local flag_file="$HOME/.cache/.zsh-profile-enabled"
+  local report_dir="$HOME/.cache"
+  local report_file="$report_dir/zsh-profile-$(date +%Y%m%d-%H%M%S).txt"
+
+  # State 1: profiling not yet enabled — turn it on and instruct user
+  if [[ ! -f "$flag_file" ]]; then
+    touch "$flag_file"
+    cat <<EOF
+✅ Profiling ENABLED.
+
+Next steps:
+   1. Run 'exec zsh'              (starts a new shell with zprof loaded)
+   2. Run 'metrics-profile'       (captures the report and disables profiling)
+
+The shell you're in right now does NOT have zprof loaded — you must
+'exec zsh' before the second call will work.
+EOF
+    return 0
+  fi
+
+  # State 2: profiling enabled, but zprof not actually loaded in this shell
+  # (this happens if user forgot to 'exec zsh' between calls)
+  if ! (( $+functions[zprof] )); then
+    echo "⚠️  Profiling flag is set but zprof isn't loaded in this shell."
+    echo "   Run 'exec zsh' first, then run 'metrics-profile' again."
+    return 1
+  fi
+
+  # State 3: zprof is loaded — capture report, then disable profiling
+  echo "📊 Capturing zprof report..."
+  zprof > "$report_file"
+
+  rm -f "$flag_file"
+
+  echo "✅ Report saved: $report_file"
+  echo "❌ Profiling DISABLED — run 'exec zsh' to remove overhead from your shell."
+  echo ""
+  echo "Top 10 slowest functions:"
+  echo "─────────────────────────"
+  head -n 13 "$report_file" | tail -n 10
+  echo ""
+  echo "Full report: less $report_file"
+}
+
+# -----------------------------------------------------------------------------
+# metrics-aliases: show alias breakdown by source
+# -----------------------------------------------------------------------------
+metrics-aliases() {
+  echo "═══ Alias Breakdown ═══"
+  echo ""
+
+  local total=$(alias | wc -l | tr -d ' ')
+  echo "Total aliases: $total"
+  echo ""
+
+  # Group by likely source based on the alias content
+  # OMZ aliases typically come from plugin files; custom from your config
+  echo "Sample of defined aliases (first 30):"
+  alias | head -30 | sed 's/^/  /'
+  echo ""
+
+  if (( total > 30 )); then
+    echo "... and $((total - 30)) more. Run 'alias' to see all."
+  fi
+  echo ""
+
+  echo "💡 To find where an alias is defined:"
+  echo "     grep -rn 'alias myalias=' ~/.zshrc ~/.zshrc.local ~/.zshrc.plugins ~/.oh-my-zsh"
+}
+
+# -----------------------------------------------------------------------------
+# metrics-p10k: show p10k segment information and basic timing
+# -----------------------------------------------------------------------------
+metrics-p10k() {
+  if (( ! $+functions[p10k] )); then
+    echo "❌ p10k not loaded in this shell"
+    return 1
+  fi
+
+  echo "═══ Powerlevel10k Diagnostics ═══"
+  echo ""
+
+  echo "Left prompt segments:"
+  print -l ${POWERLEVEL9K_LEFT_PROMPT_ELEMENTS} | sed 's/^/  /'
+  echo ""
+
+  echo "Right prompt segments:"
+  print -l ${POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS} | sed 's/^/  /'
+  echo ""
+
+  echo "Prompt render time (50 iterations):"
+  local start=$EPOCHREALTIME
+  local i
+  for i in {1..50}; do
+    _p9k_precmd 2>/dev/null
+  done
+  local end=$EPOCHREALTIME
+  local total=$(awk -v s="$start" -v e="$end" 'BEGIN { printf "%.3f", e - s }')
+  local per_call=$(awk -v t="$total" 'BEGIN { printf "%.2fms", (t / 50) * 1000 }')
+  echo "  Total: ${total}s    Per-render: $per_call"
+  echo ""
+
+  echo "Gitstatus daemon status:"
+  if (( $+functions[gitstatus_query] )); then
+    echo "  ✅ gitstatusd is loaded (async git status)"
+  else
+    echo "  ⚠️  gitstatusd not detected — git segments may be slower"
+  fi
+  echo ""
+
+  echo "Instant prompt mode: ${POWERLEVEL9K_INSTANT_PROMPT:-not set}"
+  echo "Transient prompt:    ${POWERLEVEL9K_TRANSIENT_PROMPT:-not set}"
+  echo ""
+
+  echo "💡 To re-time after segment changes:"
+  echo "     edit ~/.p10k.zsh, then 'source ~/.p10k.zsh && metrics-p10k'"
+}
+
+# -----------------------------------------------------------------------------
+# metrics-plugins: show plugin loading status and cost
+# -----------------------------------------------------------------------------
+metrics-plugins() {
+  echo "═══ Plugin Loading Status ═══"
+  echo ""
+
+  echo "Immediate plugins (loaded at startup):"
+  for p in $plugins; do
+    local plugin_file=""
+    if [[ -f "$ZSH/custom/plugins/$p/$p.plugin.zsh" ]]; then
+      plugin_file="$ZSH/custom/plugins/$p/$p.plugin.zsh"
+    elif [[ -f "$ZSH/plugins/$p/$p.plugin.zsh" ]]; then
+      plugin_file="$ZSH/plugins/$p/$p.plugin.zsh"
+    fi
+
+    if [[ -n "$plugin_file" ]]; then
+      local size=$(wc -l < "$plugin_file" | tr -d ' ')
+      printf "  %-30s %s lines\n" "$p" "$size"
+    else
+      printf "  %-30s ❓ not found\n" "$p"
+    fi
+  done
+  echo ""
+
+  echo "Lazy-loaded commands (loaded on first use):"
+  echo "  aws, gcloud, docker, helm, terraform, kubectl, k, kubectx,"
+  echo "  pip, python, gh, tmux"
+  echo ""
+
+  echo "Plugin source-time benchmark:"
+  echo "  (times to source each immediate plugin file fresh)"
+  for p in $plugins; do
+    local plugin_file=""
+    if [[ -f "$ZSH/custom/plugins/$p/$p.plugin.zsh" ]]; then
+      plugin_file="$ZSH/custom/plugins/$p/$p.plugin.zsh"
+    elif [[ -f "$ZSH/plugins/$p/$p.plugin.zsh" ]]; then
+      plugin_file="$ZSH/plugins/$p/$p.plugin.zsh"
+    fi
+
+    if [[ -n "$plugin_file" ]]; then
+      local start=$EPOCHREALTIME
+      zsh -c "source $plugin_file" </dev/null >/dev/null 2>&1
+      local end=$EPOCHREALTIME
+      local t=$(awk -v s="$start" -v e="$end" 'BEGIN { printf "%.3f", e - s }')
+      printf "  %-30s %ss\n" "$p" "$t"
+    fi
+  done
+  echo ""
+
+  echo "💡 To check what an immediate plugin actually adds:"
+  echo "     before=\$(print -l \${(ok)functions} | wc -l)"
+  echo "     source <plugin-file>"
+  echo "     after=\$(print -l \${(ok)functions} | wc -l)"
+  echo "     echo \"Added: \$((after - before)) functions\""
+}
+
+# -----------------------------------------------------------------------------
+# metrics-path: check PATH health (duplicates, count, broken entries)
+# -----------------------------------------------------------------------------
+metrics-path() {
+  echo "═══ PATH Health Check ═══"
+  echo ""
+
+  local total=$(print -l ${(s.:.)PATH} | wc -l | tr -d ' ')
+  echo "Total entries: $total"
+  echo ""
+
+  echo "Duplicates:"
+  local dupes=$(print -l ${(s.:.)PATH} | sort | uniq -c | sort -rn | awk '$1 > 1')
+  if [[ -z "$dupes" ]]; then
+    echo "  ✅ none"
+  else
+    echo "$dupes" | sed 's/^/  ⚠️  /'
+  fi
+  echo ""
+
+  echo "Non-existent entries:"
+  local missing=0
+  for dir in ${(s.:.)PATH}; do
+    if [[ ! -d "$dir" ]]; then
+      echo "  ⚠️  $dir"
+      ((missing++))
+    fi
+  done
+  [[ $missing -eq 0 ]] && echo "  ✅ none (all $total directories exist)"
+  echo ""
+
+  echo "Full PATH (in order):"
+  print -l ${(s.:.)PATH} | nl -ba | sed 's/^/  /'
+}
+
+# -----------------------------------------------------------------------------
+# metrics-tmux: measure tmux spawn cost and confirm in-tmux behavior
+# -----------------------------------------------------------------------------
+metrics-tmux() {
+  if ! command -v tmux >/dev/null 2>&1; then
+    echo "❌ tmux not installed"
+    return 1
+  fi
+  echo "═══ Tmux Startup Performance ═══"
+  echo ""
+
+  echo "1. Tmux session spawn time:"
+  local spawn_start=$EPOCHREALTIME
+  tmux new-session -d -s _metrics_perftest "exit" 2>/dev/null
+  tmux kill-session -t _metrics_perftest 2>/dev/null
+  local spawn_end=$EPOCHREALTIME
+  local spawn_time=$(awk -v s="$spawn_start" -v e="$spawn_end" 'BEGIN { printf "%.3f", e - s }')
+  echo "   ${spawn_time}s"
+  echo ""
+
+  echo "2. Are you currently inside tmux?"
+  if [[ -n "$TMUX" ]]; then
+    echo "   ✅ Yes — your current shell startup measurements ARE tmux measurements."
+    echo "   Run 'metrics-variance' from this shell for in-tmux performance numbers."
+  else
+    echo "   ❌ No — you're outside tmux. Start a tmux session and run metrics-variance"
+    echo "   from inside it to measure in-tmux performance."
+  fi
+  echo ""
+
+  echo "3. Current shell startup (whether in tmux or not):"
+  _metrics_startup_time
+  echo "   ${REPLY}s"
+  echo ""
+
+  echo "💡 If your in-tmux measurements match your out-of-tmux measurements,"
+  echo "   tmux is adding zero overhead."
+}
+
+# -----------------------------------------------------------------------------
+# metrics-variance: run startup measurement multiple times to spot inconsistency
+# -----------------------------------------------------------------------------
+metrics-variance() {
+  local runs=${1:-10}
+  echo "═══ Startup Time Variance ($runs runs) ═══"
+  echo ""
+
+  local times=()
+  for i in {1..$runs}; do
+    _metrics_startup_time
+    times+=($REPLY)
+    printf "  Run %2d: %ss\n" $i $REPLY
+  done
+
+  echo ""
+  local stats=$(printf '%s\n' "${times[@]}" | awk '
+    BEGIN { min=999; max=0; sum=0; n=0 }
+    { sum+=$1; n++; if($1<min)min=$1; if($1>max)max=$1; vals[n]=$1 }
+    END {
+      avg=sum/n
+      var=0
+      for(i=1;i<=n;i++) var += (vals[i]-avg)^2
+      stddev = sqrt(var/n)
+      printf "  Min:    %.3fs\n  Max:    %.3fs\n  Avg:    %.3fs\n  StdDev: %.3fs\n  Spread: %.1f%%", min, max, avg, stddev, ((max-min)/avg)*100
+    }')
+  echo "$stats"
+  echo ""
+
+  local spread_pct=$(printf '%s\n' "${times[@]}" | awk '
+    BEGIN { min=999; max=0; sum=0; n=0 }
+    { sum+=$1; n++; if($1<min)min=$1; if($1>max)max=$1 }
+    END { printf "%.0f", ((max-min)/(sum/n))*100 }')
+
+  if (( spread_pct > 30 )); then
+    echo "⚠️  High variance (>30%) — your startup time is inconsistent."
+    echo "   Common causes: cold caches, background processes, tmux env state."
+    echo "   Run 'metrics-tmux' to check if tmux is the variable."
+  else
+    echo "✅ Variance is acceptable (<30%)."
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# metrics-all: quick comprehensive snapshot (~2s)
+# Runs the cheap, frequently-needed checks in one go.
+# -----------------------------------------------------------------------------
+metrics-all() {
+  metrics
+  echo ""
+  metrics-hooks 50
+  echo ""
+  metrics-path
+}
+
+# -----------------------------------------------------------------------------
+# metrics-full: deep validation suite (~15s)
+# Runs everything, including variance and subsystem checks. Use this before
+# locking in a new baseline or when investigating an unexplained slowdown.
+# -----------------------------------------------------------------------------
+metrics-full() {
+  echo "Running full diagnostic suite — this will take ~15 seconds..."
+  echo ""
+
+  metrics-variance 10
+  echo ""
+  metrics
+  echo ""
+  metrics-hooks 100
+  echo ""
+  metrics-path
+  echo ""
+  metrics-tmux
+  echo ""
+  metrics-p10k
+  echo ""
+  metrics-plugins
+  echo ""
+  metrics-aliases
+  echo ""
+
+  # Cleanup any leftover timing subprocesses
+  pkill -f 'zsh -i -c exit' 2>/dev/null
+
+  echo "═══════════════════════════════════════════════════════════════"
+  echo "✅ Full diagnostic complete."
+  echo "   If everything looks healthy, run 'metrics-baseline' to lock in."
+  echo "═══════════════════════════════════════════════════════════════"
+}

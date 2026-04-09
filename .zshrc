@@ -1,7 +1,12 @@
 #!/usr/bin/env zsh
 
-# Performance profiling (comment out when not needed)
-# zmodload zsh/zprof
+# =============================================================================
+# PERFORMANCE PROFILING (conditional - only when enabled)
+# =============================================================================
+ZSH_PROFILE_FLAG="$HOME/.cache/.zsh-profile-enabled"
+if [[ -f "$ZSH_PROFILE_FLAG" ]]; then
+  zmodload zsh/zprof
+fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -63,19 +68,16 @@ if [ -n "$HOMEBREW_PREFIX" ]; then
   add_to_path "$HOMEBREW_PREFIX/share/google-cloud-sdk/bin"
 fi
 
-# Docker
-add_to_path "/Applications/Docker.app/Contents/Resources/bin"
-
 # Python paths
-export PYTHON_USER_BASE="$USER_HOME/Library/Python/3.x/bin"
-add_to_path "$PYTHON_USER_BASE"  # Replace 3.x with your Python version
 add_to_path "$USER_HOME/.local/bin"  # For pipx and Poetry-installed tools
 
 # Pyenv config
 export PYENV_ROOT="$USER_HOME/.pyenv"
 
 if [ -d "$PYENV_ROOT" ]; then
-  add_to_path "$PYENV_ROOT/bin" "$PYENV_ROOT/shims"
+  # Only add directories that actually exist (Homebrew installs only have shims)
+  [[ -d "$PYENV_ROOT/bin" ]] && add_to_path "$PYENV_ROOT/bin"
+  [[ -d "$PYENV_ROOT/shims" ]] && add_to_path "$PYENV_ROOT/shims"
 fi
 
 # Lazy init - only when python is actually used
@@ -84,6 +86,11 @@ _init_pyenv() {
     eval "$(pyenv init --path)"
     eval "$(pyenv init -)"
     eval "$(pyenv virtualenv-init -)"
+
+    # pyenv init --path adds $PYENV_ROOT/bin to PATH, but Homebrew installs
+    # of pyenv don't create that directory. Strip the dead entry.
+    [[ ! -d "$PYENV_ROOT/bin" ]] && PATH="${PATH//$PYENV_ROOT\/bin:/}"
+
     export PYENV_INITIALIZED=1
   fi
 }
@@ -143,8 +150,6 @@ asdf() {
   unfunction asdf 2>/dev/null
   command asdf "$@"
 }
-
-add_to_path "$USER_HOME/.asdf/bin" "$USER_HOME/.asdf/shims"
 
 # Path to your Oh My Zsh installation.
 export ZSH="$USER_HOME/.oh-my-zsh"

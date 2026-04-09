@@ -1,40 +1,22 @@
+#!/usr/bin/env zsh
+
 #######################################################################################
 # This file defines the plugin array and sources each plugin manually without a plugin
-# manager
+# manager - this uses lazy-loaded plugin configuration
 #######################################################################################
 
-# Define the list of plugins to load
+# ============================================================================
+# Plugins loaded IMMEDIATELY (small, needed for interactive UX)
+# ============================================================================
+export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+
 plugins=(
-  # 🔁 Navigation & Productivity
-  # autojump                 # Fast directory jumping using usage history
-  # fzf                      # Fuzzy finding for history, files, directories, etc.
-  # clipboard                # macOS clipboard tools (copyfile, copypath)
-  colored-man-pages        # Color-enhanced `man` pages for better readability
-
-  # ☁️ Cloud & DevOps Tools
-  aws                      # AWS CLI profile/region completions + prompt integration
-  gcloud                   # Google Cloud SDK CLI completions
-  docker                   # Docker CLI aliases and completions
-  helm                     # Helm CLI completions and aliases
-  terraform                # Terraform completions, prompt info, aliases
-  # k                        # Wrapper for `kubectl` with shorthand
-  kubectl                  # Core Kubernetes CLI support
-  kubectx                  # Show/switch active kube contexts easily
-
-  # 💻 Development Tools
-  pip                      # Python package manager completions
-  python                   # Aliases for python and virtualenv helpers
-  # git                      # Git aliases and functions
-  gh                       # GitHub CLI completions
-  tmux                     # Tmux aliases and completions
-
-  # 📜 History & Quality of Life
-  history                  # Handy aliases for history inspection
-  zsh-autosuggestions      # Suggest previous commands as you type
-  zsh-syntax-highlighting  # Highlight valid/invalid commands in real time
+  colored-man-pages        # tiny, just sets env vars
+  history                  # just aliases, near-zero cost
+  zsh-autosuggestions      # needed for typing UX
+  zsh-syntax-highlighting  # needed for typing UX (must load LAST of these)
 )
 
-# Load the plugins
 for plugin ($plugins); do
   if [ -f "$ZSH/custom/plugins/$plugin/$plugin.plugin.zsh" ]; then
     source "$ZSH/custom/plugins/$plugin/$plugin.plugin.zsh"
@@ -43,3 +25,48 @@ for plugin ($plugins); do
   fi
 done
 
+# ============================================================================
+# Lazy-loaded plugins — loaded on first invocation of the command
+# ============================================================================
+# Helper: create a shim that loads an OMZ plugin on first command use
+_lazy_omz_plugin() {
+  local plugin_name="$1"
+  shift
+  local commands=("$@")
+
+  for cmd in $commands; do
+    # Remove any pre-existing alias so we can define a function with the same name
+    unalias "$cmd" 2>/dev/null
+
+    eval "
+      $cmd() {
+        unfunction ${commands[@]} 2>/dev/null
+        if [ -f \"\$ZSH/custom/plugins/$plugin_name/$plugin_name.plugin.zsh\" ]; then
+          source \"\$ZSH/custom/plugins/$plugin_name/$plugin_name.plugin.zsh\"
+        elif [ -f \"\$ZSH/plugins/$plugin_name/$plugin_name.plugin.zsh\" ]; then
+          source \"\$ZSH/plugins/$plugin_name/$plugin_name.plugin.zsh\"
+        fi
+        $cmd \"\$@\"
+      }
+    "
+  done
+}
+
+# Cloud & DevOps — loaded on first use
+_lazy_omz_plugin aws        aws
+_lazy_omz_plugin gcloud     gcloud
+_lazy_omz_plugin docker     docker
+_lazy_omz_plugin helm       helm
+_lazy_omz_plugin terraform  terraform
+_lazy_omz_plugin kubectl    kubectl
+_lazy_omz_plugin kubectx    kubectx kctx kns
+_lazy_omz_plugin k          k
+
+# Dev tools — loaded on first use
+_lazy_omz_plugin pip        pip pip3
+_lazy_omz_plugin python     python python3
+_lazy_omz_plugin gh         gh
+_lazy_omz_plugin tmux       tmux
+
+# git stays loaded immediately if you want git aliases always available;
+# otherwise add: _lazy_omz_plugin git git
