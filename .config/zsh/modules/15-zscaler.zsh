@@ -12,7 +12,7 @@
 # The file-existence guard makes this safe to ship in dotfiles across
 # machines that don't have Zscaler installed.
 
-ZSCALER_CERT="$HOME/.certs/zscaler-root.pem"
+ZSCALER_CERT="$HOME/.certs/zscaler-bundle.pem"
 
 if [[ -f "$ZSCALER_CERT" ]]; then
   export NODE_EXTRA_CA_CERTS="$ZSCALER_CERT"
