@@ -24,3 +24,5 @@ if [[ -f "$ZSCALER_CERT" ]]; then
 fi
 
 unset ZSCALER_CERT
+
+nslookup-nozpa() { nslookup $1 10.120.111.30 }
