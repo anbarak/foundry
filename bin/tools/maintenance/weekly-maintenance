@@ -1,0 +1,23 @@
+#!/usr/bin/env zsh
+echo "=== Weekly maintenance ==="
+echo ""
+
+echo "Load average:"
+uptime
+echo ""
+
+echo "Top CPU:"
+ps aux | sort -rnk 3 | head -5 | awk '{printf "  %5.1f%%  %s\n", $3, $11}'
+echo ""
+
+echo "Shell startup:"
+metrics-all | grep "Startup time"
+echo ""
+
+echo "Disk:"
+diskutil info / | grep "Free Space"
+echo ""
+
+echo "If load > 4 or shell startup > 500ms, consider:"
+echo "  sudo launchctl kickstart -k system/com.apple.metadata.mds  # reset spotlight"
+echo "  osascript -e 'quit app \"Claude\"' -e 'quit app \"Google Chrome\"'  # kill electron bloat"
