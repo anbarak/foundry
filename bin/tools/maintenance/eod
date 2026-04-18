@@ -1,0 +1,17 @@
+#!/usr/bin/env zsh
+# End-of-day cleanup — quits memory-hogging Electron apps
+# Leaves browsers alone (user manages those manually for tab continuity)
+
+echo "=== End of day cleanup ==="
+echo ""
+echo "Quitting Electron apps..."
+osascript -e 'quit app "Claude"' 2>/dev/null && echo "  ✓ Claude"
+osascript -e 'quit app "Slack"' 2>/dev/null && echo "  ✓ Slack"
+osascript -e 'quit app "Notion"' 2>/dev/null && echo "  ✓ Notion"
+echo ""
+echo "Browsers left running (Chrome/Brave). Quit manually if you want to flush them."
+echo "  Chrome: tabs don't persist (corp policy) — bookmark anything important first"
+echo "  Brave:  tabs persist via session restore — safe to Cmd+Q anytime"
+echo ""
+echo "Current load:"
+uptime
