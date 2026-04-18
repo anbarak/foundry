@@ -182,13 +182,13 @@ fi
 # Case-sensitive completion must be off. _ and - will be interchangeable.
 # HYPHEN_INSENSITIVE="true"
 
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
-zstyle ':omz:update' mode reminder  # just remind me to update when it's time
-
-# Uncomment the following line to change how often to auto-update (in days).
-zstyle ':omz:update' frequency 30
+# OMZ's per-startup update check is disabled (saves ~260ms).
+# Monthly check runs via launchd instead:
+#   install: ~/bin/tools/maintenance/install-omz-update-check.sh
+#   task:    ~/bin/tools/maintenance/omz-update-check-task.sh
+zstyle ':omz:update' mode disabled
+DISABLE_AUTO_UPDATE=true
+DISABLE_UPDATE_PROMPT=true
 
 # Uncomment the following line if pasting URLs and other text is messed up.
 # DISABLE_MAGIC_FUNCTIONS="true"
