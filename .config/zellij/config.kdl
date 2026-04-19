@@ -1,0 +1,38 @@
+// Zellij configuration
+// Reference: ~/.config/zellij/config.kdl.default-reference
+// Docs: https://zellij.dev/documentation/
+
+// ─── Core behavior ──────────────────────────────────────────────────────────
+default_shell "zsh"
+default_mode "normal"
+mouse_mode true
+copy_command "pbcopy"
+copy_on_select true
+scroll_buffer_size 100000
+
+// Stay in current dir when opening new panes/tabs
+default_cwd "/Users/haarabi"
+pane_frames true
+
+// ─── Visuals ────────────────────────────────────────────────────────────────
+theme "catppuccin-mocha"
+simplified_ui false
+ui {
+    pane_frames {
+        rounded_corners true
+        hide_session_name false
+    }
+}
+
+// ─── Session management ─────────────────────────────────────────────────────
+session_serialization true
+serialize_pane_viewport true
+scrollback_lines_to_serialize 10000
+
+// ─── Plugin defaults ────────────────────────────────────────────────────────
+// (Zellij ships with tab-bar, status-bar, strider, compact-bar built in)
+
+// ─── Startup ────────────────────────────────────────────────────────────────
+// Disable the welcome screen on launch
+show_startup_tips false
+show_release_notes false
