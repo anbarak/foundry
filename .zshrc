@@ -74,9 +74,6 @@ _init_pyenv() {
 python()  { _init_pyenv; unfunction python  2>/dev/null; command python  "$@"; }
 python3() { _init_pyenv; unfunction python3 2>/dev/null; command python3 "$@"; }
 
-add_to_path "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin" \
-            "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin" \
-            "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
 
 add_to_path "$USER_HOME/go/bin" "$HOMEBREW_PREFIX/opt/go/libexec/bin"
 
