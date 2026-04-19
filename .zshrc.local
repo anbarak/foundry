@@ -184,7 +184,7 @@ precmd_functions=(${precmd_functions:#_direnv_hook})
 precmd_functions+=(_direnv_hook_fast)
 
 # Default editors for Git, Yadm, and general shell use
-export EDITOR=vim
+export EDITOR=nvim
 export VISUAL=vim
 
 # Prevent history dups and blanks
