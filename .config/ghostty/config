@@ -1,6 +1,8 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Ghostty configuration — tuned for monovision eyes, daylight, detail pickup
 # Docs: https://ghostty.org/docs/config
+# Preview themes: `ghostty +list-themes`
+# Show current config: `ghostty +show-config`
 # ─────────────────────────────────────────────────────────────────────────────
 
 # ── Font ─────────────────────────────────────────────────────────────────────
@@ -10,7 +12,7 @@ font-style = "Medium"
 font-style-bold = "Bold"
 font-style-italic = "Medium"
 font-style-bold-italic = "Bold"
-font-thicken = true
+font-thicken = false
 adjust-cell-height = 5%
 
 # ── Theme ────────────────────────────────────────────────────────────────────
@@ -49,7 +51,6 @@ copy-on-select = clipboard
 
 # ── Bell & Notifications ─────────────────────────────────────────────────────
 # Default bell: title emoji + dock bounce + icon badge. No audio.
-# If you want to fully disable visual distractions: bell-features = no-attention,no-title
 bell-features = attention,title
 
 # Desktop notification when a long-running command finishes (uses OSC 133 from p10k)
@@ -86,7 +87,8 @@ clipboard-paste-protection = true
 bold-is-bright = false
 
 # ─────────────────────────────────────────────────────────────────────────────
-# KEYBINDINGS
+# KEYBINDINGS — additions beyond Ghostty's sensible defaults
+# Full default list: `ghostty +list-keybinds`
 # ─────────────────────────────────────────────────────────────────────────────
 
 keybind = cmd+shift+comma=reload_config
@@ -113,5 +115,5 @@ keybind = cmd+equal=increase_font_size:1
 keybind = cmd+minus=decrease_font_size:1
 keybind = cmd+0=reset_font_size
 
-# Inspector
+# Inspector (debug color/escape sequences)
 keybind = cmd+alt+i=inspector:toggle
