@@ -43,7 +43,6 @@ zinit wait'1' lucid for \
 
 # Cloud/DevOps completions (load only if command exists)
 zinit wait'2' lucid has'aws'       for OMZP::aws
-zinit wait'2' lucid has'gcloud'    for OMZP::gcloud
 zinit wait'2' lucid has'docker'    for OMZP::docker
 zinit wait'2' lucid has'helm'      for OMZP::helm
 zinit wait'2' lucid has'terraform' for OMZP::terraform
