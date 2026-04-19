@@ -84,3 +84,13 @@ plugin-load \
 
 # Kubectl alias (kept from OMZP::kubectl)
 alias k='kubectl'
+
+# -----------------------------------------------------------------------------
+# plugin-update: pull latest for all cloned plugins
+# -----------------------------------------------------------------------------
+plugin-update() {
+  for plugdir in $ZPLUGINDIR/*/; do
+    echo "Updating ${plugdir:t}..."
+    git -C "$plugdir" pull -q --recurse-submodules
+  done
+}
