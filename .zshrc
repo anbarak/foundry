@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # =============================================================================
-# ~/.zshrc — zinit-based configuration
+# ~/.zshrc — bare plugin loading (zsh_unplugged)
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -114,15 +114,6 @@ if [[ -f "$ZSH_COMPDUMP" ]] && [[ -n "$(command find "$ZSH_COMPDUMP" -mtime +1 2
 fi
 
 # -----------------------------------------------------------------------------
-# ZINIT — bootstrap
-# -----------------------------------------------------------------------------
-ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-source "${ZINIT_HOME}/zinit.zsh"
-
-autoload -Uz _zinit
-(( ${+_comps} )) && _comps[zinit]=_zinit
-
-# -----------------------------------------------------------------------------
 # Plugins
 # -----------------------------------------------------------------------------
 [[ -f "$USER_HOME/.zshrc.plugins" ]] && source "$USER_HOME/.zshrc.plugins"
@@ -152,14 +143,21 @@ setopt PUSHD_SILENT
 # -----------------------------------------------------------------------------
 # SSH keychain (skip in multiplexers)
 # -----------------------------------------------------------------------------
-if [[ -z "$TMUX" && -z "$ZELLIJ" && -f "$USER_HOME/.ssh/id_ed25519_centerfield" ]]; then
-  ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
+# SSH keychain — only add if not already loaded (saves ~500ms per shell)
+_ssh_key="$USER_HOME/.ssh/id_ed25519_centerfield"
+if [[ -z "$TMUX" && -z "$ZELLIJ" && -f "$_ssh_key" ]]; then
+  _ssh_fp=$(ssh-keygen -lf "$_ssh_key" 2>/dev/null | awk '{print $2}')
+  if [[ -n "$_ssh_fp" ]] && ! ssh-add -l 2>/dev/null | grep -q "$_ssh_fp"; then
+    ssh-add --apple-use-keychain "$_ssh_key" >/dev/null 2>&1
+  fi
+  unset _ssh_fp
 fi
+unset _ssh_key
 
 # -----------------------------------------------------------------------------
 # Local config (aliases, metrics, secrets)
 # -----------------------------------------------------------------------------
-# Run compinit NOW (zinit's deferred compinit would be too late for .zshrc.local which calls compdef)
+# Run compinit early — .zshrc.local calls compdef and needs it ready
 autoload -Uz compinit
 compinit -d "$ZSH_COMPDUMP" -C
 

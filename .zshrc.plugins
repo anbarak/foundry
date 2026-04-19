@@ -1,68 +1,86 @@
 #!/usr/bin/env zsh
-
-# Powerlevel10k theme — load IMMEDIATELY (needs to draw prompt)
-zinit ice depth=1
-zinit light romkatv/powerlevel10k
-
 # =============================================================================
-# ~/.zshrc.plugins — zinit plugin definitions (turbo mode)
+# ~/.zshrc.plugins — bare zsh plugin loading (zsh_unplugged pattern)
+# =============================================================================
+# No plugin manager. Just clone + source. ~30 lines, zero scheduler overhead.
+# Based on https://github.com/mattmc3/zsh_unplugged
 # =============================================================================
 
-# Select OMZ libraries (immediate — small, needed for keybinds & completion)
-zinit wait'!0' lucid for \
-  OMZL::git.zsh \
-  OMZL::history.zsh \
-  OMZL::key-bindings.zsh \
-  OMZL::completion.zsh \
-  OMZL::directories.zsh
+ZPLUGINDIR="${ZPLUGINDIR:-$HOME/.zsh/plugins}"
 
-# UX plugins (load 0s after prompt)
+# Clone a plugin on demand, then source its main file.
+# Handles the common layouts: plugin.zsh, plugin.plugin.zsh, *.zsh-theme, etc.
+plugin-load() {
+  local repo plugdir initfile initfiles=()
+  : ${ZPLUGINDIR:=${ZDOTDIR:-$HOME/.config/zsh}/plugins}
+  for repo in $@; do
+    plugdir=$ZPLUGINDIR/${repo:t}
+    initfile=$plugdir/${repo:t}.plugin.zsh
+    if [[ ! -d $plugdir ]]; then
+      echo "Cloning $repo..."
+      git clone -q --depth 1 --recursive --shallow-submodules \
+        https://github.com/$repo $plugdir
+    fi
+    if [[ ! -e $initfile ]]; then
+      initfiles=($plugdir/*.plugin.{z,}sh(N) $plugdir/*.{z,}sh-theme(N) $plugdir/*.{z,}sh(N))
+      (( $#initfiles )) && ln -sf $initfiles[1] $initfile
+    fi
+    fpath+=$plugdir
+    (( $+functions[zsh-defer] )) && zsh-defer . $initfile || . $initfile
+  done
+}
+
+# -----------------------------------------------------------------------------
+# Deferred loading helper (replaces zinit's wait'N' turbo mode)
+# Loads zsh-defer first so everything else can be deferred through it.
+# -----------------------------------------------------------------------------
+plugin-load romkatv/zsh-defer
+
+# -----------------------------------------------------------------------------
+# Plugins (order matters for some)
+# -----------------------------------------------------------------------------
+
+# Prompt — load IMMEDIATELY (not deferred) since it draws the prompt
+plugin-load-now() {
+  local repo plugdir initfile
+  for repo in $@; do
+    plugdir=$ZPLUGINDIR/${repo:t}
+    initfile=$plugdir/${repo:t}.plugin.zsh
+    if [[ ! -d $plugdir ]]; then
+      echo "Cloning $repo..."
+      git clone -q --depth 1 --recursive --shallow-submodules \
+        https://github.com/$repo $plugdir
+    fi
+    if [[ ! -e $initfile ]]; then
+      local initfiles=($plugdir/*.plugin.{z,}sh(N) $plugdir/*.{z,}sh-theme(N) $plugdir/*.{z,}sh(N))
+      (( $#initfiles )) && ln -sf $initfiles[1] $initfile
+    fi
+    fpath+=$plugdir
+    . $initfile
+  done
+}
+
+plugin-load-now romkatv/powerlevel10k
+
+# Completions — must be in fpath before compinit runs (fpath only)
+# The `fpath+=` happens inside plugin-load, actual loading is skipped since
+# zsh-completions has no main file to source; compinit will find them.
+ZSH_COMPLETIONS_REPO="zsh-users/zsh-completions"
+if [[ ! -d "$ZPLUGINDIR/zsh-completions" ]]; then
+  echo "Cloning $ZSH_COMPLETIONS_REPO..."
+  git clone -q --depth 1 https://github.com/$ZSH_COMPLETIONS_REPO $ZPLUGINDIR/zsh-completions
+fi
+fpath+=("$ZPLUGINDIR/zsh-completions/src")
+
+# Deferred: UX plugins (load after prompt appears)
 export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 export ZSH_AUTOSUGGEST_USE_ASYNC=1
 
-zinit wait'0a' lucid light-mode for \
-  atinit'zicompinit; zicdreplay' \
-    zdharma-continuum/fast-syntax-highlighting \
-  atload'_zsh_autosuggest_start' \
-    zsh-users/zsh-autosuggestions \
-  blockf atpull'zinit creinstall -q .' \
-    zsh-users/zsh-completions
+plugin-load \
+  Aloxaf/fzf-tab \
+  zdharma-continuum/fast-syntax-highlighting \
+  zsh-users/zsh-autosuggestions
 
-# fzf-tab for fuzzy completion menus
-zinit wait'0b' lucid light-mode for \
-  Aloxaf/fzf-tab
-
-# Core OMZ plugins (load 1s after prompt)
-zinit wait'1' lucid for \
-  OMZP::git \
-  OMZP::colored-man-pages \
-  OMZP::command-not-found \
-  OMZP::sudo \
-  OMZP::extract
-
-# Cloud/DevOps completions (load only if command exists)
-zinit wait'2' lucid has'aws'       for OMZP::aws
-zinit wait'2' lucid has'docker'    for OMZP::docker
-zinit wait'2' lucid has'helm'      for OMZP::helm
-zinit wait'2' lucid has'terraform' for OMZP::terraform
-zinit wait'2' lucid has'kubectl'   for OMZP::kubectl
-zinit wait'2' lucid has'kubectx'   for OMZP::kubectx
-
-# Dev tool completions
-zinit wait'2' lucid has'gh'     for OMZP::gh
-zinit wait'2' lucid has'pip'    for OMZP::pip
-zinit wait'2' lucid has'python' for OMZP::python
-
-# Modern CLI integrations
-zinit wait'1' lucid has'zoxide' light-mode for \
-  atload'eval "$(zoxide init zsh)"' \
-    zdharma-continuum/null
-
-zinit wait'1' lucid has'fzf' light-mode for \
-  atload'source <(fzf --zsh) 2>/dev/null' \
-    zdharma-continuum/null
-
-zinit wait'2' lucid has'just' light-mode as'null' for \
-  atload'source <(just --completions zsh)' \
-    zdharma-continuum/null
+# Kubectl alias (kept from OMZP::kubectl)
+alias k='kubectl'
