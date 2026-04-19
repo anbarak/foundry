@@ -63,3 +63,7 @@ zinit wait'1' lucid has'zoxide' light-mode for \
 zinit wait'1' lucid has'fzf' light-mode for \
   atload'source <(fzf --zsh) 2>/dev/null' \
     zdharma-continuum/null
+
+zinit wait'2' lucid has'just' light-mode as'null' for \
+  atload'source <(just --completions zsh)' \
+    zdharma-continuum/null

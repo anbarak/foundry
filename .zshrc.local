@@ -942,3 +942,4 @@ metrics-full() {
   echo "   If everything looks healthy, run 'metrics-baseline' to lock in."
   echo "═══════════════════════════════════════════════════════════════"
 }
+alias jt=just
