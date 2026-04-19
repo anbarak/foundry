@@ -1,70 +1,65 @@
 #!/usr/bin/env zsh
 
-#######################################################################################
-# This file defines the plugin array and sources each plugin manually without a plugin
-# manager - this uses lazy-loaded plugin configuration
-#######################################################################################
+# Powerlevel10k theme — load IMMEDIATELY (needs to draw prompt)
+zinit ice depth=1
+zinit light romkatv/powerlevel10k
 
-# ============================================================================
-# Plugins loaded IMMEDIATELY (small, needed for interactive UX)
-# ============================================================================
+# =============================================================================
+# ~/.zshrc.plugins — zinit plugin definitions (turbo mode)
+# =============================================================================
+
+# Select OMZ libraries (immediate — small, needed for keybinds & completion)
+zinit wait'!0' lucid for \
+  OMZL::git.zsh \
+  OMZL::history.zsh \
+  OMZL::key-bindings.zsh \
+  OMZL::completion.zsh \
+  OMZL::directories.zsh
+
+# UX plugins (load 0s after prompt)
 export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+export ZSH_AUTOSUGGEST_USE_ASYNC=1
 
-plugins=(
-  zsh-autosuggestions      # needed for typing UX
-  zsh-syntax-highlighting  # needed for typing UX (must load LAST of these)
-)
+zinit wait'0a' lucid light-mode for \
+  atinit'zicompinit; zicdreplay' \
+    zdharma-continuum/fast-syntax-highlighting \
+  atload'_zsh_autosuggest_start' \
+    zsh-users/zsh-autosuggestions \
+  blockf atpull'zinit creinstall -q .' \
+    zsh-users/zsh-completions
 
-for plugin ($plugins); do
-  if [ -f "$ZSH/custom/plugins/$plugin/$plugin.plugin.zsh" ]; then
-    source "$ZSH/custom/plugins/$plugin/$plugin.plugin.zsh"
-  elif [ -f "$ZSH/plugins/$plugin/$plugin.plugin.zsh" ]; then
-    source "$ZSH/plugins/$plugin/$plugin.plugin.zsh"
-  fi
-done
+# fzf-tab for fuzzy completion menus
+zinit wait'0b' lucid light-mode for \
+  Aloxaf/fzf-tab
 
-# ============================================================================
-# Lazy-loaded plugins — loaded on first invocation of the command
-# ============================================================================
-# Helper: create a shim that loads an OMZ plugin on first command use
-_lazy_omz_plugin() {
-  local plugin_name="$1"
-  shift
-  local commands=("$@")
+# Core OMZ plugins (load 1s after prompt)
+zinit wait'1' lucid for \
+  OMZP::git \
+  OMZP::colored-man-pages \
+  OMZP::command-not-found \
+  OMZP::sudo \
+  OMZP::extract
 
-  for cmd in $commands; do
-    # Remove any pre-existing alias so we can define a function with the same name
-    unalias "$cmd" 2>/dev/null
+# Cloud/DevOps completions (load only if command exists)
+zinit wait'2' lucid has'aws'       for OMZP::aws
+zinit wait'2' lucid has'gcloud'    for OMZP::gcloud
+zinit wait'2' lucid has'docker'    for OMZP::docker
+zinit wait'2' lucid has'helm'      for OMZP::helm
+zinit wait'2' lucid has'terraform' for OMZP::terraform
+zinit wait'2' lucid has'kubectl'   for OMZP::kubectl
+zinit wait'2' lucid has'kubectx'   for OMZP::kubectx
 
-    eval "
-      $cmd() {
-        unfunction ${commands[@]} 2>/dev/null
-        if [ -f \"\$ZSH/custom/plugins/$plugin_name/$plugin_name.plugin.zsh\" ]; then
-          source \"\$ZSH/custom/plugins/$plugin_name/$plugin_name.plugin.zsh\"
-        elif [ -f \"\$ZSH/plugins/$plugin_name/$plugin_name.plugin.zsh\" ]; then
-          source \"\$ZSH/plugins/$plugin_name/$plugin_name.plugin.zsh\"
-        fi
-        $cmd \"\$@\"
-      }
-    "
-  done
-}
+# Dev tool completions
+zinit wait'2' lucid has'gh'     for OMZP::gh
+zinit wait'2' lucid has'pip'    for OMZP::pip
+zinit wait'2' lucid has'python' for OMZP::python
 
-# Cloud & DevOps — loaded on first use
-_lazy_omz_plugin aws        aws
-_lazy_omz_plugin gcloud     gcloud
-_lazy_omz_plugin docker     docker
-_lazy_omz_plugin helm       helm
-_lazy_omz_plugin terraform  terraform
-_lazy_omz_plugin kubectl    kubectl
-_lazy_omz_plugin kubectx    kubectx kctx kns
-_lazy_omz_plugin k          k
+# Modern CLI integrations
+zinit wait'1' lucid has'zoxide' light-mode for \
+  atload'eval "$(zoxide init zsh)"' \
+    zdharma-continuum/null
 
-# Dev tools — loaded on first use
-_lazy_omz_plugin pip        pip pip3
-_lazy_omz_plugin python     python python3
-_lazy_omz_plugin gh         gh
-_lazy_omz_plugin tmux       tmux
-
-# git stays loaded immediately if you want git aliases always available;
-# otherwise add: _lazy_omz_plugin git git
+zinit wait'1' lucid has'fzf' light-mode for \
+  atload'source <(fzf --zsh) 2>/dev/null' \
+    zdharma-continuum/null

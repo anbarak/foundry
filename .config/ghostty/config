@@ -20,8 +20,8 @@ cursor-color = "#fab387"
 cursor-opacity = 0.9
 
 # ── Window / Appearance ──────────────────────────────────────────────────────
-background-opacity = 0.96
-background-blur = 20
+background-opacity = 1.0
+background-blur = 0
 
 window-padding-x = 10
 window-padding-y = 8
@@ -37,10 +37,10 @@ window-save-state = always
 # ── Cursor ───────────────────────────────────────────────────────────────────
 cursor-style = block
 cursor-style-blink = false
-shell-integration-features = cursor,sudo,title
+# shell-integration-features disabled (was causing clipboard line-break issues)
 
 # ── Scrollback ───────────────────────────────────────────────────────────────
-scrollback-limit = 100000
+scrollback-limit = 1000000
 
 # ── Mouse ────────────────────────────────────────────────────────────────────
 mouse-hide-while-typing = true
@@ -59,7 +59,7 @@ quick-terminal-screen = mouse
 quick-terminal-animation-duration = 0.15
 
 # ── Shell integration ────────────────────────────────────────────────────────
-shell-integration = zsh
+shell-integration = none
 
 # ── Safety ───────────────────────────────────────────────────────────────────
 confirm-close-surface = always
@@ -86,8 +86,6 @@ keybind = cmd+shift+comma=reload_config
 keybind = cmd+shift+k=clear_screen
 
 # ── Prompt jumping (uses OSC 133 markers from p10k) ──────────────────────────
-keybind = cmd+up=jump_to_prompt:-1
-keybind = cmd+down=jump_to_prompt:1
 
 # ── Splits ───────────────────────────────────────────────────────────────────
 keybind = cmd+d=new_split:right
