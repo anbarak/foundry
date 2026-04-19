@@ -1,23 +1,25 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# Ghostty configuration — tuned for long sessions, cloud/k8s work, eye comfort
+# Ghostty configuration — tuned for monovision eyes, daylight, detail pickup
 # Docs: https://ghostty.org/docs/config
-# Preview themes: `ghostty +list-themes`
-# Show current config: `ghostty +show-config`
 # ─────────────────────────────────────────────────────────────────────────────
 
 # ── Font ─────────────────────────────────────────────────────────────────────
 font-family = "JetBrainsMono Nerd Font Mono"
 font-size = 14
+font-style = "Medium"
+font-style-bold = "Bold"
+font-style-italic = "Medium"
+font-style-bold-italic = "Bold"
 font-thicken = true
-adjust-cell-height = 10%
+adjust-cell-height = 5%
 
 # ── Theme ────────────────────────────────────────────────────────────────────
-# Catppuccin Mocha (dark) / Latte (light), auto-switches with macOS appearance
-theme = dark:Catppuccin Mocha,light:Catppuccin Latte
+theme = Gruvbox Material Dark
+minimum-contrast = 1.2
 
-# Peach cursor pops against both themes without being aggressive
-cursor-color = "#fab387"
-cursor-opacity = 0.9
+# Warm amber cursor matches the palette
+cursor-color = "#e78a4e"
+cursor-opacity = 1.0
 
 # ── Window / Appearance ──────────────────────────────────────────────────────
 background-opacity = 1.0
@@ -28,7 +30,7 @@ window-padding-y = 8
 window-padding-balance = true
 window-padding-color = background
 
-macos-titlebar-style = tabs
+macos-titlebar-style = hidden
 window-decoration = true
 window-inherit-working-directory = true
 window-inherit-font-size = true
@@ -37,17 +39,26 @@ window-save-state = always
 # ── Cursor ───────────────────────────────────────────────────────────────────
 cursor-style = block
 cursor-style-blink = false
-# shell-integration-features disabled (was causing clipboard line-break issues)
 
 # ── Scrollback ───────────────────────────────────────────────────────────────
-scrollback-limit = 1000000
+scrollback-limit = 100000
 
 # ── Mouse ────────────────────────────────────────────────────────────────────
 mouse-hide-while-typing = true
 copy-on-select = clipboard
 
+# ── Bell & Notifications ─────────────────────────────────────────────────────
+# Default bell: title emoji + dock bounce + icon badge. No audio.
+# If you want to fully disable visual distractions: bell-features = no-attention,no-title
+bell-features = attention,title
+
+# Desktop notification when a long-running command finishes (uses OSC 133 from p10k)
+notify-on-command-finish = unfocused
+notify-on-command-finish-action = notify
+notify-on-command-finish-after = 30s
+
 # ── macOS integration ────────────────────────────────────────────────────────
-macos-option-as-alt = true
+macos-option-as-alt = left
 macos-non-native-fullscreen = false
 macos-auto-secure-input = true
 macos-secure-input-indication = true
@@ -60,10 +71,10 @@ quick-terminal-animation-duration = 0.15
 
 # ── Shell integration ────────────────────────────────────────────────────────
 shell-integration = detect
-shell-integration-features = no-cursor
+shell-integration-features = no-cursor,sudo,title
 
 # ── Safety ───────────────────────────────────────────────────────────────────
-confirm-close-surface = always
+confirm-close-surface = true
 
 # ── Clipboard ────────────────────────────────────────────────────────────────
 clipboard-read = allow
@@ -75,20 +86,17 @@ clipboard-paste-protection = true
 bold-is-bright = false
 
 # ─────────────────────────────────────────────────────────────────────────────
-# KEYBINDINGS — additions beyond Ghostty's sensible defaults
-# Full default list: `ghostty +list-keybinds`
+# KEYBINDINGS
 # ─────────────────────────────────────────────────────────────────────────────
 
-# ── Config reload ────────────────────────────────────────────────────────────
 keybind = cmd+shift+comma=reload_config
-
-# ── Hard clear (screen + scrollback) ─────────────────────────────────────────
-# cmd+k is Ghostty's default screen clear; cmd+shift+k wipes scrollback too
 keybind = cmd+shift+k=clear_screen
 
-# ── Prompt jumping (uses OSC 133 markers from p10k) ──────────────────────────
+# Prompt jumping (uses OSC 133 markers from p10k)
+keybind = cmd+up=jump_to_prompt:-1
+keybind = cmd+down=jump_to_prompt:1
 
-# ── Splits ───────────────────────────────────────────────────────────────────
+# Splits
 keybind = cmd+d=new_split:right
 keybind = cmd+shift+d=new_split:down
 keybind = cmd+alt+left=goto_split:left
@@ -100,11 +108,10 @@ keybind = cmd+shift+left=resize_split:left,20
 keybind = cmd+shift+right=resize_split:right,20
 keybind = cmd+shift+enter=toggle_split_zoom
 
-# ── Font size (cmd+1..9 for tabs are already default) ────────────────────────
-# Use physical key names: 'equal' is the + key without shift
+# Font size
 keybind = cmd+equal=increase_font_size:1
 keybind = cmd+minus=decrease_font_size:1
 keybind = cmd+0=reset_font_size
 
-# ── Inspector (debug color/escape sequences) ─────────────────────────────────
+# Inspector
 keybind = cmd+alt+i=inspector:toggle
