@@ -1,37 +1,30 @@
 #!/usr/bin/env zsh
+# =============================================================================
+# ~/.zshrc — zinit-based configuration
+# =============================================================================
 
-# =============================================================================
-# PERFORMANCE PROFILING (conditional - only when enabled)
-# =============================================================================
+# -----------------------------------------------------------------------------
+# Performance profiling (conditional)
+# -----------------------------------------------------------------------------
 ZSH_PROFILE_FLAG="$HOME/.cache/.zsh-profile-enabled"
-if [[ -f "$ZSH_PROFILE_FLAG" ]]; then
-  zmodload zsh/zprof
+[[ -f "$ZSH_PROFILE_FLAG" ]] && zmodload zsh/zprof
+
+# -----------------------------------------------------------------------------
+# Powerlevel10k instant prompt — MUST stay near the top
+# -----------------------------------------------------------------------------
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-$(basename "$TTY").zsh" ]; then
-  # shellcheck source=/dev/null
-  . "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-$(basename "$TTY").zsh"
-fi
-
-#####################################################################################
-# This is your main zsh configuration file. It contains settings specific to your   #
-# zsh environment, such as aliases, keybindings, and environment variables. It      #
-# should ideally be focused on core functionality and avoid clutter.                #
-#####################################################################################
-
-# Set USER_HOME variable
+# -----------------------------------------------------------------------------
+# Basics
+# -----------------------------------------------------------------------------
 export USER_HOME="$HOME"
-
-# ============================================================================
-# OS Detection - Must load before PATH configuration
-# ============================================================================
 [[ -f "$HOME/bin/foundry/detect-os.sh" ]] && source "$HOME/bin/foundry/detect-os.sh"
 
-
-# Function to add paths only if they are not already in PATH
+# -----------------------------------------------------------------------------
+# PATH management
+# -----------------------------------------------------------------------------
 add_to_path() {
   for DIR in "$@"; do
     case ":$PATH:" in
@@ -41,251 +34,153 @@ add_to_path() {
   done
 }
 
-# Reset PATH to a minimal default to avoid duplicates
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-# Platform-specific PATH setup
 if [[ "$FOUNDRY_OS" == "macos" ]]; then
-  # Ensure Homebrew is in the PATH
   add_to_path "/opt/homebrew/bin"
   export HOMEBREW_PREFIX="/opt/homebrew"
-
-  # Add GNU coreutils to PATH for standard behavior (ls, cat, etc.)
   add_to_path "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
   add_to_path "$HOMEBREW_PREFIX/opt/findutils/libexec/gnubin"
 elif [[ "$FOUNDRY_OS" == "linux" ]] || [[ "$FOUNDRY_OS" == "wsl" ]]; then
-  # Linux uses system coreutils - no need for GNU overrides
   add_to_path "/usr/local/bin"
 fi
 
-# Homebrew paths
-if [ -n "$HOMEBREW_PREFIX" ]; then
+if [[ -n "$HOMEBREW_PREFIX" ]]; then
   add_to_path "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin"
   export MANPATH="$HOMEBREW_PREFIX/share/man:$MANPATH"
   export INFOPATH="$HOMEBREW_PREFIX/share/info:$INFOPATH"
-
-  # Cloud SDK paths
   add_to_path "$HOMEBREW_PREFIX/share/google-cloud-sdk/bin"
 fi
 
-# Python paths
-add_to_path "$USER_HOME/.local/bin"  # For pipx and Poetry-installed tools
+add_to_path "$USER_HOME/.local/bin"
 
-# Pyenv config
 export PYENV_ROOT="$USER_HOME/.pyenv"
-
-if [ -d "$PYENV_ROOT" ]; then
-  # Only add directories that actually exist (Homebrew installs only have shims)
+if [[ -d "$PYENV_ROOT" ]]; then
   [[ -d "$PYENV_ROOT/bin" ]] && add_to_path "$PYENV_ROOT/bin"
   [[ -d "$PYENV_ROOT/shims" ]] && add_to_path "$PYENV_ROOT/shims"
 fi
 
-# Lazy init - only when python is actually used
 _init_pyenv() {
   if [[ -z "$PYENV_INITIALIZED" && -d "$PYENV_ROOT" ]]; then
     eval "$(pyenv init --path)"
     eval "$(pyenv init -)"
     eval "$(pyenv virtualenv-init -)"
-
-    # pyenv init --path adds $PYENV_ROOT/bin to PATH, but Homebrew installs
-    # of pyenv don't create that directory. Strip the dead entry.
     [[ ! -d "$PYENV_ROOT/bin" ]] && PATH="${PATH//$PYENV_ROOT\/bin:/}"
-
     export PYENV_INITIALIZED=1
   fi
 }
 
-# Wrapper function
-python() {
-  _init_pyenv
-  unfunction python 2>/dev/null
-  command python "$@"
-}
+python()  { _init_pyenv; unfunction python  2>/dev/null; command python  "$@"; }
+python3() { _init_pyenv; unfunction python3 2>/dev/null; command python3 "$@"; }
 
-python3() {
-  _init_pyenv
-  unfunction python3 2>/dev/null
-  command python3 "$@"
-}
-
-# Apple security paths
 add_to_path "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin" \
             "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin" \
             "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
 
-# Go paths
 add_to_path "$USER_HOME/go/bin" "$HOMEBREW_PREFIX/opt/go/libexec/bin"
 
-# Java paths
 export JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk"
 add_to_path "$JAVA_HOME/bin"
 
-# Runner scripts path
-add_to_path "$USER_HOME/bin"
-add_to_path "$USER_HOME/bin/tools"
-add_to_path "$USER_HOME/bin/git"
-
-# Add krew path
+add_to_path "$USER_HOME/bin" "$USER_HOME/bin/tools" "$USER_HOME/bin/git"
 add_to_path "$USER_HOME/.krew/bin"
+[[ -d "$USER_HOME/scripts" ]] && add_to_path "$USER_HOME/scripts"
+[[ -d "$USER_HOME/code/cf/datalot/.datalot" ]] && add_to_path "$USER_HOME/code/cf/datalot/.datalot/bin"
 
-if [ -d "$USER_HOME/scripts" ]; then
-  add_to_path "$USER_HOME/scripts"
-fi
-
-if [ -d "$USER_HOME/code/cf/datalot/.datalot" ]; then
-  add_to_path "$USER_HOME/code/cf/datalot/.datalot/bin"
-fi
-
-# Add asdf paths
 _init_asdf() {
   if [[ -z "$ASDF_INITIALIZED" && -f "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh" ]]; then
-    # shellcheck source=/dev/null
-    . "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh"
+    source "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh"
     export ASDF_INITIALIZED=1
   fi
 }
+asdf() { _init_asdf; unfunction asdf 2>/dev/null; command asdf "$@"; }
 
-asdf() {
-  _init_asdf
-  unfunction asdf 2>/dev/null
-  command asdf "$@"
-}
-
-# Path to your Oh My Zsh installation.
-export ZSH="$USER_HOME/.oh-my-zsh"
-
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time Oh My Zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-export ZSH_THEME="powerlevel10k/powerlevel10k"
-
-# ---- Custom completions (must be before OMZ loads) ----
-export ZSH_DISABLE_COMPFIX=true
+# -----------------------------------------------------------------------------
+# Completion setup
+# -----------------------------------------------------------------------------
 mkdir -p "$HOME/.zsh/completions"
 fpath+=("$HOME/.zsh/completions")
 
-# ---- OMZ compdump location + light refresh ----
+if [[ -n "$HOMEBREW_PREFIX" ]]; then
+  fpath+=("$HOMEBREW_PREFIX/share/zsh/site-functions")
+fi
+
 export ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${HOST}-${ZSH_VERSION}"
 mkdir -p "${ZSH_COMPDUMP:h}"
 
-# If older than 1 day, remove so OMZ rebuilds once this launch
-if [[ -f "$ZSH_COMPDUMP" ]] \
-  && [[ -n "$(command find "$ZSH_COMPDUMP" -mtime +1 2>/dev/null)" ]]; then
+if [[ -f "$ZSH_COMPDUMP" ]] && [[ -n "$(command find "$ZSH_COMPDUMP" -mtime +1 2>/dev/null)" ]]; then
   rm -f "$ZSH_COMPDUMP"
 fi
 
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+# -----------------------------------------------------------------------------
+# ZINIT — bootstrap
+# -----------------------------------------------------------------------------
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+source "${ZINIT_HOME}/zinit.zsh"
 
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
 
-# OMZ's per-startup update check is disabled (saves ~260ms).
-# Monthly check runs via launchd instead:
-#   install: ~/bin/tools/maintenance/install-omz-update-check.sh
-#   task:    ~/bin/tools/maintenance/omz-update-check-task.sh
-zstyle ':omz:update' mode disabled
-DISABLE_AUTO_UPDATE=true
-DISABLE_UPDATE_PROMPT=true
+# -----------------------------------------------------------------------------
+# Plugins
+# -----------------------------------------------------------------------------
+[[ -f "$USER_HOME/.zshrc.plugins" ]] && source "$USER_HOME/.zshrc.plugins"
 
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
+# -----------------------------------------------------------------------------
+# History
+# -----------------------------------------------------------------------------
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=50000
+setopt EXTENDED_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_VERIFY
+setopt SHARE_HISTORY
+setopt INC_APPEND_HISTORY
 
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
+# -----------------------------------------------------------------------------
+# Directory nav
+# -----------------------------------------------------------------------------
+setopt AUTO_CD
+setopt AUTO_PUSHD
+setopt PUSHD_IGNORE_DUPS
+setopt PUSHD_SILENT
 
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# You can also set it to another string to have that shown instead of the default red dots.
-# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
-# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-# shellcheck disable=SC2034,SC2039 # plugins is used by Oh My Zsh internally
-plugins=() # Refer to ~/.zshrc.plugins
-
-# Load Oh My Zsh
-# shellcheck source=/dev/null
-. "$ZSH/oh-my-zsh.sh"
-zle -A .bracketed-paste bracketed-paste 2>/dev/null
-
-# Skip OMZ's ls detection — we use eza (saves ~140ms)
-unfunction test-ls-args 2>/dev/null
-
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# Set personal aliases, overriding those provided by Oh My Zsh libs,
-# plugins, and themes. Aliases can be placed here, though Oh My Zsh
-# users are encouraged to define aliases within a top-level file in
-# the $ZSH_CUSTOM folder, with .zsh extension. Examples:
-# - $ZSH_CUSTOM/aliases.zsh
-# - $ZSH_CUSTOM/macos.zsh
-# For a full list of active aliases, run `alias`.
-# alias are located in ~/.zshrc.local file
-
-# Add SSH key to macOS keychain (skip in tmux — already inherited)
-if [[ -z "$TMUX" && -f "$USER_HOME/.ssh/id_ed25519_centerfield" ]]; then
+# -----------------------------------------------------------------------------
+# SSH keychain (skip in multiplexers)
+# -----------------------------------------------------------------------------
+if [[ -z "$TMUX" && -z "$ZELLIJ" && -f "$USER_HOME/.ssh/id_ed25519_centerfield" ]]; then
   ssh-add --apple-use-keychain "$USER_HOME/.ssh/id_ed25519_centerfield" >/dev/null 2>&1
 fi
 
-# Source local configuration file
-if [ -f "$USER_HOME/.zshrc.local" ]; then
-  . "$USER_HOME/.zshrc.local"
-fi
+# -----------------------------------------------------------------------------
+# Local config (aliases, metrics, secrets)
+# -----------------------------------------------------------------------------
+# Run compinit NOW (zinit's deferred compinit would be too late for .zshrc.local which calls compdef)
+autoload -Uz compinit
+compinit -d "$ZSH_COMPDUMP" -C
 
-# Enable vi mode before prompt is drawn
-bindkey -v
+[[ -f "$USER_HOME/.zshrc.local" ]] && source "$USER_HOME/.zshrc.local"
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh
-# shellcheck source=/dev/null
+# -----------------------------------------------------------------------------
+# vi mode
+# -----------------------------------------------------------------------------
+bindkey '^A' beginning-of-line
+bindkey '^E' end-of-line
+bindkey '^R' history-incremental-search-backward
+bindkey '^P' up-line-or-history
+bindkey '^N' down-line-or-history
+
+# -----------------------------------------------------------------------------
+# p10k
+# -----------------------------------------------------------------------------
 [[ -f "$USER_HOME/.p10k.zsh" ]] && source "$USER_HOME/.p10k.zsh"
-
-# Load tiny AWS badge
 [[ -f "$USER_HOME/.p10k-tiny-aws.zsh" ]] && source "$USER_HOME/.p10k-tiny-aws.zsh"
 
-# Must be last — remove pyenv virtualenv hook re-injected by plugins
+# -----------------------------------------------------------------------------
+# Final cleanup
+# -----------------------------------------------------------------------------
 export PYENV_VIRTUALENV_DISABLE_PROMPT=1
 precmd_functions=(${precmd_functions:#_pyenv_virtualenv_hook})

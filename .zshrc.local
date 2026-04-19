@@ -85,7 +85,6 @@ fi
 [[ -f ~/.config/ollama/default-model ]] && export OLLAMA_DEFAULT_MODEL="$(< ~/.config/ollama/default-model)"
 
 # Enable vi keybindings only if not already set
-[[ ${KEYMAP} != vicmd ]] && bindkey -v
 
 # MySQL autocompletion
 mysql() {
