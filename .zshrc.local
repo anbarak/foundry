@@ -943,3 +943,4 @@ metrics-full() {
   echo "═══════════════════════════════════════════════════════════════"
 }
 alias jt=just
+alias lg='lazygit'
