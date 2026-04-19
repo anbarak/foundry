@@ -1,30 +1,29 @@
 return {
+  -- Gruvbox Material — matches Ghostty's "Gruvbox Material Dark" palette exactly
+  {
+    "sainnhe/gruvbox-material",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      -- Match Ghostty: medium contrast, material palette
+      vim.g.gruvbox_material_background = "medium"        -- soft | medium | hard
+      vim.g.gruvbox_material_foreground = "material"      -- material | mix | original
+      vim.g.gruvbox_material_enable_italic = 1
+      vim.g.gruvbox_material_enable_bold = 1
+      vim.g.gruvbox_material_better_performance = 1
+      vim.g.gruvbox_material_diagnostic_virtual_text = "colored"
+      vim.g.gruvbox_material_ui_contrast = "high"
+    end,
+  },
+  -- Keep Catppuccin installed but not default, in case you want to A/B test
   {
     "catppuccin/nvim",
     name = "catppuccin",
-    priority = 1000,
-    opts = {
-      flavour = "mocha",
-      background = { light = "latte", dark = "mocha" },
-      transparent_background = false,
-      term_colors = true,
-      integrations = {
-        cmp = true,
-        gitsigns = true,
-        neotree = true,
-        treesitter = true,
-        notify = true,
-        mini = { enabled = true },
-        telescope = { enabled = true },
-        lsp_trouble = true,
-        mason = true,
-        which_key = true,
-        native_lsp = { enabled = true },
-      },
-    },
+    lazy = true,
   },
+  -- Tell LazyVim which colorscheme to apply by default
   {
     "LazyVim/LazyVim",
-    opts = { colorscheme = "catppuccin-mocha" },
+    opts = { colorscheme = "gruvbox-material" },
   },
 }

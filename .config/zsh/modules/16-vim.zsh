@@ -2,8 +2,8 @@
 # =============================================================================
 # Vim
 # =============================================================================
-alias vi='vim'
-alias v='vim'
+alias vi='nvim'
+alias v='nvim'
 alias vimdiff='vim -d'
 alias vimrc='vim ~/.vimrc'
 alias vimplug='vim ~/.vim/autoload_plugins.vim'
