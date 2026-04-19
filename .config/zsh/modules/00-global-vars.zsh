@@ -15,3 +15,9 @@ export CF_CODE="$HOME/code/cf"
 # =============================================================================
 export FOUNDRY_OS="${FOUNDRY_OS:-unknown}"           # macos, linux, wsl
 export FOUNDRY_PKG_MANAGER="${FOUNDRY_PKG_MANAGER:-unknown}"  # brew, apt, yum
+
+# =============================================================================
+# Editor
+# =============================================================================
+export EDITOR=nvim
+export VISUAL=nvim
