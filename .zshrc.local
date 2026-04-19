@@ -38,6 +38,16 @@ brew() {
   fi
 }
 
+# Colorize man pages (replaces OMZ colored-man-pages plugin)
+export LESS_TERMCAP_mb=$'\e[1;32m'     # begin blink
+export LESS_TERMCAP_md=$'\e[1;32m'     # begin bold
+export LESS_TERMCAP_me=$'\e[0m'        # reset bold/blink
+export LESS_TERMCAP_so=$'\e[01;33m'    # begin reverse
+export LESS_TERMCAP_se=$'\e[0m'        # reset reverse
+export LESS_TERMCAP_us=$'\e[1;4;31m'   # begin underline
+export LESS_TERMCAP_ue=$'\e[0m'        # reset underline
+export GROFF_NO_SGR=1
+
 export GPG_TTY=$(tty)
 
 # Static fzf init (replaces OMZ fzf plugin — saves ~350ms)
@@ -173,6 +183,8 @@ _direnv_hook_fast() {
     eval "$(direnv export zsh 2>/dev/null)"
   fi
 }
+_direnv_prev_dir="$PWD"
+
 precmd_functions=(${precmd_functions:#_direnv_hook})
 precmd_functions+=(_direnv_hook_fast)
 
@@ -700,7 +712,7 @@ metrics-p10k() {
   echo ""
 
   echo "Gitstatus daemon status:"
-  if (( $+functions[gitstatus_query] )); then
+  if (( $+functions[gitstatus_query_p9k_] )); then
     echo "  ✅ gitstatusd is loaded (async git status)"
   else
     echo "  ⚠️  gitstatusd not detected — git segments may be slower"

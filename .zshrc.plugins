@@ -11,8 +11,6 @@
 export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 
 plugins=(
-  colored-man-pages        # tiny, just sets env vars
-  history                  # just aliases, near-zero cost
   zsh-autosuggestions      # needed for typing UX
   zsh-syntax-highlighting  # needed for typing UX (must load LAST of these)
 )

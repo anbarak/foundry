@@ -88,15 +88,9 @@ let &t_SI.="\e[5 q"
 let &t_SR.="\e[4 q"
 let &t_EI.="\e[1 q"
 
-" Add fzf to the runtime path
-set rtp+=/usr/local/opt/fzf
-
 " FZF-powered Ag/Rg with preview
 command! -bang -nargs=* Ag call fzf#vim#ag_interactive(<q-args>, fzf#vim#with_preview('right:50%:hidden', 'alt-h'))
 command! -bang -nargs=* Rg call fzf#vim#rg_interactive(<q-args>, fzf#vim#with_preview('right:50%:hidden', 'alt-h'))
-
-" Show tabs/trailing chars (pairs well with gruvbox)
-set list listchars=tab:»\ ,trail:·,extends:…,precedes:…
 
 " Colorscheme
 autocmd vimenter * ++nested colorscheme gruvbox
@@ -132,3 +126,19 @@ highlight def link CommentSpell SpellBad
 " ─── Plugins ────────────────────────────────────────────────────
 source ~/.vim/autoload_plugins.vim
 source ~/.vim/plugin_config.vim
+
+" ─── Gitgutter performance tuning ───────────────────────────────
+" Don't auto-update on every CursorHold; manual + save only
+let g:gitgutter_eager = 0
+let g:gitgutter_realtime = 0
+
+" ─── ALE performance tuning ─────────────────────────────────────
+let g:ale_lint_on_text_changed = 'normal'  " don't lint while typing in insert
+let g:ale_lint_on_insert_leave = 1
+let g:ale_lint_delay = 500                 " debounce 500ms
+let g:ale_lint_on_enter = 0                " don't lint on buffer open
+let g:ale_lint_on_save = 1
+
+" ─── Coc performance tuning ─────────────────────────────────────
+let g:coc_start_at_startup = 1
+set signcolumn=yes                         " prevent gutter jump when diagnostics arrive
