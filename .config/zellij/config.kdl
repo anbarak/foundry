@@ -27,7 +27,7 @@ ui {
 // ─── Session management ─────────────────────────────────────────────────────
 session_serialization true
 serialize_pane_viewport true
-scrollback_lines_to_serialize 10000
+scrollback_lines_to_serialize 50000
 
 // ─── Plugin defaults ────────────────────────────────────────────────────────
 // (Zellij ships with tab-bar, status-bar, strider, compact-bar built in)
@@ -36,3 +36,4 @@ scrollback_lines_to_serialize 10000
 // Disable the welcome screen on launch
 show_startup_tips false
 show_release_notes false
+
