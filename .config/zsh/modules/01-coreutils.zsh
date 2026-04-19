@@ -641,3 +641,7 @@ EOF
     fi
   fi
 }
+
+# Tee to tty AND clipboard — for pasting command output cleanly into Claude, Slack, etc.
+# Usage: yadm push 2>&1 | tc
+alias tc='tee /dev/tty | pbcopy'
