@@ -117,4 +117,3 @@ keybind = cmd+0=reset_font_size
 
 # Inspector (debug color/escape sequences)
 keybind = cmd+alt+i=inspector:toggle
-

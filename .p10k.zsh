@@ -62,9 +62,9 @@
     background_jobs         # presence of background jobs
     direnv                  # direnv status (https://direnv.net/)
     # asdf                    # asdf version manager (https://github.com/asdf-vm/asdf)
-    virtualenv              # python virtual environment (https://docs.python.org/3/library/venv.html)
+    # virtualenv              # python virtual environment (https://docs.python.org/3/library/venv.html)
     # anaconda                # conda environment (https://conda.io/)
-    pyenv                   # python environment (https://github.com/pyenv/pyenv)
+    # pyenv                   # python environment (https://github.com/pyenv/pyenv)
     # goenv                   # go environment (https://github.com/syndbg/goenv)
     # nodenv                  # node.js version from nodenv (https://github.com/nodenv/nodenv)
     # nvm                     # node.js version from nvm (https://github.com/nvm-sh/nvm)
@@ -112,7 +112,7 @@
     # disk_usage            # disk usage
     # ram                   # free RAM
     # swap                  # used swap
-    # todo                    # todo items (https://github.com/todotxt/todo.txt-cli)
+    todo                    # todo items (https://github.com/todotxt/todo.txt-cli)
     # timewarrior             # timewarrior tracking status (https://timewarrior.net/)
     # taskwarrior             # taskwarrior task count (https://taskwarrior.org/)
     # per_directory_history   # Oh My Zsh per-directory-history local/global indicator
@@ -1262,14 +1262,17 @@
   # you'll see this value in your prompt. The second element of each pair in
   # POWERLEVEL9K_KUBECONTEXT_CLASSES defines the context class. Patterns are tried in order. The
   # first match wins.
-  #
-  # For example, given these settings:
-  #
-  #   typeset -g POWERLEVEL9K_KUBECONTEXT_CLASSES=(
-  #     '*prod*'  PROD
-  #     '*test*'  TEST
-  #     '*'       DEFAULT)
-  #
+
+  typeset -g POWERLEVEL9K_KUBECONTEXT_CLASSES=(
+    '*prod*'    PROD
+    '*hipaa*'   PROD
+    '*staging*' STAGING
+    '*'         DEFAULT
+  )
+  typeset -g POWERLEVEL9K_KUBECONTEXT_PROD_FOREGROUND=196
+  typeset -g POWERLEVEL9K_KUBECONTEXT_STAGING_FOREGROUND=214
+  typeset -g POWERLEVEL9K_KUBECONTEXT_DEFAULT_FOREGROUND=134
+
   # If your current kubernetes context is "deathray-testing/default", its class is TEST
   # because "deathray-testing/default" doesn't match the pattern '*prod*' but does match '*test*'.
   #
@@ -1278,12 +1281,6 @@
   #   typeset -g POWERLEVEL9K_KUBECONTEXT_TEST_FOREGROUND=28
   #   typeset -g POWERLEVEL9K_KUBECONTEXT_TEST_VISUAL_IDENTIFIER_EXPANSION='⭐'
   #   typeset -g POWERLEVEL9K_KUBECONTEXT_TEST_CONTENT_EXPANSION='> ${P9K_CONTENT} <'
-  typeset -g POWERLEVEL9K_KUBECONTEXT_CLASSES=(
-      # '*prod*'  PROD    # These values are examples that are unlikely
-      # '*test*'  TEST    # to match your needs. Customize them as needed.
-      '*'       DEFAULT)
-  typeset -g POWERLEVEL9K_KUBECONTEXT_DEFAULT_FOREGROUND=134
-  typeset -g POWERLEVEL9K_KUBECONTEXT_DEFAULT_VISUAL_IDENTIFIER_EXPANSION=
 
   # Use POWERLEVEL9K_KUBECONTEXT_CONTENT_EXPANSION to specify the content displayed by kubecontext
   # segment. Parameter expansions are very flexible and fast, too. See reference:
@@ -1339,14 +1336,20 @@
   # you'll see this value in your prompt. The second element of each pair in
   # POWERLEVEL9K_TERRAFORM_CLASSES defines the workspace class. Patterns are tried in order. The
   # first match wins.
-  #
-  # For example, given these settings:
-  #
-  #   typeset -g POWERLEVEL9K_TERRAFORM_CLASSES=(
-  #     '*prod*'  PROD
-  #     '*test*'  TEST
-  #     '*'       OTHER)
-  #
+
+  typeset -g POWERLEVEL9K_TERRAFORM_CLASSES=(
+    '*prod*'       PROD
+    '*hipaa*'      PROD
+    '*production*' PROD
+    '*staging*'    STAGING
+    '*dev*'        DEV
+    '*'            OTHER
+  )
+  typeset -g POWERLEVEL9K_TERRAFORM_PROD_FOREGROUND=196       # red
+  typeset -g POWERLEVEL9K_TERRAFORM_STAGING_FOREGROUND=214    # orange
+  typeset -g POWERLEVEL9K_TERRAFORM_DEV_FOREGROUND=38         # blue
+  typeset -g POWERLEVEL9K_TERRAFORM_OTHER_FOREGROUND=244      # grey
+
   # If your current terraform workspace is "project_test", its class is TEST because "project_test"
   # doesn't match the pattern '*prod*' but does match '*test*'.
   #
@@ -1355,12 +1358,6 @@
   #   typeset -g POWERLEVEL9K_TERRAFORM_TEST_FOREGROUND=28
   #   typeset -g POWERLEVEL9K_TERRAFORM_TEST_VISUAL_IDENTIFIER_EXPANSION='⭐'
   #   typeset -g POWERLEVEL9K_TERRAFORM_TEST_CONTENT_EXPANSION='> ${P9K_CONTENT} <'
-  typeset -g POWERLEVEL9K_TERRAFORM_CLASSES=(
-      # '*prod*'  PROD    # These values are examples that are unlikely
-      # '*test*'  TEST    # to match your needs. Customize them as needed.
-      '*'         OTHER)
-  typeset -g POWERLEVEL9K_TERRAFORM_OTHER_FOREGROUND=38
-  # typeset -g POWERLEVEL9K_TERRAFORM_OTHER_VISUAL_IDENTIFIER_EXPANSION='⭐'
 
   #############[ terraform_version: terraform version (https://www.terraform.io) ]##############
   # Terraform version color.
@@ -1380,14 +1377,17 @@
   # you'll see this value in your prompt. The second element of each pair in
   # POWERLEVEL9K_AWS_CLASSES defines the profile class. Patterns are tried in order. The
   # first match wins.
-  #
-  # For example, given these settings:
-  #
-  #   typeset -g POWERLEVEL9K_AWS_CLASSES=(
-  #     '*prod*'  PROD
-  #     '*test*'  TEST
-  #     '*'       DEFAULT)
-  #
+
+  typeset -g POWERLEVEL9K_AWS_CLASSES=(
+    '*hipaa-prod*' PROD
+    '*prod*'       PROD
+    '*security*'   SECURITY
+    '*'            DEFAULT
+  )
+  typeset -g POWERLEVEL9K_AWS_PROD_FOREGROUND=196       # red
+  typeset -g POWERLEVEL9K_AWS_SECURITY_FOREGROUND=208   # orange
+  typeset -g POWERLEVEL9K_AWS_DEFAULT_FOREGROUND=208
+
   # If your current AWS profile is "company_test", its class is TEST
   # because "company_test" doesn't match the pattern '*prod*' but does match '*test*'.
   #
@@ -1396,12 +1396,6 @@
   #   typeset -g POWERLEVEL9K_AWS_TEST_FOREGROUND=28
   #   typeset -g POWERLEVEL9K_AWS_TEST_VISUAL_IDENTIFIER_EXPANSION='⭐'
   #   typeset -g POWERLEVEL9K_AWS_TEST_CONTENT_EXPANSION='> ${P9K_CONTENT} <'
-  typeset -g POWERLEVEL9K_AWS_CLASSES=(
-      # '*prod*'  PROD    # These values are examples that are unlikely
-      # '*test*'  TEST    # to match your needs. Customize them as needed.
-      '*'       DEFAULT)
-  typeset -g POWERLEVEL9K_AWS_DEFAULT_FOREGROUND=208
-  # typeset -g POWERLEVEL9K_AWS_DEFAULT_VISUAL_IDENTIFIER_EXPANSION='⭐'
 
   # AWS segment format. The following parameters are available within the expansion.
   #
