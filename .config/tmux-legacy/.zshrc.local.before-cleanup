@@ -110,12 +110,27 @@ export LSCOLORS=GxFxCxDxBxegedabagaced
 export FOUNDRY_HOME="$HOME/.foundry"
 [[ -f "$FOUNDRY_HOME/.foundryrc" ]] && source "$FOUNDRY_HOME/.foundryrc"
 
+# Function to check for Oh My Zsh updates and prompt user
+check_omz_update() {
+    echo "Checking for Oh My Zsh updates..."
+    if omz update | grep -q 'updated successfully'; then
+        echo "Oh My Zsh updates are available. Would you like to update? (y/n)"
+        read answer
+        if [[ $answer == 'y' ]]; then
+            omz update
+        else
+            echo "Update skipped."
+        fi
+    else
+        echo "Oh My Zsh is already up to date."
+    fi
+}
 
 # Set the terminal title to show the user, hostname, and current directory
 function set_terminal_title() {
   case $TERM in
     xterm*|rxvt*)
-      # Set the title
+      # Set the title without tmux info to avoid errors
       print -Pn "\e]2;%n@%m: %~\a"
       ;;
   esac
@@ -130,6 +145,8 @@ fi
 # Call the function before each prompt
 precmd_functions+=set_terminal_title
 
+# Alias to trigger update check
+alias checkupdates='check_omz_update'
 
 # Docker
 export DOCKER_DEFAULT_PLATFORM=linux/amd64
@@ -141,6 +158,11 @@ export GOROOT="/opt/homebrew/opt/golang/libexec"
 # Python
 if [[ ":$PYTHONPATH:" != *":$HOME/code/cf/my/insurance-services-utils/scripts:"* ]]; then
     export PYTHONPATH=$PYTHONPATH:"$HOME/code/cf/my/insurance-services-utils/scripts"
+fi
+
+# Source k plugin
+if [[ -f "$ZSH/custom/plugins/k/k.sh" ]]; then
+  source "$ZSH/custom/plugins/k/k.sh"
 fi
 
 load_cloud_profiles() {
@@ -163,7 +185,7 @@ precmd_functions+=(_direnv_hook_fast)
 
 # Default editors for Git, Yadm, and general shell use
 export EDITOR=nvim
-export VISUAL=nvim
+export VISUAL=vim
 
 # Prevent history dups and blanks
 setopt HIST_IGNORE_DUPS       # Don’t record duplicates
@@ -214,7 +236,7 @@ metrics() {
 #                        as your default "show me everything important" command.
 #
 #   metrics-full         Deep validation suite (~15s). Runs every diagnostic
-#                        in the suite — variance, hooks, path, p10k,
+#                        in the suite — variance, hooks, path, tmux, p10k,
 #                        plugins, aliases. Use before locking in a baseline
 #                        or when investigating an unexplained slowdown.
 #
@@ -250,6 +272,10 @@ metrics() {
 #                        and full PATH listing in order. Run after editing
 #                        any PATH-related config.
 #
+#   metrics-tmux         Measure shell startup specifically inside tmux.
+#                        Compares spawn time, in-tmux startup, and current
+#                        shell startup to detect tmux-specific overhead.
+#
 #   metrics-variance [N] Run startup measurement N times (default: 10) and
 #                        report min/max/avg/stddev. Use this to detect
 #                        whether your performance is consistent or highly
@@ -265,6 +291,11 @@ metrics() {
 #                        per-render timing, gitstatusd status, and prompt
 #                        modes. Use when prompt rendering feels slow or
 #                        before adding/removing prompt segments.
+#
+#   metrics-plugins      Show plugin loading status — which plugins load
+#                        immediately vs lazy, plus a benchmark of the cost
+#                        to source each immediate plugin. Use when adding
+#                        a new plugin to decide whether to lazy-load it.
 #
 #   metrics-export       Dump current state as JSON. Pipe to jq or append to
 #                        a file for external analysis:
@@ -302,6 +333,7 @@ metrics() {
 #
 #   Investigate specific subsystems:
 #     metrics-p10k                       # prompt rendering slow?
+#     metrics-plugins                    # plugin loading slow?
 #     metrics-aliases                    # alias conflicts or shadowing?
 #
 #   Track trends over time:
@@ -375,9 +407,11 @@ metrics() {
    metrics-hooks    time each precmd hook (typing lag debug)
    metrics-profile  full zprof workflow (startup lag debug)
    metrics-path     check PATH for duplicates and broken entries
+   metrics-tmux     measure shell startup inside tmux
    metrics-variance run startup N times to check consistency
    metrics-aliases  show alias breakdown
    metrics-p10k     show p10k segments and render timing
+   metrics-plugins  show plugin loading status and cost
    metrics-export   dump full metrics as JSON
 EOF
 }
@@ -544,6 +578,7 @@ metrics-export() {
   "path_entries": $(print -l ${(s.:.)PATH} | wc -l | tr -d ' '),
   "fpath_entries": $(print -l ${fpath} | wc -l | tr -d ' '),
   "precmd_hooks": ${#precmd_functions[@]},
+  "tmux_session": "${TMUX:+yes}",
   "term": "$TERM"
 }
 EOF
@@ -636,7 +671,7 @@ metrics-aliases() {
   echo ""
 
   echo "💡 To find where an alias is defined:"
-  echo "     grep -rn 'alias myalias=' ~/.zshrc ~/.zshrc.local ~/.zshrc.plugins"
+  echo "     grep -rn 'alias myalias=' ~/.zshrc ~/.zshrc.local ~/.zshrc.plugins ~/.oh-my-zsh"
 }
 
 # -----------------------------------------------------------------------------
@@ -688,6 +723,63 @@ metrics-p10k() {
 }
 
 # -----------------------------------------------------------------------------
+# metrics-plugins: show plugin loading status and cost
+# -----------------------------------------------------------------------------
+metrics-plugins() {
+  echo "═══ Plugin Loading Status ═══"
+  echo ""
+
+  echo "Immediate plugins (loaded at startup):"
+  for p in $plugins; do
+    local plugin_file=""
+    if [[ -f "$ZSH/custom/plugins/$p/$p.plugin.zsh" ]]; then
+      plugin_file="$ZSH/custom/plugins/$p/$p.plugin.zsh"
+    elif [[ -f "$ZSH/plugins/$p/$p.plugin.zsh" ]]; then
+      plugin_file="$ZSH/plugins/$p/$p.plugin.zsh"
+    fi
+
+    if [[ -n "$plugin_file" ]]; then
+      local size=$(wc -l < "$plugin_file" | tr -d ' ')
+      printf "  %-30s %s lines\n" "$p" "$size"
+    else
+      printf "  %-30s ❓ not found\n" "$p"
+    fi
+  done
+  echo ""
+
+  echo "Lazy-loaded commands (loaded on first use):"
+  echo "  aws, gcloud, docker, helm, terraform, kubectl, k, kubectx,"
+  echo "  pip, python, gh, tmux"
+  echo ""
+
+  echo "Plugin source-time benchmark:"
+  echo "  (times to source each immediate plugin file fresh)"
+  for p in $plugins; do
+    local plugin_file=""
+    if [[ -f "$ZSH/custom/plugins/$p/$p.plugin.zsh" ]]; then
+      plugin_file="$ZSH/custom/plugins/$p/$p.plugin.zsh"
+    elif [[ -f "$ZSH/plugins/$p/$p.plugin.zsh" ]]; then
+      plugin_file="$ZSH/plugins/$p/$p.plugin.zsh"
+    fi
+
+    if [[ -n "$plugin_file" ]]; then
+      local start=$EPOCHREALTIME
+      zsh -c "source $plugin_file" </dev/null >/dev/null 2>&1
+      local end=$EPOCHREALTIME
+      local t=$(awk -v s="$start" -v e="$end" 'BEGIN { printf "%.3f", e - s }')
+      printf "  %-30s %ss\n" "$p" "$t"
+    fi
+  done
+  echo ""
+
+  echo "💡 To check what an immediate plugin actually adds:"
+  echo "     before=\$(print -l \${(ok)functions} | wc -l)"
+  echo "     source <plugin-file>"
+  echo "     after=\$(print -l \${(ok)functions} | wc -l)"
+  echo "     echo \"Added: \$((after - before)) functions\""
+}
+
+# -----------------------------------------------------------------------------
 # metrics-path: check PATH health (duplicates, count, broken entries)
 # -----------------------------------------------------------------------------
 metrics-path() {
@@ -723,6 +815,44 @@ metrics-path() {
 }
 
 # -----------------------------------------------------------------------------
+# metrics-tmux: measure tmux spawn cost and confirm in-tmux behavior
+# -----------------------------------------------------------------------------
+metrics-tmux() {
+  if ! command -v tmux >/dev/null 2>&1; then
+    echo "❌ tmux not installed"
+    return 1
+  fi
+  echo "═══ Tmux Startup Performance ═══"
+  echo ""
+
+  echo "1. Tmux session spawn time:"
+  local spawn_start=$EPOCHREALTIME
+  tmux new-session -d -s _metrics_perftest "exit" 2>/dev/null
+  tmux kill-session -t _metrics_perftest 2>/dev/null
+  local spawn_end=$EPOCHREALTIME
+  local spawn_time=$(awk -v s="$spawn_start" -v e="$spawn_end" 'BEGIN { printf "%.3f", e - s }')
+  echo "   ${spawn_time}s"
+  echo ""
+
+  echo "2. Are you currently inside tmux?"
+  if [[ -n "$TMUX" ]]; then
+    echo "   ✅ Yes — your current shell startup measurements ARE tmux measurements."
+    echo "   Run 'metrics-variance' from this shell for in-tmux performance numbers."
+  else
+    echo "   ❌ No — you're outside tmux. Start a tmux session and run metrics-variance"
+    echo "   from inside it to measure in-tmux performance."
+  fi
+  echo ""
+
+  echo "3. Current shell startup (whether in tmux or not):"
+  _metrics_startup_time
+  echo "   ${REPLY}s"
+  echo ""
+
+  echo "💡 If your in-tmux measurements match your out-of-tmux measurements,"
+  echo "   tmux is adding zero overhead."
+}
+
 # -----------------------------------------------------------------------------
 # metrics-variance: run startup measurement multiple times to spot inconsistency
 # -----------------------------------------------------------------------------
@@ -759,6 +889,8 @@ metrics-variance() {
 
   if (( spread_pct > 30 )); then
     echo "⚠️  High variance (>30%) — your startup time is inconsistent."
+    echo "   Common causes: cold caches, background processes, tmux env state."
+    echo "   Run 'metrics-tmux' to check if tmux is the variable."
   else
     echo "✅ Variance is acceptable (<30%)."
   fi
@@ -793,7 +925,11 @@ metrics-full() {
   echo ""
   metrics-path
   echo ""
+  metrics-tmux
+  echo ""
   metrics-p10k
+  echo ""
+  metrics-plugins
   echo ""
   metrics-aliases
   echo ""
