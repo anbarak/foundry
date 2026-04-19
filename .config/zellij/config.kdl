@@ -15,7 +15,7 @@ default_cwd "/Users/haarabi"
 pane_frames true
 
 // ─── Visuals ────────────────────────────────────────────────────────────────
-theme "catppuccin-mocha"
+theme "gruvbox-dark"
 simplified_ui false
 ui {
     pane_frames {
