@@ -59,7 +59,8 @@ quick-terminal-screen = mouse
 quick-terminal-animation-duration = 0.15
 
 # ── Shell integration ────────────────────────────────────────────────────────
-shell-integration = none
+shell-integration = detect
+shell-integration-features = no-cursor
 
 # ── Safety ───────────────────────────────────────────────────────────────────
 confirm-close-surface = always
