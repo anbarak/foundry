@@ -807,3 +807,4 @@ metrics-full() {
 }
 alias jt=just
 alias lg='lazygit'
+
