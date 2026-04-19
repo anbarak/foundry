@@ -1,0 +1,11 @@
+ci-1313-cloudformation-deployment-standardization|/Users/haarabi
+ci-1478-insurance-security-remediation-q1-2026|/Users/haarabi/code/cf/my/bullpen
+ci-1526-insurance-database-version-upgrade-2026|/Users/haarabi/code/cf/my/bullpen
+ci-1558-insurance-eks-cluster-upgrade-1_35|/Users/haarabi/code/cf/datalot/eks-deploy
+ci-1558-insurance-eks-cluster-upgrade-1_35|/Users/haarabi/code/cf/datalot/infra
+ci-1696-migrate-insurance-infra-to-iac|/Users/haarabi/code/cf/datalot/infra
+ci-1712-cicd-n-deployment-modernization-insurance|/Users/haarabi/code/cf/datalot/app/api-git
+ci-958-implement-gitops-argocd-eks-deployment-model|/Users/haarabi
+ci-960-insurance-eks-observability-platform|/Users/haarabi
+ci-960-insurance-eks-observability-platform|/Users/haarabi/code/cf/datalot/eks-ops
+my|/Users/haarabi

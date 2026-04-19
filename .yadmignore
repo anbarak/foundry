@@ -89,3 +89,6 @@ code/
 # WSL-Specific (Windows filesystem mounts)
 # ================================
 /mnt/**
+
+# Zellij reference dump (regeneratable via 'zellij setup --dump-config')
+.config/zellij/config.kdl.default-reference
