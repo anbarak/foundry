@@ -118,7 +118,6 @@ brew "terraform-docs"
 brew "tf-summarize"
 brew "tflint"
 brew "thefuck"
-brew "tmux"
 brew "tokei"
 brew "trash", link: true
 brew "tre-command"
