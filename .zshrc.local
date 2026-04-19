@@ -171,10 +171,6 @@ load_cloud_profiles() {
 }
 alias load-clouds='load_cloud_profiles'
 
-# Plugin management (using plugin array)
-if [[ -f "$HOME/.zshrc.plugins" ]]; then
-  source "$HOME/.zshrc.plugins"
-fi
 
 # Optimized direnv hook - only runs when directory changes
 _direnv_hook_fast() {
