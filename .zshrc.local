@@ -163,7 +163,6 @@ precmd_functions+=(_direnv_hook_fast)
 
 # Default editors for Git, Yadm, and general shell use
 export EDITOR=nvim
-export VISUAL=nvim
 
 # Prevent history dups and blanks
 setopt HIST_IGNORE_DUPS       # Don’t record duplicates
