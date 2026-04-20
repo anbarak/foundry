@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+##!/usr/bin/env bash
+
 set -euo pipefail
 umask 077
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${PATH:-}"
@@ -15,7 +16,7 @@ mkdir -p "$(dirname "$LOG_FILE")"
 if [[ "$IS_INTERACTIVE" == true ]]; then
   exec > >(tee -a "$LOG_FILE") 2>&1
 else
-  exec >> "$LOG_FILE" 2>&1
+  exec >>"$LOG_FILE" 2>&1
 fi
 
 echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') Starting secrets backup..."
@@ -24,9 +25,9 @@ echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') Starting secrets backup..."
 LOG_MAX_MB=5
 if [[ -f "$LOG_FILE" ]]; then
   size=$(du -m "$LOG_FILE" | cut -f1)
-  if (( size > LOG_MAX_MB )); then
+  if ((size > LOG_MAX_MB)); then
     echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') 🧹 Truncating $LOG_FILE (was ${size}MB)"
-    tail -n 200 "$LOG_FILE" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "$LOG_FILE"
+    tail -n 200 "$LOG_FILE" >"${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "$LOG_FILE"
   fi
 fi
 
@@ -46,7 +47,11 @@ if ! mkdir "$LOCK_DIR" 2>/dev/null; then
   echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') Another backup run is in progress. Exiting."
   exit 0
 fi
-trap 'rmdir "$LOCK_DIR" 2>/dev/null || true' EXIT
+cleanup() {
+  [[ -n "${backup_file:-}" && -f "$backup_file" ]] && rm -f "$backup_file"
+  rmdir "$LOCK_DIR" 2>/dev/null || true
+}
+trap cleanup EXIT
 
 # Wrap the backup process to track success/failure
 run_backup() {
@@ -89,46 +94,46 @@ run_backup() {
 
   if [[ -z "$jenkins_note_id" ]]; then
     echo "➕ Creating new Bitwarden secure note..."
-    bw get template item | \
+    bw get template item |
       jq --arg name "Hosts – Jenkins Centerfield" \
-         --arg notes "$jenkins_block" \
-         '.
+        --arg notes "$jenkins_block" \
+        '.
           | .type = 2
           | .secureNote.type = 0
           | .name = $name
-          | .notes = $notes' | \
-      bw encode | \
+          | .notes = $notes' |
+      bw encode |
       bw create item --session "$BW_SESSION" >/dev/null
   else
     echo "♻️  Updating existing Bitwarden secure note..."
-    bw get item "$jenkins_note_id" --session "$BW_SESSION" | \
-      jq --arg notes "$jenkins_block" '.notes = $notes' | \
-      bw encode | \
+    bw get item "$jenkins_note_id" --session "$BW_SESSION" |
+      jq --arg notes "$jenkins_block" '.notes = $notes' |
+      bw encode |
       bw edit item "$jenkins_note_id" --session "$BW_SESSION" >/dev/null
   fi
 
   # Define secrets to archive
   timestamp=$(date +"%Y%m%d-%H%M%S")
-  backup_file="$HOME/sensitive_config_files-$timestamp.tar.gz"
+  backup_file="$HOME/.cache/foundry/sensitive_config_files-$timestamp.tar.gz"
   cd "$HOME"
 
   tar --exclude='.kube/cache' \
-      --exclude='.aws/sso/cache' \
-      --exclude='.aws/cli/cache' \
-      --exclude='.gnupg/S.*' \
-      --exclude='.gnupg/.gpg-connect_history' \
-      --exclude='.gnupg/random_seed' \
-      --exclude='.gnupg/private-keys-v1.d' \
-      --exclude='.DS_Store' \
-      --exclude='.ssh/known_hosts' \
-      --exclude='*.lock' \
-      --exclude='*.tmp' \
-      --exclude='*.bak' \
-      --exclude='*.[oO][lL][dD]*' \
-      -czf "$backup_file" \
-      .ssh .aws .saml2aws .kube .gnupg .vpn-configs \
-      .gitconfig .gitconfig-centerfield \
-      .mylogin.cnf
+    --exclude='.aws/sso/cache' \
+    --exclude='.aws/cli/cache' \
+    --exclude='.gnupg/S.*' \
+    --exclude='.gnupg/.gpg-connect_history' \
+    --exclude='.gnupg/random_seed' \
+    --exclude='.gnupg/private-keys-v1.d' \
+    --exclude='.DS_Store' \
+    --exclude='.ssh/known_hosts' \
+    --exclude='*.lock' \
+    --exclude='*.tmp' \
+    --exclude='*.bak' \
+    --exclude='*.[oO][lL][dD]*' \
+    -czf "$backup_file" \
+    .ssh .aws .saml2aws .kube .gnupg .vpn-configs \
+    .gitconfig .gitconfig-centerfield \
+    .mylogin.cnf
 
   echo "📤 Uploading to Bitwarden..."
   item_id=$(bw list items --search "Sensitive Config Files Backup" --session "$BW_SESSION" | jq -r '.[0].id')
@@ -136,14 +141,14 @@ run_backup() {
   # Create item if missing
   if [[ -z "$item_id" || "$item_id" == "null" ]]; then
     folder_id=$(bw list folders --session "$BW_SESSION" | jq -r '.[] | select(.name=="Personal-work") | .id')
-    item_id=$(bw get template item | \
+    item_id=$(bw get template item |
       jq --arg name "Sensitive Config Files Backup" \
-         --arg notes "Backup created on $(hostname) at $(date +'%Y-%m-%d %H:%M:%S %Z')" \
-         --arg folder_id "$folder_id" \
-         --arg upload_date "$(date +'%Y-%m-%d %H:%M:%S %Z')" \
-         --arg archive_size "$(du -h "$backup_file" | cut -f1)" \
-         --arg device "$(hostname)" \
-      '.
+        --arg notes "Backup created on $(hostname) at $(date +'%Y-%m-%d %H:%M:%S %Z')" \
+        --arg folder_id "$folder_id" \
+        --arg upload_date "$(date +'%Y-%m-%d %H:%M:%S %Z')" \
+        --arg archive_size "$(du -h "$backup_file" | cut -f1)" \
+        --arg device "$(hostname)" \
+        '.
         | .type = 2
         | .secureNote.type = 0
         | .name = $name
@@ -153,15 +158,15 @@ run_backup() {
             {name: "last-upload-date", value: $upload_date, type: 0},
             {name: "archive-size", value: $archive_size, type: 0},
             {name: "device", value: $device, type: 0}
-          ]' | \
-      bw encode | \
+          ]' |
+      bw encode |
       bw create item --session "$BW_SESSION" | jq -r '.id')
   fi
 
   # Re-upload, keeping only the 3 most recent attachments
   echo "🧼 Checking for previous attachments to remove..."
-  bw get item "$item_id" --session "$BW_SESSION" | \
-    jq -r '.attachments | sort_by(.fileName) | reverse | .[3:][]?.id' | \
+  bw get item "$item_id" --session "$BW_SESSION" |
+    jq -r '.attachments | sort_by(.fileName) | reverse | .[3:][]?.id' |
     while read -r old_id; do
       echo "🗑️  Removing old attachment ID: $old_id"
       bw delete attachment "$old_id" --itemid "$item_id" --session "$BW_SESSION"
@@ -178,7 +183,6 @@ run_backup() {
 
   # Clean up local archive
   echo "🧹 Cleaning up local backup..."
-  rm -f "$HOME/jenkins-hosts.block"
   rm -f "$backup_file"
 }
 
@@ -192,8 +196,8 @@ if run_backup; then
   # 📝 Record last successful run
   LABEL="$(basename "$0" .sh)"
   mkdir -p "$HOME/.cache/foundry"
-  date +'%Y-%m-%d %H:%M:%S' > "$HOME/.cache/foundry/last-success-${LABEL}.txt"
-  : > "$STAMP_WEEK"
+  date +'%Y-%m-%d %H:%M:%S' >"$HOME/.cache/foundry/last-success-${LABEL}.txt"
+  : >"$STAMP_WEEK"
 
   exit 0
 else

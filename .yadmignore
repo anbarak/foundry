@@ -106,3 +106,6 @@ code/
 
 # Generic cache directory (regenerable, contains transient state)
 .cache/
+
+# Local log files (machine-local, regenerable)
+logs/
