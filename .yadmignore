@@ -93,10 +93,6 @@ code/
 # Zellij reference dump (regeneratable via 'zellij setup --dump-config')
 .config/zellij/config.kdl.default-reference
 
-# todo-txt data files (personal tasks, not dotfiles)
-.config/todo/todo.txt
-.config/todo/done.txt
-.config/todo/report.txt
 
 # gcloud: entire state directory (credentials, tokens, config caches)
 .config/gcloud/
