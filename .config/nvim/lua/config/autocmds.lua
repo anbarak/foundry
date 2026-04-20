@@ -36,3 +36,35 @@ vim.api.nvim_create_autocmd("FileChangedShellPost", {
   end,
   desc = "Notify on external file reload",
 })
+
+-- Per-filetype colorcolumn overrides
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "python" },
+  callback = function()
+    vim.opt_local.colorcolumn = "88"
+  end, -- black default
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "terraform", "hcl", "go" },
+  callback = function()
+    vim.opt_local.colorcolumn = "120"
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "markdown", "text", "gitcommit", "json", "jsonc" },
+  callback = function()
+    vim.opt_local.colorcolumn = ""
+  end, -- disable
+})
+
+-- ColorColumn: subtle tint that survives colorscheme reloads
+vim.api.nvim_create_autocmd("ColorScheme", {
+  pattern = "*",
+  callback = function()
+    vim.api.nvim_set_hl(0, "ColorColumn", { bg = "#504945" }) -- gruvbox-material bg3
+  end,
+})
+-- Apply immediately for the current session too
+vim.api.nvim_set_hl(0, "ColorColumn", { bg = "#504945" })

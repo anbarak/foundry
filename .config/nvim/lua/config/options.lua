@@ -33,3 +33,6 @@ vim.paste = function(lines, _)
   vim.api.nvim_put(lines, "c", true, true)
   return true
 end
+
+-- Soft line-length guide
+vim.opt.colorcolumn = "100"
