@@ -100,3 +100,9 @@ code/
 
 # gcloud: entire state directory (credentials, tokens, config caches)
 .config/gcloud/
+
+# AWS credentials and config (sensitive)
+.aws/
+
+# Generic cache directory (regenerable, contains transient state)
+.cache/
