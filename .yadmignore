@@ -109,3 +109,101 @@ code/
 
 # Local log files (machine-local, regenerable)
 logs/
+
+# Neovim runtime data (plugins, lazy, mason, luac cache)
+.local/share/nvim/
+.local/state/nvim/
+
+# tldr cache
+.tldrc/
+
+# Go module cache
+go/pkg/
+
+# macOS app containers and sync data (OneDrive, etc.)
+Library/
+
+# Language version managers and package installs
+.pyenv/
+.gem/
+.npm/
+
+# ~/.local/share and ~/.local/state are all machine-local runtime data
+.local/share/
+.local/state/
+
+# Container / VM state
+.colima/
+
+# AI / ML model blobs
+.ollama/
+
+# Chrome/Brave/etc extension storage
+.local/share/brave-extensions/
+
+# Backups (local, regenerable)
+backup/
+
+# Claude Code state
+.claude/
+.claude.json
+.claude.json.backup
+.claude-worktrees/
+
+# Go-installed binaries
+go/bin/
+
+# macOS Applications shortcuts
+Applications/
+
+# tmux session logs
+tmux-client-*.log
+
+# Python tool binaries (pipx, pip install --user)
+.local/bin/
+.local/pipx/
+
+# Legacy zsh plugin managers (we use zinit now)
+.oh-my-zsh/
+.zsh/plugins/
+.zsh/completions/
+
+# Legacy terminal tools
+.skim/
+.tmux-powerline/
+
+# macOS system files
+.CFUserTextEncoding
+.cups/
+
+# Cloud sync folders
+/Google Drive
+/OneDrive - Centerfield Media LLC
+
+# Third-party app state (may contain tokens/credentials)
+.keeper/
+.config/argocd/
+.config/gh/
+
+# Terraform release-check cache
+.terraform.d/
+
+# Defaults marker
+.config/.defaults-set
+
+# Backup/temp files (*.bak covers accidental editor backups)
+*.bak
+.zsh_history.backup-*
+.!*!.zsh_history
+
+# Stray debug/test files
+.no_p10k_test.zsh
+.p10k.debug.zsh
+
+# Legacy version control leftovers
+.gitflow_export
+.hgignore_global
+.stCommitMsg
+
+# Miscellaneous stray files
+.wakeup
