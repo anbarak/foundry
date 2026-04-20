@@ -58,7 +58,7 @@
   # last prompt line gets hidden if it would overlap with left prompt.
   typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
     status                  # exit code of the last command
-    aws_tiny                # tiny clean AWS badge
+    aws                     # AWS profile with prod coloring
     background_jobs         # presence of background jobs
     direnv                  # direnv status (https://direnv.net/)
     # asdf                    # asdf version manager (https://github.com/asdf-vm/asdf)
@@ -1725,9 +1725,6 @@ typeset -g POWERLEVEL9K_CONFIG_FILE=${${(%):-%x}:a}
 (( ${#p10k_config_opts} )) && setopt ${p10k_config_opts[@]}
 'builtin' 'unset' 'p10k_config_opts'
 
-# Tell p10k about our tiny AWS segment
-typeset -g POWERLEVEL9K_AWS_TINY_FOREGROUND=208
-typeset -g POWERLEVEL9K_AWS_TINY_CONTENT_EXPANSION='${P9K_AWS_PROFILE//\%/%%}'
 
 # Disable cpu and memory on Powerlevel10k
 #POWERLEVEL9K_CPU_LOAD_SHOW=false
