@@ -97,3 +97,6 @@ code/
 .config/todo/todo.txt
 .config/todo/done.txt
 .config/todo/report.txt
+
+# gcloud: entire state directory (credentials, tokens, config caches)
+.config/gcloud/
