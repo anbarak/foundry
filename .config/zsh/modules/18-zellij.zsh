@@ -14,6 +14,7 @@ alias zjl='zellij list-sessions'                # List all sessions — like tmu
 alias zjd='zellij delete-all-sessions --yes'    # Delete all EXITED sessions (cleanup)
 alias zjr='zellij action reload-layout && echo "Zellij layout reloaded ✅"'  # Reload layout — like tmux `tmr`
 
+
 # Convenience: jump into a resurrection-capable session named after current dir
 # (like tmux-start's smart behavior — create/attach based on pwd)
 zjw() {
