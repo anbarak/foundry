@@ -207,3 +207,6 @@ tmux-client-*.log
 
 # Miscellaneous stray files
 .wakeup
+
+# Work investigation scratch (command outputs, terraform plans, kubectl dumps)
+work-scratch/
