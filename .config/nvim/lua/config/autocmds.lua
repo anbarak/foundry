@@ -68,3 +68,11 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 })
 -- Apply immediately for the current session too
 vim.api.nvim_set_hl(0, "ColorColumn", { bg = "#504945" })
+
+-- Disable format-on-save for shell scripts
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "sh", "bash" },
+  callback = function()
+    vim.b.autoformat = false
+  end,
+})
