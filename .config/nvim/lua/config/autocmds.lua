@@ -27,16 +27,6 @@ vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHo
   desc = "Reload files changed externally (Claude Code, git pull, etc.)",
 })
 
--- Notify when a file was reloaded automatically
-vim.api.nvim_create_autocmd("FileChangedShellPost", {
-  group = vim.api.nvim_create_augroup("auto_reload_notify", { clear = true }),
-  pattern = "*",
-  callback = function()
-    vim.notify("File changed on disk — buffer reloaded", vim.log.levels.INFO)
-  end,
-  desc = "Notify on external file reload",
-})
-
 -- Per-filetype colorcolumn overrides
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "python" },
@@ -66,6 +56,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     vim.api.nvim_set_hl(0, "ColorColumn", { bg = "#504945" }) -- gruvbox-material bg3
   end,
 })
+
 -- Apply immediately for the current session too
 vim.api.nvim_set_hl(0, "ColorColumn", { bg = "#504945" })
 
