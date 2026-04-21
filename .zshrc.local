@@ -169,6 +169,7 @@ setopt HIST_IGNORE_DUPS       # Don’t record duplicates
 setopt HIST_IGNORE_ALL_DUPS   # Remove all previous dupes of a new command
 setopt HIST_FIND_NO_DUPS      # Skip dupes in history search
 setopt HIST_REDUCE_BLANKS     # Remove extra spaces between words
+setopt INTERACTIVE_COMMENTS   # Allow # comments at interactive prompt
 
 # Mmanual refresh
 alias aws-refresh='refresh_aws_sso'
