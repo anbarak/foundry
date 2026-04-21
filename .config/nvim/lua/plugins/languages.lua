@@ -40,7 +40,17 @@ return {
               keyOrdering = false,
               schemaStore = { enable = true, url = "https://www.schemastore.org/api/json/catalog.json" },
               schemas = {
-                kubernetes = { "*.yaml", "*.yml" },
+                kubernetes = {
+                  "*k8s*.yaml",
+                  "*k8s*.yml",
+                  "*kubernetes*.yaml",
+                  "*kubernetes*.yml",
+                  "manifests/**/*.yaml",
+                  "manifests/**/*.yml",
+                  "kustomize/**/*.yaml",
+                  "kustomize/**/*.yml",
+                  -- ArgoCD, Helm values, and workflows should NOT match this
+                },
                 ["https://json.schemastore.org/github-workflow.json"] = ".github/workflows/*",
                 ["https://json.schemastore.org/github-action.json"] = ".github/actions/*/action.{yml,yaml}",
                 ["https://raw.githubusercontent.com/argoproj/argo-cd/master/assets/schemas/application-v1.json"] = "*argocd*.{yml,yaml}",
@@ -60,7 +70,7 @@ return {
     "hashivim/vim-terraform",
     ft = { "terraform", "hcl", "tf" },
     init = function()
-      vim.g.terraform_fmt_on_save = 1
+      vim.g.terraform_fmt_on_save = 0 -- let terraform-ls handle it via LSP
       vim.g.terraform_align = 1
     end,
   },
@@ -70,11 +80,20 @@ return {
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
       vim.list_extend(opts.ensure_installed, {
-        "bash", "dockerfile", "go", "gomod", "gosum",
-        "hcl", "terraform",
-        "json", "json5", "jsonnet",
-        "lua", "luadoc",
-        "markdown", "markdown_inline",
+        "bash",
+        "dockerfile",
+        "go",
+        "gomod",
+        "gosum",
+        "hcl",
+        "terraform",
+        "json",
+        "json5",
+        "jsonnet",
+        "lua",
+        "luadoc",
+        "markdown",
+        "markdown_inline",
         "python",
         "regex",
         "toml",
