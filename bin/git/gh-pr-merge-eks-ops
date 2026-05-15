@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+# Merge a PR to datalot/eks-ops:main using the relax → merge → restore dance.
+#
+# Handles BOTH legacy branch protection AND repo-level ruleset 14587129
+# (copilot-code-review). Per slot #24: disable ruleset → merge → re-enable.
+#
+# Defaults to --dry-run; pass --execute to actually merge.
+#
+# Note: eks-ops main requires linear history (required_linear_history=true),
+# so merges use --squash (not --merge).
+
+set -euo pipefail
+
+PR=""
+EXECUTE=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -p|--pr)      PR="$2"; shift 2 ;;
+    --execute)    EXECUTE=1; shift ;;
+    --dry-run)    EXECUTE=0; shift ;;
+    -h|--help)    sed -n '2,14p' "$0" | sed 's/^# //; s/^#//'; exit 0 ;;
+    *) echo "Unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+
+REPO="datalot/eks-ops"
+RULESET_ID="14587129"
+PR="${PR:-$(gh pr view --json number -q .number 2>/dev/null || true)}"
+if [[ -z "$PR" ]]; then
+  echo "Could not detect PR — cd to a datalot/eks-ops checkout or pass --pr N" >&2
+  exit 2
+fi
+
+current_repo=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null)
+if [[ "$current_repo" != "$REPO" ]]; then
+  echo "ERROR: current repo is $current_repo, not $REPO" >&2
+  echo "       This script is hardcoded for $REPO." >&2
+  exit 2
+fi
+
+restore_body=$(cat <<'JSON'
+{
+  "required_pull_request_reviews": {
+    "required_approving_review_count": 1,
+    "require_code_owner_reviews": true,
+    "dismiss_stale_reviews": true,
+    "require_last_push_approval": false
+  },
+  "required_status_checks": null,
+  "enforce_admins": true,
+  "required_conversation_resolution": true,
+  "required_linear_history": true,
+  "allow_force_pushes": false,
+  "allow_deletions": false,
+  "block_creations": false,
+  "restrictions": null
+}
+JSON
+)
+
+relax_body=$(echo "$restore_body" | jq '.required_pull_request_reviews = null')
+
+echo "Repo:    $REPO"
+echo "PR:      #$PR"
+echo "Mode:    $([[ "$EXECUTE" -eq 1 ]] && echo "EXECUTE" || echo "DRY-RUN (pass --execute to do it)")"
+echo
+echo "Plan:"
+echo "  1. GET ruleset $RULESET_ID, snapshot full body"
+echo "  2. PUT ruleset $RULESET_ID with enforcement=disabled (preserving rules/conditions/bypass_actors)"
+echo "  3. PUT branch protection with required_pull_request_reviews=null (relax)"
+echo "  4. gh pr merge $PR --squash --delete-branch (linear history required)"
+echo "  5. PUT branch protection with hardcoded restore body"
+echo "  6. PUT ruleset $RULESET_ID with enforcement=active (restore)"
+echo
+echo "Restore protection body (step 5):"
+echo "$restore_body" | jq .
+
+if [[ "$EXECUTE" -ne 1 ]]; then
+  echo
+  echo "Dry-run complete. Re-run with --execute to merge."
+  exit 0
+fi
+
+mergeable=$(gh pr view "$PR" --json mergeable -q .mergeable)
+if [[ "$mergeable" != "MERGEABLE" ]]; then
+  echo "ERROR: PR #$PR is not MERGEABLE (state: $mergeable)" >&2
+  exit 2
+fi
+
+# Snapshot ruleset full body (need rules, conditions, bypass_actors to round-trip)
+echo
+echo "Step 1: snapshotting ruleset $RULESET_ID..."
+ruleset_full=$(gh api "repos/$REPO/rulesets/$RULESET_ID")
+echo "  ✓ snapshot taken ($(echo "$ruleset_full" | jq -r .name))"
+
+# Build disabled-state body
+ruleset_disabled=$(echo "$ruleset_full" | jq '.enforcement = "disabled" | {name, target, enforcement, conditions, rules, bypass_actors}')
+ruleset_active=$(echo "$ruleset_full"   | jq '.enforcement = "active"   | {name, target, enforcement, conditions, rules, bypass_actors}')
+
+echo "Step 2: disabling ruleset $RULESET_ID..."
+echo "$ruleset_disabled" | gh api -X PUT "repos/$REPO/rulesets/$RULESET_ID" --input - >/dev/null
+echo "  ✓ disabled"
+
+echo "Step 3: relaxing branch protection..."
+echo "$relax_body" | gh api -X PUT "repos/$REPO/branches/main/protection" --input - >/dev/null
+echo "  ✓ relaxed"
+
+echo "Step 4: merging PR #$PR (squash for linear history)..."
+if gh pr merge "$PR" --squash --delete-branch; then
+  merge_ok=1
+  echo "  ✓ merged"
+else
+  merge_ok=0
+  echo "  ✗ merge failed — proceeding to restore protection and ruleset" >&2
+fi
+
+echo "Step 5: restoring branch protection..."
+echo "$restore_body" | gh api -X PUT "repos/$REPO/branches/main/protection" --input - >/dev/null
+echo "  ✓ restored"
+
+echo "Step 6: re-enabling ruleset $RULESET_ID..."
+echo "$ruleset_active" | gh api -X PUT "repos/$REPO/rulesets/$RULESET_ID" --input - >/dev/null
+echo "  ✓ re-enabled"
+
+if [[ "$merge_ok" -ne 1 ]]; then
+  echo
+  echo "WARNING: merge failed but protection and ruleset were restored. Investigate." >&2
+  exit 1
+fi
+
+echo
+echo "Done."

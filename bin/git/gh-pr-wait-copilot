@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
-# Poll a GitHub PR for a Copilot review to complete.
+# Poll a GitHub PR for a Copilot review to complete, then print summary.
+#
 # Done = latest Copilot review submittedAt > last commit committedDate.
 #
-# Usage: gh-pr-wait-copilot [PR_NUMBER]
-#   cd to the PR's repo first, or pass the PR number explicitly.
+# Usage:
+#   gh-pr-wait-copilot [PR_NUMBER]
+#     cd to the PR's repo first, or pass the PR number explicitly.
 #
 # Exit codes:
-#   0 = Copilot review completed after the last commit
+#   0 = Copilot done, state is APPROVED or COMMENTED (safe to proceed)
 #   1 = timed out after 10 minutes
 #   2 = couldn't read PR (wrong repo, no commits, etc.)
+#   3 = Copilot returned CHANGES_REQUESTED (blocks merge — review findings)
 
 set -euo pipefail
 
@@ -18,23 +21,55 @@ if [[ -z "$pr" ]]; then
   exit 2
 fi
 
+repo=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)
 last_commit=$(gh pr view "$pr" --json commits -q '.commits[-1].committedDate' 2>/dev/null || true)
 if [[ -z "$last_commit" ]]; then
   echo "Could not read PR #$pr — wrong repo, or no commits yet?" >&2
   exit 2
 fi
 
-echo "PR #$pr | last commit: $last_commit | polling Copilot (up to 10min)..."
+echo "Repo: $repo | PR #$pr | last commit: $last_commit"
+echo "Polling Copilot (up to 10min)..."
 
 for i in $(seq 1 40); do
   r=$(gh pr view "$pr" --json reviews \
     -q '[.reviews[] | select(.author.login | test("copilot"; "i"))] | sort_by(.submittedAt) | last.submittedAt // empty' 2>/dev/null || true)
 
   if [[ -n "$r" && "$r" > "$last_commit" ]]; then
+    state=$(gh pr view "$pr" --json reviews \
+      -q '[.reviews[] | select(.author.login | test("copilot"; "i"))] | sort_by(.submittedAt) | last.state' 2>/dev/null || true)
+    body=$(gh pr view "$pr" --json reviews \
+      -q '[.reviews[] | select(.author.login | test("copilot"; "i"))] | sort_by(.submittedAt) | last.body // ""' 2>/dev/null || true)
+
+    echo
     echo "✓ Copilot review done at $r (after $((i*15))s)"
-    gh pr view "$pr" --json reviews \
-      -q '.reviews[] | select(.author.login | test("copilot"; "i")) | "\(.submittedAt) [\(.state)]"' | tail -3
-    exit 0
+    echo "STATE: $state"
+    echo
+
+    # Line-anchored comments count (and content if any)
+    comment_count=$(gh api "repos/$repo/pulls/$pr/comments" \
+      --jq '[.[] | select(.user.login | test("copilot"; "i"))] | length' 2>/dev/null || echo 0)
+
+    if [[ "$comment_count" -gt 0 ]]; then
+      echo "=== $comment_count line-anchored comment(s) ==="
+      gh api "repos/$repo/pulls/$pr/comments" \
+        --jq '.[] | select(.user.login | test("copilot"; "i")) | "[\(.path):\(.line)]\n\(.body)\n---"' 2>/dev/null
+    else
+      echo "=== No line-anchored comments ==="
+    fi
+
+    if [[ -n "$body" && "$body" != "null" ]]; then
+      echo
+      echo "=== Review body (first 800 chars) ==="
+      printf '%s\n' "$body" | head -c 800
+      echo
+    fi
+
+    case "$state" in
+      APPROVED|COMMENTED) exit 0 ;;
+      CHANGES_REQUESTED)  echo "→ exit 3 (CHANGES_REQUESTED blocks merge)"; exit 3 ;;
+      *)                  echo "→ exit 0 (unknown state $state, treating as non-blocking)"; exit 0 ;;
+    esac
   fi
 
   if (( i % 5 == 0 )); then

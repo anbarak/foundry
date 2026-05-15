@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+# Reply to and resolve a Copilot review thread on the current PR.
+#
+# Usage:
+#   gh-pr-resolve-thread                   # list unresolved threads
+#   gh-pr-resolve-thread -n 2 -m "Fixed in 3a86d2b"
+#   gh-pr-resolve-thread --thread-id PRT_xxx -m "Fixed"
+#   gh-pr-resolve-thread -n 2 --no-reply   # silent resolve (rare; document why)
+#
+# Defaults: requires a reply message (use --no-reply to skip).
+# Identification: --finding-number N (1-indexed, among unresolved Copilot
+# threads, sorted by file path then position). --thread-id is the escape
+# hatch for explicit cases.
+
+set -euo pipefail
+
+PR=""
+THREAD_ID=""
+FINDING_NUM=""
+MESSAGE=""
+NO_REPLY=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -n|--finding-number) FINDING_NUM="$2"; shift 2 ;;
+    --thread-id)         THREAD_ID="$2"; shift 2 ;;
+    -m|--message)        MESSAGE="$2"; shift 2 ;;
+    --no-reply)          NO_REPLY=1; shift ;;
+    -p|--pr)             PR="$2"; shift 2 ;;
+    -h|--help)
+      sed -n '2,15p' "$0" | sed 's/^# //; s/^#//'; exit 0 ;;
+    *) echo "Unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+
+PR="${PR:-$(gh pr view --json number -q .number 2>/dev/null || true)}"
+if [[ -z "$PR" ]]; then
+  echo "Could not detect PR number — cd to the repo first, or pass --pr N" >&2
+  exit 2
+fi
+
+repo=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null)
+owner="${repo%/*}"
+name="${repo#*/}"
+
+# Fetch unresolved Copilot threads (sorted by path then position)
+threads_json=$(gh api graphql -f query='
+{
+  repository(owner: "'"$owner"'", name: "'"$name"'") {
+    pullRequest(number: '"$PR"') {
+      reviewThreads(first: 50) {
+        nodes {
+          id
+          isResolved
+          path
+          line
+          comments(first: 1) {
+            nodes { author { login } body }
+          }
+        }
+      }
+    }
+  }
+}' --jq '[.data.repository.pullRequest.reviewThreads.nodes[]
+  | select(.isResolved == false)
+  | select((.comments.nodes[0].author.login // "") | test("copilot"; "i"))]
+  | sort_by(.path, .line // 0)')
+
+count=$(echo "$threads_json" | jq 'length')
+
+# No identifier → list mode
+if [[ -z "$FINDING_NUM" && -z "$THREAD_ID" ]]; then
+  if [[ "$count" -eq 0 ]]; then
+    echo "No unresolved Copilot threads on PR #$PR."
+    exit 0
+  fi
+  echo "$count unresolved Copilot thread(s) on PR #$PR:"
+  echo "$threads_json" | jq -r 'to_entries[] | "[\(.key + 1)] \(.value.path):\(.value.line // "?")\n    \((.value.comments.nodes[0].body // "") | gsub("\n"; " ") | .[:140])\n"'
+  echo "Resolve: gh-pr-resolve-thread -n <N> -m '<message>'"
+  exit 0
+fi
+
+# Resolve by finding number
+if [[ -n "$FINDING_NUM" ]]; then
+  if ! [[ "$FINDING_NUM" =~ ^[0-9]+$ ]] || [[ "$FINDING_NUM" -lt 1 ]] || [[ "$FINDING_NUM" -gt "$count" ]]; then
+    echo "Invalid --finding-number $FINDING_NUM (have $count unresolved threads)" >&2
+    exit 2
+  fi
+  idx=$((FINDING_NUM - 1))
+  THREAD_ID=$(echo "$threads_json" | jq -r ".[$idx].id")
+  path=$(echo "$threads_json" | jq -r ".[$idx].path")
+  line=$(echo "$threads_json" | jq -r ".[$idx].line // \"?\"")
+  body=$(echo "$threads_json" | jq -r ".[$idx].comments.nodes[0].body")
+  echo "Target: [$path:$line]"
+  echo "  $(echo "$body" | head -c 200)..."
+  echo
+fi
+
+# Require reply unless --no-reply
+if [[ -z "$MESSAGE" && "$NO_REPLY" -eq 0 ]]; then
+  echo "Reply message required. Use -m '<message>' or --no-reply." >&2
+  exit 2
+fi
+
+# Add reply if provided
+if [[ -n "$MESSAGE" ]]; then
+  # We need the latest comment ID in the thread to reply via REST replies API
+  # (GraphQL addPullRequestReviewThreadReply is also valid; using REST for simplicity)
+  comment_id=$(gh api graphql -f query='
+{
+  node(id: "'"$THREAD_ID"'") {
+    ... on PullRequestReviewThread {
+      comments(last: 1) { nodes { databaseId } }
+    }
+  }
+}' --jq '.data.node.comments.nodes[0].databaseId')
+
+  if [[ -z "$comment_id" || "$comment_id" == "null" ]]; then
+    echo "Could not get comment_id for thread $THREAD_ID" >&2
+    exit 2
+  fi
+
+  gh api -X POST "repos/$repo/pulls/$PR/comments/$comment_id/replies" \
+    -f body="$MESSAGE" --jq '.html_url' >/dev/null
+  echo "✓ Replied"
+fi
+
+# Resolve the thread
+gh api graphql -f query='
+mutation { resolveReviewThread(input: {threadId: "'"$THREAD_ID"'"}) { thread { id isResolved } } }' \
+  --jq '.data.resolveReviewThread.thread | "✓ Resolved (\(.id))"'

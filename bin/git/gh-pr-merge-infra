@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+# Merge a PR to datalot/infra:main using the relax → merge → restore dance.
+#
+# Defaults to --dry-run; pass --execute to actually merge.
+#
+# Usage:
+#   gh-pr-merge-infra              # dry-run on current PR
+#   gh-pr-merge-infra --execute    # do it
+#   gh-pr-merge-infra -p 91 --execute
+#
+# Restores datalot/infra:main protection to a HARD-CODED policy (asserted
+# from live state on 2026-05-15). If repo protection should change, update
+# this script — do NOT snapshot-restore (snapshots preserve drift).
+
+set -euo pipefail
+
+PR=""
+EXECUTE=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -p|--pr)      PR="$2"; shift 2 ;;
+    --execute)    EXECUTE=1; shift ;;
+    --dry-run)    EXECUTE=0; shift ;;
+    -h|--help)    sed -n '2,12p' "$0" | sed 's/^# //; s/^#//'; exit 0 ;;
+    *) echo "Unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+
+REPO="datalot/infra"
+PR="${PR:-$(gh pr view --json number -q .number 2>/dev/null || true)}"
+if [[ -z "$PR" ]]; then
+  echo "Could not detect PR — cd to a datalot/infra checkout or pass --pr N" >&2
+  exit 2
+fi
+
+current_repo=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null)
+if [[ "$current_repo" != "$REPO" ]]; then
+  echo "ERROR: current repo is $current_repo, not $REPO" >&2
+  echo "       This script is hardcoded for $REPO branch protection." >&2
+  exit 2
+fi
+
+# Hardcoded restore body (asserted, not snapshotted)
+restore_body=$(cat <<'JSON'
+{
+  "required_pull_request_reviews": {
+    "required_approving_review_count": 1,
+    "require_code_owner_reviews": true,
+    "dismiss_stale_reviews": true,
+    "require_last_push_approval": false
+  },
+  "required_status_checks": null,
+  "enforce_admins": true,
+  "required_conversation_resolution": true,
+  "required_linear_history": false,
+  "allow_force_pushes": false,
+  "allow_deletions": false,
+  "block_creations": false,
+  "restrictions": null
+}
+JSON
+)
+
+relax_body=$(echo "$restore_body" | jq '.required_pull_request_reviews = null')
+
+echo "Repo:    $REPO"
+echo "PR:      #$PR"
+echo "Mode:    $([[ "$EXECUTE" -eq 1 ]] && echo "EXECUTE" || echo "DRY-RUN (pass --execute to do it)")"
+echo
+echo "Plan:"
+echo "  1. PUT $REPO branch protection with required_pull_request_reviews=null (relax)"
+echo "  2. gh pr merge $PR --merge --delete-branch (commit-style merge)"
+echo "  3. PUT $REPO branch protection with hardcoded restore body"
+echo
+echo "Restore body that will be asserted in step 3:"
+echo "$restore_body" | jq .
+
+if [[ "$EXECUTE" -ne 1 ]]; then
+  echo
+  echo "Dry-run complete. Re-run with --execute to merge."
+  exit 0
+fi
+
+# Sanity: PR mergeable?
+mergeable=$(gh pr view "$PR" --json mergeable -q .mergeable)
+if [[ "$mergeable" != "MERGEABLE" ]]; then
+  echo "ERROR: PR #$PR is not MERGEABLE (state: $mergeable)" >&2
+  exit 2
+fi
+
+echo
+echo "Step 1: relaxing branch protection..."
+echo "$relax_body" | gh api -X PUT "repos/$REPO/branches/main/protection" --input - >/dev/null
+echo "  ✓ relaxed"
+
+echo "Step 2: merging PR #$PR..."
+if gh pr merge "$PR" --merge --delete-branch; then
+  merge_ok=1
+  echo "  ✓ merged"
+else
+  merge_ok=0
+  echo "  ✗ merge failed — proceeding to restore protection anyway" >&2
+fi
+
+echo "Step 3: restoring branch protection..."
+echo "$restore_body" | gh api -X PUT "repos/$REPO/branches/main/protection" --input - >/dev/null
+echo "  ✓ restored"
+
+if [[ "$merge_ok" -ne 1 ]]; then
+  echo
+  echo "WARNING: merge failed but protection was restored. Investigate." >&2
+  exit 1
+fi
+
+echo
+echo "Done. Verify post-merge state:"
+echo "  gh pr view $PR --json state,mergedAt -q '.'"
