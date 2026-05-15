@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Poll a GitHub PR for a Copilot review to complete.
+# Done = latest Copilot review submittedAt > last commit committedDate.
+#
+# Usage: gh-pr-wait-copilot [PR_NUMBER]
+#   cd to the PR's repo first, or pass the PR number explicitly.
+#
+# Exit codes:
+#   0 = Copilot review completed after the last commit
+#   1 = timed out after 10 minutes
+#   2 = couldn't read PR (wrong repo, no commits, etc.)
+
+set -euo pipefail
+
+pr="${1:-$(gh pr view --json number -q .number 2>/dev/null || true)}"
+if [[ -z "$pr" ]]; then
+  echo "Usage: gh-pr-wait-copilot [PR_NUMBER]  (cd to repo first, or pass number)" >&2
+  exit 2
+fi
+
+last_commit=$(gh pr view "$pr" --json commits -q '.commits[-1].committedDate' 2>/dev/null || true)
+if [[ -z "$last_commit" ]]; then
+  echo "Could not read PR #$pr — wrong repo, or no commits yet?" >&2
+  exit 2
+fi
+
+echo "PR #$pr | last commit: $last_commit | polling Copilot (up to 10min)..."
+
+for i in $(seq 1 40); do
+  r=$(gh pr view "$pr" --json reviews \
+    -q '[.reviews[] | select(.author.login | test("copilot"; "i"))] | sort_by(.submittedAt) | last.submittedAt // empty' 2>/dev/null || true)
+
+  if [[ -n "$r" && "$r" > "$last_commit" ]]; then
+    echo "✓ Copilot review done at $r (after $((i*15))s)"
+    gh pr view "$pr" --json reviews \
+      -q '.reviews[] | select(.author.login | test("copilot"; "i")) | "\(.submittedAt) [\(.state)]"' | tail -3
+    exit 0
+  fi
+
+  if (( i % 5 == 0 )); then
+    printf "  ...still polling (%ds elapsed)\n" $((i*15))
+  fi
+
+  sleep 15
+done
+
+echo "✗ Timed out after 600s — review may still be in progress, check manually" >&2
+exit 1
