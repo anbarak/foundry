@@ -9,14 +9,10 @@ mouse_mode true
 copy_command "pbcopy"
 copy_on_select true
 scroll_buffer_size 100000
-
-// Stay in current dir when opening new panes/tabs
-default_cwd "/Users/haarabi"
 pane_frames true
 
 // ─── Visuals ────────────────────────────────────────────────────────────────
 theme "gruvbox-dark"
-simplified_ui false
 ui {
     pane_frames {
         rounded_corners true
