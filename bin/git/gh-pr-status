@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+# Print the full merge-gate state for a GitHub PR.
+#
+# Surfaces: mergeable state, base-branch sync, status checks, Copilot
+# review state, approvals, unresolved threads. Exits non-zero if ANY
+# gate is failing (use in pipelines: gh-pr-status && gh-pr-merge-infra).
+#
+# Usage:
+#   gh-pr-status               # current PR in current repo
+#   gh-pr-status -p 91         # explicit PR number
+#   gh-pr-status --quiet       # just exit code, no output
+#
+# Exit codes:
+#   0 = all gates pass, PR is mergeable
+#   1 = one or more gates failing
+#   2 = can't read PR
+
+set -euo pipefail
+
+PR=""
+QUIET=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -p|--pr)    PR="$2"; shift 2 ;;
+    -q|--quiet) QUIET=1; shift ;;
+    -h|--help)  sed -n '2,15p' "$0" | sed 's/^# //; s/^#//'; exit 0 ;;
+    *) echo "Unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+
+PR="${PR:-$(gh pr view --json number -q .number 2>/dev/null || true)}"
+if [[ -z "$PR" ]]; then
+  echo "Could not detect PR — cd to repo first or pass --pr N" >&2
+  exit 2
+fi
+
+repo=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null)
+if [[ -z "$repo" ]]; then
+  echo "Could not detect repo" >&2
+  exit 2
+fi
+
+# Fetch everything in one call to minimize API trips
+data=$(gh pr view "$PR" --json \
+  number,title,headRefName,baseRefName,state,mergeable,mergeStateStatus,isDraft,reviewDecision,statusCheckRollup,reviews,commits,reviewRequests \
+  2>/dev/null) || { echo "Could not read PR #$PR" >&2; exit 2; }
+
+# Parse top-level state
+title=$(echo "$data" | jq -r .title)
+head=$(echo "$data" | jq -r .headRefName)
+base=$(echo "$data" | jq -r .baseRefName)
+state=$(echo "$data" | jq -r .state)
+mergeable=$(echo "$data" | jq -r .mergeable)
+mergeStateStatus=$(echo "$data" | jq -r .mergeStateStatus)
+isDraft=$(echo "$data" | jq -r .isDraft)
+reviewDecision=$(echo "$data" | jq -r .reviewDecision)
+last_commit=$(echo "$data" | jq -r '.commits[-1].oid[0:7]')
+last_commit_time=$(echo "$data" | jq -r '.commits[-1].committedDate')
+
+# Initialize gate-pass tracker (any gate failing → exit 1)
+fail=0
+
+if [[ "$QUIET" -ne 1 ]]; then
+  echo "PR $repo#$PR ($head → $base)"
+  echo "  $title"
+  echo
+fi
+
+# Helper to print a gate line and track failures
+gate() {
+  local symbol="$1" label="$2" detail="$3" is_fail="$4"
+  if [[ "$is_fail" -eq 1 ]]; then fail=1; fi
+  if [[ "$QUIET" -ne 1 ]]; then
+    printf "  %s %-26s %s\n" "$symbol" "$label" "$detail"
+  fi
+}
+
+# Gate 1: PR state
+case "$state" in
+  OPEN)   gate "✓" "PR state:"        "$state" 0 ;;
+  MERGED) gate "○" "PR state:"        "$state (already merged)" 0 ;;
+  CLOSED) gate "✗" "PR state:"        "$state" 1 ;;
+esac
+
+# Gate 2: Draft
+if [[ "$isDraft" == "true" ]]; then
+  gate "✗" "Draft:"                  "yes (cannot merge while draft)" 1
+fi
+
+# Gate 3: Mergeable (GitHub's calculated state)
+case "$mergeable" in
+  MERGEABLE)
+    gate "✓" "Mergeable:"             "$mergeable / $mergeStateStatus" 0 ;;
+  CONFLICTING)
+    gate "✗" "Mergeable:"             "$mergeable (resolve conflicts)" 1 ;;
+  UNKNOWN)
+    gate "○" "Mergeable:"             "$mergeable (GitHub recomputing)" 0 ;;
+  *)
+    gate "✗" "Mergeable:"             "$mergeable / $mergeStateStatus" 1 ;;
+esac
+
+# Gate 4: Base branch sync (BEHIND or DIRTY in mergeStateStatus)
+case "$mergeStateStatus" in
+  BEHIND)   gate "✗" "Up to date with base:" "no — rebase or merge $base in" 1 ;;
+  DIRTY)    gate "✗" "Up to date with base:" "no (DIRTY)" 1 ;;
+  CLEAN|UNSTABLE|HAS_HOOKS|BLOCKED)
+            gate "✓" "Up to date with base:" "yes" 0 ;;
+  *)        gate "○" "Up to date with base:" "$mergeStateStatus" 0 ;;
+esac
+
+# Gate 5: Status checks
+checks_json=$(echo "$data" | jq -c '.statusCheckRollup // []')
+total=$(echo "$checks_json" | jq 'length')
+
+if [[ "$total" -eq 0 ]]; then
+  gate "○" "Status checks:"          "none configured" 0
+else
+  # Each check has either .conclusion (completed) or .status (in flight)
+  failing=$(echo "$checks_json" | jq '[.[] | select(.conclusion // "" | test("FAILURE|CANCELLED|TIMED_OUT|ACTION_REQUIRED|STALE"; "i"))] | length')
+  pending=$(echo "$checks_json" | jq '[.[] | select(.status // "" | test("IN_PROGRESS|QUEUED|PENDING|WAITING"; "i")) | select(.conclusion == null or .conclusion == "")] | length')
+  passing=$(echo "$checks_json" | jq '[.[] | select(.conclusion // "" | test("SUCCESS|NEUTRAL|SKIPPED"; "i"))] | length')
+
+  if [[ "$failing" -gt 0 ]]; then
+    gate "✗" "Status checks:"        "$failing failing, $pending pending, $passing passing (of $total)" 1
+    if [[ "$QUIET" -ne 1 ]]; then
+      echo "$checks_json" | jq -r '.[] | select(.conclusion // "" | test("FAILURE|CANCELLED|TIMED_OUT|ACTION_REQUIRED|STALE"; "i")) | "      ✗ \(.name // .context // "?")  \(.detailsUrl // .targetUrl // "")"'
+    fi
+  elif [[ "$pending" -gt 0 ]]; then
+    gate "○" "Status checks:"        "$pending pending, $passing passing (of $total)" 0
+  else
+    gate "✓" "Status checks:"        "$passing passing (of $total)" 0
+  fi
+fi
+
+# Gate 6: Copilot review state vs last commit
+copilot_state=$(echo "$data" | jq -r '[.reviews[] | select(.author.login | test("copilot"; "i"))] | sort_by(.submittedAt) | last.state // "NONE"')
+copilot_time=$(echo "$data" | jq -r '[.reviews[] | select(.author.login | test("copilot"; "i"))] | sort_by(.submittedAt) | last.submittedAt // ""')
+
+if [[ -z "$copilot_time" || "$copilot_state" == "NONE" ]]; then
+  gate "○" "Copilot review:"          "no review yet" 0
+elif [[ "$copilot_time" < "$last_commit_time" ]]; then
+  gate "○" "Copilot review:"          "STALE ($copilot_state @ $copilot_time, before commit $last_commit @ $last_commit_time)" 0
+else
+  case "$copilot_state" in
+    APPROVED|COMMENTED)  gate "✓" "Copilot review:"  "$copilot_state @ $copilot_time" 0 ;;
+    CHANGES_REQUESTED)   gate "✗" "Copilot review:"  "$copilot_state @ $copilot_time" 1 ;;
+    *)                   gate "○" "Copilot review:"  "$copilot_state @ $copilot_time" 0 ;;
+  esac
+fi
+
+# Gate 7: Review decision (approvals)
+case "$reviewDecision" in
+  APPROVED)          gate "✓" "Approvals:"            "$reviewDecision" 0 ;;
+  REVIEW_REQUIRED)   gate "✗" "Approvals:"            "$reviewDecision (need approving review)" 1 ;;
+  CHANGES_REQUESTED) gate "✗" "Approvals:"            "$reviewDecision" 1 ;;
+  "")                gate "○" "Approvals:"            "none required" 0 ;;
+  *)                 gate "○" "Approvals:"            "$reviewDecision" 0 ;;
+esac
+
+# Gate 8: Unresolved threads (separate API call — not in pr view JSON)
+threads=$(gh api graphql -f query='
+{
+  repository(owner: "'"${repo%/*}"'", name: "'"${repo#*/}"'") {
+    pullRequest(number: '"$PR"') {
+      reviewThreads(first: 50) {
+        nodes { isResolved }
+      }
+    }
+  }
+}' --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' 2>/dev/null || echo "?")
+
+if [[ "$threads" == "?" ]]; then
+  gate "○" "Unresolved threads:"     "could not query" 0
+elif [[ "$threads" -gt 0 ]]; then
+  gate "✗" "Unresolved threads:"     "$threads (use gh-pr-resolve-thread)" 1
+else
+  gate "✓" "Unresolved threads:"     "0" 0
+fi
+
+# Final verdict
+if [[ "$QUIET" -ne 1 ]]; then
+  echo
+  if [[ "$fail" -eq 0 ]]; then
+    echo "  → READY TO MERGE"
+  else
+    echo "  → NOT MERGEABLE (one or more gates failing)"
+  fi
+fi
+
+exit "$fail"
