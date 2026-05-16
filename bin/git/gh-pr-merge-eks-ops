@@ -87,6 +87,31 @@ if [[ "$mergeable" != "MERGEABLE" ]]; then
   exit 2
 fi
 
+# Pre-flight: refuse to start the relax-merge-restore dance if any review
+# thread is unresolved. main has required_conversation_resolution=true, which
+# blocks the merge regardless of the protection relax -- so proceeding would
+# only relax protection, fail at step 4, and restore: a pointless toggle
+# window. Fail closed BEFORE touching any protection. (Root cause of the
+# PR #232/#233 merge failures: unresolved Copilot threads, not rule
+# propagation.) This guard DETECTS and refuses; it deliberately does NOT
+# auto-resolve threads -- resolving a thread asserts a human checked the
+# finding, which is a SOC 2 CC8.1 change-control the script must not fake.
+unresolved=$(gh api graphql -f query='
+{
+  repository(owner: "datalot", name: "eks-ops") {
+    pullRequest(number: '"$PR"') {
+      reviewThreads(first: 100) { nodes { isResolved } }
+    }
+  }
+}' --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+if [[ "$unresolved" -gt 0 ]]; then
+  echo "ERROR: PR #$PR has $unresolved unresolved review thread(s)." >&2
+  echo "       main requires all conversations resolved before merge." >&2
+  echo "       Resolve them (GitHub UI, or gh api graphql resolveReviewThread)," >&2
+  echo "       then re-run. Branch protection was NOT touched." >&2
+  exit 2
+fi
+
 # Snapshot ruleset full body (need rules, conditions, bypass_actors to round-trip)
 echo
 echo "Step 1: snapshotting ruleset $RULESET_ID..."
